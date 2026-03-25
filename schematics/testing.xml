@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schematic>
+  <tiles>
+    <!-- Variation board: wires (all rotations) -->
+    <tile type="wire" x="-3" y="-6" rotation="0" />
+    <tile type="wire" x="-1" y="-6" rotation="90" />
+    <tile type="wire" x="1" y="-6" rotation="180" />
+    <tile type="wire" x="3" y="-6" rotation="270" />
+
+    <!-- Variation board: half-wires (all rotations) -->
+    <tile type="half-wire" x="-3" y="-4" rotation="0" />
+    <tile type="half-wire" x="-1" y="-4" rotation="90" />
+    <tile type="half-wire" x="1" y="-4" rotation="180" />
+    <tile type="half-wire" x="3" y="-4" rotation="270" />
+
+    <!-- Variation board: resistors (all rotations) -->
+    <tile type="resistor" id="R A" x="-3" y="-2" rotation="0" resistance="1" />
+    <tile type="resistor" id="R B" x="-1" y="-2" rotation="90" resistance="2" />
+    <tile type="resistor" id="R C" x="1" y="-2" rotation="180" resistance="3" />
+    <tile type="resistor" id="R D" x="3" y="-2" rotation="270" resistance="4" />
+
+    <!-- Variation board: capacitors (all rotations) -->
+    <tile type="capacitor" id="C A" x="-3" y="0" rotation="0" />
+    <tile type="capacitor" id="C B" x="-1" y="0" rotation="90" />
+    <tile type="capacitor" id="C C" x="1" y="0" rotation="180" />
+    <tile type="capacitor" id="C D" x="3" y="0" rotation="270" />
+
+    <!-- Variation board: voltage sources (all rotations) -->
+    <tile type="voltage-source" id="U A" x="-3" y="2" rotation="0" voltage="5" />
+    <tile type="voltage-source" id="U B" x="-1" y="2" rotation="90" voltage="9" />
+    <tile type="voltage-source" id="U C" x="1" y="2" rotation="180" voltage="12" />
+    <tile type="voltage-source" id="U D" x="3" y="2" rotation="270" voltage="24" />
+
+    <!-- Variation board: current sources (all rotations) -->
+    <tile type="amperage-source" id="I A" x="-3" y="4" rotation="0" amperage="0.5" />
+    <tile type="amperage-source" id="I B" x="-1" y="4" rotation="90" amperage="1" />
+    <tile type="amperage-source" id="I C" x="1" y="4" rotation="180" amperage="1.5" />
+    <tile type="amperage-source" id="I D" x="3" y="4" rotation="270" amperage="2" />
+
+    <!-- Variation board: node markers and branch examples -->
+    <tile type="terminal" x="-3" y="6" />
+    <tile type="dot" x="-1" y="6" />
+    <tile type="half-wire" x="1" y="6" rotation="0" />
+    <tile type="half-wire" x="1" y="6" rotation="90" />
+    <tile type="half-wire" x="1" y="6" rotation="180" />
+    <tile type="dot" x="1" y="6" />
+    <tile type="half-wire" x="3" y="6" rotation="180" />
+    <tile type="half-wire" x="3" y="6" rotation="270" />
+  </tiles>
+</schematic>

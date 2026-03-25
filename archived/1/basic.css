@@ -1,0 +1,38 @@
+:root {
+    --theme-color: white;
+    --theme-color-2: green;
+    --contrast-color: black;
+}
+
+html {
+
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    
+    color: var(--theme-color);
+    font-family: "Roboto", sans-serif;
+    background: var(--contrast-color) url("/media/background.jpg");
+    background-size: cover;
+    background-position: center bottom;
+
+    overflow: hidden;
+}
+
+#container {
+    position: absolute;
+    top: 30px;
+    left: 45px;
+    width: calc(100vw - 90px);
+    height: calc(100vh - 60px);
+    box-sizing: border-box;
+
+    padding: 25px;
+
+    border: solid 1px var(--theme-color-2);
+    border-radius: 15px;
+    backdrop-filter: blur(1500px);
+    background-color: #0802;
+}

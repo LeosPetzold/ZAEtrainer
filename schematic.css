@@ -1,0 +1,183 @@
+:root {
+    --schematic-step: 36px;
+    --schematic-grid: #1a2230;
+    --schematic-grid-bold: #283244;
+    --schematic-wire: #d6dde8;
+    --schematic-node: #f5f8ff;
+    --schematic-label-bg: #131a26;
+    --schematic-label-text: #e7edf8;
+}
+
+#schematic {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: calc(100vw - var(--infobar-width) - var(--solvingbar-width));
+    height: calc(100vh - 55px);
+    padding: 18px;
+
+    box-sizing: border-box;
+    overflow: hidden;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent calc(var(--schematic-step) - 1px),
+            var(--schematic-grid) calc(var(--schematic-step) - 1px),
+            var(--schematic-grid) var(--schematic-step)
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent calc(var(--schematic-step) - 1px),
+            var(--schematic-grid) calc(var(--schematic-step) - 1px),
+            var(--schematic-grid) var(--schematic-step)
+        ),
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent calc((var(--schematic-step) * 4) - 1px),
+            var(--schematic-grid-bold) calc((var(--schematic-step) * 4) - 1px),
+            var(--schematic-grid-bold) calc(var(--schematic-step) * 4)
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent calc((var(--schematic-step) * 4) - 1px),
+            var(--schematic-grid-bold) calc((var(--schematic-step) * 4) - 1px),
+            var(--schematic-grid-bold) calc(var(--schematic-step) * 4)
+        );
+}
+
+#schematicViewport {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border: 1px solid var(--border-color);
+    background: linear-gradient(180deg, #0f1520 0%, #0c111a 100%);
+}
+
+#schematicSvg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    background-color: var(--contrast-color);
+}
+
+#schematicSvg .schematic-wire {
+    stroke: var(--schematic-wire);
+    stroke-width: 2.5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+#schematicSvg .schematic-element {
+    stroke: var(--theme-color);
+    stroke-width: 2;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+#schematicSvg .schematic-node {
+    fill: var(--schematic-node);
+    stroke: var(--contrast-color);
+    stroke-width: 1;
+}
+
+#schematicSvg .schematic-label {
+    font-family: monospace;
+    font-size: 16px;
+    fill: var(--schematic-label-text);
+}
+
+#schematicSvg .schematic-label-name {
+    font-weight: 700;
+}
+
+#schematicSvg .schematic-label-value {
+    font-weight: 400;
+}
+
+#schematicSvg .schematic-label-bg {
+    fill: var(--schematic-label-bg);
+    stroke: var(--border-color);
+    stroke-width: 1;
+    rx: 3;
+}
+
+.schematic-peripheral {
+    position: absolute;
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: var(--schematic-label-text);
+    background: var(--schematic-label-bg);
+    border: 1px solid var(--border-color);
+    padding: 4px 8px;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.schematic-tile {
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.schematic-tile image {
+    /* Keep source SVGs black for print, render white in browser only */
+    filter: invert(1);
+}
+
+.schematic-tile:hover image {
+    filter: invert(1) brightness(1.2);
+}
+
+/* Junction tiles render on top and "clear" the background */
+.tile-junction image,
+.tile-dot image {
+    filter: invert(1);
+}
+
+.tile-junction:hover image {
+    filter: invert(1) brightness(0.9);
+}
+
+.schematic-tile-label { 
+    font-family: unset;
+    font-size: 18px;
+    font-weight: 700;
+    
+    fill: var(--schematic-label-text);
+}
+
+@media print {
+    #schematic {
+        /*top: 30px;*/
+        bottom: 25px;
+        width: min(100%, calc(100% - var(--infobar-width) - var(--solvingbar-width) + 1px));
+        height: auto;
+        padding: 0 !important;
+
+        background: none !important;
+        border-left: solid 1px var(--border-color);
+    }
+
+    #schematicViewport {
+        height: 100% !important;
+        background: #fff !important;
+        border: none !important;
+        border-left: 1px solid var(--border-color) !important;
+    }
+
+    /* Keep print output as source black artwork (no screen filter in print) */
+    #schematicViewport image {
+        filter: none !important;
+    }
+
+    .schematic-tile-label {
+        fill: #000;
+    }
+}

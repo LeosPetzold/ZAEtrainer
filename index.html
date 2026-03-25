@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="UTF-8">
+        <link href="basic.css" rel="stylesheet">
+        <link href="schematic.css" rel="stylesheet">
+    </head>
+    <body>
+        <div id="topbar">
+            <noprint>
+                <span>
+                    <clickable id="instructionsButton" onclick="instructionsShow()">Zadání ▽</clickable>
+                    &emsp14;
+                </span>
+                <span>
+                    <clickable onclick="queryPrint();">Tisk 🖶</clickable>
+                    &emsp14;
+                    &emsp14;
+                </span>
+            </noprint>
+            <span>
+                <u id="presetName">Zatížený napěťový dělič</u>
+                 #<b id="presetSeed">1081</b>
+                    &emsp14;
+                    &emsp14;
+            </span>
+            <noprint>
+                    <span>
+                        <input type="checkbox" id="solvingbarButton" checked>
+                        <label for="solvingbarButton">Řešení</label>
+                        &emsp14;
+                    </span>
+                    <span>
+                        <input type="checkbox" id="infobarButton" checked>
+                        <label for="infobarButton">Informace</label>
+                    </span>
+            </noprint>
+                <span style="margin-left: auto;">
+                    <noprint><span id="timeIndicator"></span></noprint>
+                    <script>
+                        function updateTime() {
+                            const now = new Date();
+                            document.getElementById('timeIndicator').textContent = now.toLocaleTimeString();
+                        }
+                        updateTime();
+                        setInterval(updateTime, 1000);
+                    </script>
+                </span>
+        </div>
+
+        <div id="schematic">
+            <div id="schematicViewport">
+                <svg id="schematicSvg" viewBox="0 0 1200 800" aria-label="Schematic canvas" preserveAspectRatio="xMidYMid meet">
+                    <g id="schematicGridLayer"></g>
+                    <g id="schematicWireLayer"></g>
+                    <g id="schematicElementLayer"></g>
+                    <g id="schematicPeripheralLayer"></g>
+                    <g id="schematicNodeLayer"></g>
+                </svg>
+            </div>
+        </div>
+
+        <div id="instructions">
+            R<sub>1</sub> = <b>120</b> &ohm;
+            <br>
+            R<sub>2</sub> = <b>200</b> &ohm;
+         <br>-----<br>
+            I<sub>3</sub> = <b>?</b>
+        </div>
+
+        <div id="solvingbar">
+            <h3>Řešení</h3>
+            <separator/>
+        </div>
+        <div id="infobar">
+            <h3>Informace</h3>
+            <separator/>
+        </div>
+        <div id="solvingbarResizer" class="panel-resizer"></div>
+        <div id="infobarResizer" class="panel-resizer"></div>
+
+        <div id="bottombar">
+            <span>
+                <a href="https://zae.leonetwork.eu">
+                    zae.leonetwork.eu</a>
+                --
+                nástroj pro generaci a řešení příkladů ze základů elektrotechniky
+                &emsp14;&emsp14;&emsp14;
+            </span>
+            <span>
+                <b>© Leoš Petzold 2026</b>, student
+            </span>
+        </div>
+    </body>
+    <script src="jQuery.js"></script>
+    <script src="schematic-loader.js"></script>
+    <script>
+        const root = document.documentElement;
+
+        function getPxVar(name, fallback=0) {
+            const value = getComputedStyle(root).getPropertyValue(name).trim();
+            const parsed = parseInt(value, 10);
+            return Number.isFinite(parsed) ? parsed : fallback;
+        }
+        
+        function instructionsShow() {
+            var instructionsElement = $('#instructions')[0];
+            let hidden = instructionsElement.style.display === "none";
+            instructionsElement.style.display = hidden ? "initial" : "none";
+            $('#instructionsButton')[0].innerText = hidden ? "Zadání ▽" : "Zadání △";
+        }
+
+        let solvingbarCurrentWidth = getPxVar("--solvingbar-width");
+        $('#solvingbarButton').change(function() {
+            var solvingbarElement = $('#solvingbar')[0];
+            const checked = this.checked;
+
+            if (!checked) solvingbarCurrentWidth = getPxVar("--solvingbar-width");
+            
+            solvingbarElement.style = checked ? "" : "min-width: 0; padding: 0; display: none";
+            root.style.setProperty("--solvingbar-width", (checked ? solvingbarCurrentWidth : 0) + "px");
+
+            $('#solvingbarResizer')[0].style.display = checked ? "" : "none";
+        });
+        let infobarCurrentWidth = getPxVar("--infobar-width");
+        $('#infobarButton').change(function() {
+            var infobarElement = $('#infobar')[0];
+            const checked = this.checked;
+
+            if (!checked) infobarCurrentWidth = getPxVar("--infobar-width");
+            
+            infobarElement.style = checked ? "" : "min-width: 0; padding: 0; display: none";
+            root.style.setProperty("--infobar-width", (checked ? infobarCurrentWidth : 0) + "px");
+
+            $('#infobarResizer')[0].style.display = checked ? "" : "none";
+        });
+        function updateHidingBorders() {
+
+        }
+
+        function queryPrint() {
+            //////
+            print();
+            //////
+        }
+
+        (function () {
+            const minWidth = 150;
+
+            const clamp = (val, min, max) => Math.min(Math.max(val, min), max)
+
+            function setWidths(infobarWidth, solvingbarWidth, activePanel) {
+                const maxPanelWidth = Math.floor(window.innerWidth * 0.3);
+                let info = clamp(infobarWidth, minWidth, maxPanelWidth);
+                let solving = clamp(solvingbarWidth, minWidth, maxPanelWidth);
+                const totalMax = window.innerWidth - 120;
+
+                if (info + solving > totalMax) {
+                    if (activePanel === "infobar") {
+                        info = Math.max(minWidth, totalMax - solving);
+                    } else {
+                        solving = Math.max(minWidth, totalMax - info);
+                    }
+                }
+
+                root.style.setProperty("--infobar-width", info + "px");
+                root.style.setProperty("--solvingbar-width", solving + "px");
+            }
+
+            function startDrag(panel) {
+                function onMove(event) {
+                    const currentInfo = getPxVar("--infobar-width", 280);
+                    const currentSolving = getPxVar("--solvingbar-width", 280);
+
+                    if (panel === "infobar") {
+                        const newInfo = window.innerWidth - event.clientX;
+                        setWidths(newInfo, currentSolving, "infobar");
+                    } else {
+                        const newSolving = window.innerWidth - event.clientX - currentInfo;
+                        setWidths(currentInfo, newSolving, "solvingbar");
+                    }
+                }
+
+                function onUp() {
+                    document.removeEventListener("mousemove", onMove);
+                    document.removeEventListener("mouseup", onUp);
+                    document.body.style.cursor = "";
+                }
+
+                document.body.style.cursor = "ew-resize";
+                document.addEventListener("mousemove", onMove);
+                document.addEventListener("mouseup", onUp);
+            }
+
+            document.getElementById("infobarResizer").addEventListener("mousedown", function () {
+                startDrag("infobar");
+            });
+
+            document.getElementById("solvingbarResizer").addEventListener("mousedown", function () {
+                startDrag("solvingbar");
+            });
+
+            window.addEventListener("resize", function () {
+                setWidths(getPxVar("--infobar-width", 280), getPxVar("--solvingbar-width", 280), "solvingbar");
+            });
+        })();
+
+        // Initialize schematic loader
+        (function() {
+            const schematicSvg = document.getElementById("schematicSvg");
+            const schematicLoader = new SchematicLoader(schematicSvg);
+
+            // Load default schematic
+            schematicLoader.loadXML("schematics/testing.xml").then(() => {
+                const viewport = document.getElementById("schematicViewport");
+                schematicLoader.render(viewport.clientWidth, viewport.clientHeight);
+            });
+
+            // Re-render on viewport resize
+            window.addEventListener("resize", function() {
+                const viewport = document.getElementById("schematicViewport");
+                schematicLoader.render(viewport.clientWidth, viewport.clientHeight);
+            });
+
+            // Expose loader globally for debugging/control
+            window.schematicLoader = schematicLoader;
+        })();
+
+    </script>
+</html>

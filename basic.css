@@ -1,0 +1,239 @@
+:root {
+    --theme-color: whitesmoke;
+    --border-color: #30363d;
+    --background-color: #0d1117;
+    --contrast-color: #010409;
+    --infobar-width: 280px;
+    --solvingbar-width: 280px;
+}
+
+html {
+    user-select: none;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    
+    color: var(--theme-color);
+    font-family: "Roboto", sans-serif;
+    background: var(--contrast-color);
+    background-size: cover;
+    background-position: center bottom;
+
+    overflow: hidden;
+}
+
+#topbar, #bottombar {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    box-sizing: border-box;
+    padding-left: 20px; padding-right: 20px;
+
+    font-family: monospace;
+    line-height: 1;
+    
+    background: var(--background-color);
+}
+#topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    z-index: 2;
+
+    border-bottom: solid 1px var(--border-color);
+}
+#bottombar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 25px;
+
+    border-top: solid 1px var(--border-color);
+}
+#presetName {
+    font-style: italic;
+}
+#bottombar>span>a {
+    color: inherit
+}
+
+#solvingbar, #infobar {
+    min-width: 150px;
+    max-width: 80vw;
+    padding: 20px;
+
+    /*font-family: ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";*/
+    font-family: monospace;
+    
+    border-left: solid 1px var(--border-color);
+    background: var(--background-color);
+
+    box-sizing: border-box;
+    overflow: auto;
+}
+#solvingbar {
+    position: absolute;
+    top: 30px;
+    right: var(--infobar-width);
+    width: var(--solvingbar-width);
+    height: calc(100vh - 55px);
+}
+#infobar {
+    position: absolute;
+    top: 30px;
+    right: 0;
+    width: var(--infobar-width);
+    height: calc(100vh - 55px);
+}
+
+.panel-resizer {
+    position: absolute;
+    top: 30px;
+    width: 8px;
+    height: calc(100vh - 55px);
+    cursor: ew-resize;
+    z-index: 3;
+}
+#infobarResizer {
+    right: calc(var(--infobar-width) - 4px);
+}
+#solvingbarResizer {
+    right: calc(var(--infobar-width) + var(--solvingbar-width) - 4px);
+}
+
+#instructions {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: fit-content;
+
+    font-family: monospace;
+    font-size: 1.1em;
+    padding: 15px 25px;
+    padding-right: 45px;
+
+    border-bottom: solid 1px var(--border-color);
+    border-right: solid 1px var(--border-color);
+    background: var(--contrast-color);
+}
+
+sub {
+    color: inherit;
+}
+
+clickable {
+    cursor: pointer;
+}
+
+separator {
+    display: block;
+    width: 100%;
+    height: 1px;
+    border-bottom: solid 0.5px var(--border-color);
+    box-sizing: border-box;
+    /*padding-top: 3px;*/
+    padding-bottom: 3px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+    margin-bottom: 3px;
+}
+
+onlyprint {
+    display: none;
+}
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 5mm;
+        
+    }
+
+    /*html, body {
+        print-color-adjust: economy;
+        -webkit-print-color-adjust: economy;
+    }*/
+
+    :root {
+        --solvingbar-width: 80mm !important;
+        --infobar-width: 50mm !important;
+    }
+
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        overflow: visible;
+    }
+
+    noprint {
+        display: none !important;
+    }
+    onlyprint {
+        display: initial !important;
+    }
+    #instructions {
+        display: initial !important;
+        border-left: solid 1px var(--border-color);
+        border-right-style: dotted;
+        border-bottom-style: dotted;
+
+        padding: 10px 20px;
+        padding-right: 40px;
+    }
+
+    #topbar, #bottombar {
+        padding-left: 10px; padding-right: 10px;
+        border: solid 1px var(--border-color);
+
+        z-index: 2;
+    }
+    #topbar {
+        width: min(100%, calc(100% - var(--infobar-width) - var(--solvingbar-width) + 1px));
+    }
+
+    #solvingbar, #infobar {
+        /*top: 30px;*/ top: 0;
+        bottom: 25px;
+        height: auto;
+        padding: 10px 12px;
+
+        font-size: 0.92rem;
+        line-height: 1.25;
+
+        overflow: visible;
+
+        border-left-style: dotted;
+        border-top: solid 1px var(--border-color);
+    }
+    #infobar {
+        border-right: solid 1px var(--border-color);
+    }
+    #solvingbar h3, #infobar h3 {
+        margin-bottom: 2px;
+
+        font-size: 1rem;
+    }
+    #solvingbar separator, #infobar separator {
+        padding-bottom: 1px;
+    }
+}
