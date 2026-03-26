@@ -27,26 +27,34 @@
  *   - Example: half-wire at rot=90° + half-wire at rot=180° = L-shaped corner
  */
 
+let magnitudes = new Map();
+magnitudes.set(-15, "f");
+magnitudes.set(-12, "p");
+magnitudes.set(-9, "n");
+magnitudes.set(-6, "µ");
+magnitudes.set(-3, "m");
+magnitudes.set(0, "");
+magnitudes.set(3, "k");
+magnitudes.set(6, "M");
+magnitudes.set(9, "G");
+magnitudes.set(12, "T");
+magnitudes.set(15, "P");
+
+const tileSize = 20 * (96/25.4); // 20mm tiles on screen, // ! change approach here.
+
 class SchematicTile {
     constructor(type, x, y, rotation, data = {}) {
         this.type = type;
-        this.x = x; // center-origin coordinates
-        this.y = y;
-        this.rotation = rotation || 0; // 0, 90, 180, 270
-        this.data = data; // { name, value, unit }
+        this.x = x; // schematic center is origin
+        this.y = y - 1;
+        this.rotation = rotation || 0;
+        this.data = data;
         this.element = null;
     }
 
-    getTileSize() {
-        // Approximate 20mm in CSS px at 96dpi: 20 * 96 / 25.4
-        return 75.5905511811;
-    }
-
     render(container, centerX, centerY, scale = 1) {
-        const size = this.getTileSize() * scale;
+        const size = tileSize * scale;
         
-        // Position in screen space
-        // x, y are in tile units (1.0 = one tile width)
         const screenX = centerX + (this.x * size);
         const screenY = centerY + (this.y * size);
 
@@ -66,10 +74,8 @@ class SchematicTile {
         tileImage.setAttribute("height", size);
         group.appendChild(tileImage);
 
-console.log(this.data);
-
         // Add data label if present
-        if (this.data.id || this.data.voltage || this.data.amperage || this.data.resistance) {
+        if (this.data.id || this.data.voltage || this.data.amperage || this.data.resistance || this.data.capacity) {
 
             const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
             label.setAttribute("class", "schematic-tile-label");
@@ -85,10 +91,10 @@ console.log(this.data);
                 label.setAttribute("y", size / 2 + 14);
             switch (this.type) {
                 case "voltage-source":
-                    closeupOffset = 9;
+                    closeupOffset = 14;
                     break;
                 case "amperage-source":
-                    closeupOffset = 13;
+                    closeupOffset = 16;
                     break;
                 case "resistor":
                     doLines = this.rotation % 180 != 0; // ! Fix .svg!
@@ -96,7 +102,7 @@ console.log(this.data);
                     break;
                 case "capacitor":
                     doLines = this.rotation % 180 != 0; // ! Fix .svg!
-                    closeupOffset = 7;
+                    closeupOffset = 12;
                     break;
             }
 
@@ -132,7 +138,7 @@ console.log(this.data);
                     transformAttr += `rotate(${textRotation} ${cx} ${cy})`;
                 }
                 if (newLine) {
-                    const pom = 0.5*this.getTileSize();
+                    const pom = 0.5*tileSize;
                     transformAttr += ` translate(${textOffsetX + pom - closeupOffset} ${textOffsetY - pom})`;
                     label.setAttribute("dominant-baseline", "middle");
                     
@@ -150,6 +156,7 @@ console.log(this.data);
             if (this.data.voltage) addLine(this.data.voltage + "V");
             if (this.data.amperage) addLine(this.data.amperage + "A");
             if (this.data.resistance) addLine(this.data.resistance + "Ω");
+            if (this.data.capacity) addLine(this.data.capacity + "F");
 
             // Center multiline vertical text block around label y-anchor
             if (doLines && lineIndex > 1) {
@@ -220,9 +227,10 @@ class SchematicLoader {
 
                 const data = {
                     id: tileEl.getAttribute("id"),
-                    voltage: tileEl.getAttribute("voltage"),
-                    amperage: tileEl.getAttribute("amperage"),
-                    resistance: tileEl.getAttribute("resistance"),
+                    voltage: this.processInputUnits(tileEl.getAttribute("voltage")),
+                    amperage: this.processInputUnits(tileEl.getAttribute("amperage")),
+                    resistance: this.processInputUnits(tileEl.getAttribute("resistance")),
+                    capacity: this.processInputUnits(tileEl.getAttribute("capacity")),
                 };
 
                 const tile = new SchematicTile(type, x, y, rotation, data);
@@ -235,6 +243,25 @@ class SchematicLoader {
             console.error("Error loading XML:", error);
             return false;
         }
+    }
+
+    processInput(value) {
+        if (!value) return null;
+        const parts = value.split('e');
+        if (parts[1]) return parts[0]*(10**parts[1]);
+        else return parts[0];
+    } 
+    processInputUnits(value) {
+        if (!value) return null;
+        const parts = value.split('e');
+
+        const exp = parseInt(parts[1]) || 0;
+        const remainder = exp % 3;
+        const base = parseFloat(parts[0]) * (10 ** remainder);
+        const magnitude = exp - remainder;
+        const suffix = magnitudes.get(magnitude);
+
+        return base + suffix;
     }
 
     render(containerWidth, containerHeight) {

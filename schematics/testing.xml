@@ -20,16 +20,16 @@
     <tile type="resistor" id="R D" x="3" y="-2" rotation="270" resistance="4" />
 
     <!-- Variation board: capacitors (all rotations) -->
-    <tile type="capacitor" id="C A" x="-3" y="0" rotation="0" />
-    <tile type="capacitor" id="C B" x="-1" y="0" rotation="90" />
-    <tile type="capacitor" id="C C" x="1" y="0" rotation="180" />
-    <tile type="capacitor" id="C D" x="3" y="0" rotation="270" />
+    <tile type="capacitor" id="C A" x="-3" y="0" rotation="0" capacity="1" />
+    <tile type="capacitor" id="C B" x="-1" y="0" rotation="90" capacity="2e-2" />
+    <tile type="capacitor" id="C C" x="1" y="0" rotation="180" capacity="3e-3" />
+    <tile type="capacitor" id="C D" x="3" y="0" rotation="270" capacity="4e-4" />
 
     <!-- Variation board: voltage sources (all rotations) -->
     <tile type="voltage-source" id="U A" x="-3" y="2" rotation="0" voltage="5" />
-    <tile type="voltage-source" id="U B" x="-1" y="2" rotation="90" voltage="9" />
-    <tile type="voltage-source" id="U C" x="1" y="2" rotation="180" voltage="12" />
-    <tile type="voltage-source" id="U D" x="3" y="2" rotation="270" voltage="24" />
+    <tile type="voltage-source" id="U B" x="-1" y="2" rotation="90" voltage="9e3" />
+    <tile type="voltage-source" id="U C" x="1" y="2" rotation="180" voltage="12e6" />
+    <tile type="voltage-source" id="U D" x="3" y="2" rotation="270" voltage="24e7" />
 
     <!-- Variation board: current sources (all rotations) -->
     <tile type="amperage-source" id="I A" x="-3" y="4" rotation="0" amperage="0.5" />
