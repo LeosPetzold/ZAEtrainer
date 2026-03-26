@@ -3,6 +3,7 @@
     --border-color: #30363d;
     --background-color: #0d1117;
     --contrast-color: #010409;
+    --contrast-color-subtle: #0b0c0e;
     --infobar-width: 280px;
     --solvingbar-width: 280px;
 }
@@ -130,6 +131,112 @@ body {
     border-right: solid 1px var(--border-color);
     background: var(--contrast-color);
 }
+/*#instructionsparams {
+    word-break: break-all;
+}*/
+
+#dialog {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+
+    background-color: #0008;
+    backdrop-filter: blur(0.5px);
+
+    font-family: monospace;
+
+    z-index: 10;
+}
+#dialogbox {
+    position: absolute;
+    top: 50vh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+
+    background: var(--background-color);
+    border: solid 1px darkred;
+}
+#dialogtopbar {
+    width: auto;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--contrast-color),
+        var(--contrast-color) 5px,
+        var(--contrast-color-subtle) 5px,
+        var(--contrast-color-subtle) 6px
+    )
+}
+#dialogtitle {
+    margin-right: 10px;
+}
+#dialogclose {
+    float: right;
+    margin-left: auto;
+
+    color: red;
+
+    cursor: pointer;
+}
+#dialogcontent {
+    padding: 10px;
+}
+#dialogbutton {
+    margin-top: 7px;
+    margin-bottom: 4px;
+    padding: 5px;
+    width: 100%;
+
+    border: solid 1px var(--border-color);
+    background: var(--contrast-color);
+    color: var(--theme-color);
+    font-family: monospace;
+
+    cursor: pointer;
+}
+
+#dialog_error-tracecontainer {
+    padding: 5px;
+
+    background-color: var(--contrast-color);
+    border-radius: 5px;
+}
+#dialog_error-trace {
+    width: auto;
+}
+
+input[type="text"], select {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    padding: 5px;
+    width: auto;
+
+    border: solid 1px var(--border-color);
+    background: var(--contrast-color);
+    color: var(--theme-color);
+    font-family: monospace;
+
+    cursor: pointer;
+}
+input[type="text"]:focus, select {
+    outline: none;
+    all: none;
+}
+@keyframes border-flash {
+    0%, 100% {
+        border-color: var(--border-color);
+    }
+    50% {
+        border-color: red;
+    }
+}
+.border-flash {
+    outline: none;
+    animation: border-flash 0.6s ease-in-out;
+}
 
 sub {
     color: inherit;
@@ -157,6 +264,21 @@ h1, h2, h3, h4, h5, h6 {
 onlyprint {
     display: none;
 }
+
+code {
+    color: crimson;
+    background-color: var(--contrast-color);
+    padding: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+    border-radius: 2px;
+}
+
+note {
+    color: gray;
+    font-style: italic;
+}
+
 @media print {
     @page {
         size: A4 landscape;
@@ -235,5 +357,9 @@ onlyprint {
     }
     #solvingbar separator, #infobar separator {
         padding-bottom: 1px;
+    }
+
+    #dialog {
+        display: none;
     }
 }

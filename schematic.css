@@ -54,7 +54,11 @@
     width: 100%;
     height: 100%;
     border: 1px solid var(--border-color);
-    background: linear-gradient(180deg, #0f1520 0%, #0c111a 100%);
+    background: var(--contrast-color);
+
+    overflow: hidden;
+    user-select: none;
+    cursor: grab;
 }
 
 #schematicSvg {
@@ -64,6 +68,8 @@
     overflow: visible;
 
     background-color: var(--contrast-color);
+    transform-origin: 0 0;
+    transition: cursor 0.1s;
 }
 
 #schematicSvg .schematic-wire {
@@ -170,6 +176,11 @@
         background: #fff !important;
         border: none !important;
         border-left: 1px solid var(--border-color) !important;
+        cursor: auto !important;
+    }
+
+    #schematicSvg {
+        transform: none !important;
     }
 
     /* Keep print output as source black artwork (no screen filter in print) */

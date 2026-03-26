@@ -40,7 +40,7 @@ magnitudes.set(9, "G");
 magnitudes.set(12, "T");
 magnitudes.set(15, "P");
 
-const tileSize = 20 * (96/25.4); // 20mm tiles on screen, // ! change approach here.
+const tileSize = 20 * (96 / 25.4); // 20mm tiles on screen, // ! change approach here.
 
 class SchematicTile {
     constructor(type, x, y, rotation, data = {}) {
@@ -54,7 +54,7 @@ class SchematicTile {
 
     render(container, centerX, centerY, scale = 1) {
         const size = tileSize * scale;
-        
+
         const screenX = centerX + (this.x * size);
         const screenY = centerY + (this.y * size);
 
@@ -87,8 +87,7 @@ class SchematicTile {
             let closeupOffset = 0;
 
             let doLines = this.rotation % 180 == 0;
-                label.setAttribute("x", 0);
-                label.setAttribute("y", size / 2 + 14);
+            label.setAttribute("x", 0);
             switch (this.type) {
                 case "voltage-source":
                     closeupOffset = 14;
@@ -104,13 +103,19 @@ class SchematicTile {
                     doLines = this.rotation % 180 != 0; // ! Fix .svg!
                     closeupOffset = 12;
                     break;
+                case "terminal":
+                    closeupOffset = 30;
+                    break;
             }
+
+            // Set y AFTER switch, so it uses the final doLines value
+            label.setAttribute("y", doLines ? size / 2 : size / 2 + 14);
 
             const textRotation = parseFloat(-this.rotation);
 
             let lineIndex = 0;
             const addLine = (text, subText = "", /*newLine = true*/) => {
-                    let newLine = doLines;
+                let newLine = doLines;
                 const t = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
                 if (newLine) {
                     t.setAttribute("x", "0");
@@ -138,17 +143,17 @@ class SchematicTile {
                     transformAttr += `rotate(${textRotation} ${cx} ${cy})`;
                 }
                 if (newLine) {
-                    const pom = 0.5*tileSize;
-                    transformAttr += ` translate(${textOffsetX + pom - closeupOffset} ${textOffsetY - pom})`;
+                    const pom = 0.5 * tileSize;
+                    transformAttr += ` translate(${textOffsetX + pom - closeupOffset} ${textOffsetY - pom + 1.5})`;
                     label.setAttribute("dominant-baseline", "middle");
-                    
+
                 } else
                     transformAttr += ` translate(${textOffsetX} ${textOffsetY - closeupOffset})`;
                 label.setAttribute("transform", transformAttr);
-                
+
                 label.setAttribute("text-anchor", newLine ? "start" : "middle");
             };
- 
+
             if (this.data.id) {
                 const idData = this.data.id.split(" ");
                 addLine(idData[0], idData[1] || "");
@@ -158,10 +163,10 @@ class SchematicTile {
             if (this.data.resistance) addLine(this.data.resistance + "Ω");
             if (this.data.capacity) addLine(this.data.capacity + "F");
 
-            // Center multiline vertical text block around label y-anchor
-            if (doLines && lineIndex > 1) {
+            // Center text block around label y-anchor (both single and multiple lines)
+            if (doLines) {
                 const lineStepEm = 1.2; // must match tspan dy
-                const shiftUpEm = ((lineIndex - 1) * lineStepEm) / 2 + lineStepEm / 2;
+                const shiftUpEm = lineIndex > 1 ? ((lineIndex - 1) * lineStepEm) / 2 : 0;
                 label.setAttribute("dy", `-${shiftUpEm}em`);
                 label.setAttribute("dominant-baseline", "middle");
                 label.setAttribute("text-anchor", "start");
@@ -169,8 +174,8 @@ class SchematicTile {
 
             if (lineIndex > 0) group.appendChild(label);
         }
- 
-        container.appendChild(group); 
+
+        container.appendChild(group);
         this.element = group;
         return group;
     }
@@ -181,6 +186,7 @@ class SchematicLoader {
         this.svgContainer = svgContainer;
         this.tiles = [];
         this.scale = 1;
+        this.loadVersion = 0;
     }
 
     /**
@@ -203,21 +209,36 @@ class SchematicLoader {
      *   </tiles>
      * </schematic>
      */
-    async loadXML(xmlPath) {
+
+    async loadXML(xmlPath, seed) {
+        const requestVersion = ++this.loadVersion;
+        this.rng = new RandomNumberGenerator(seed);
+
+        // Start each load from a clean state.
+        this.tiles = [];
+        this.clear();
+
         try {
+            $("#instructionsparams")[0].innerHTML = ""; // Clear out instructions
+
             const response = await fetch(xmlPath);
             const xmlText = await response.text();
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
+            if (requestVersion !== this.loadVersion) {
+                return false;
+            }
+
             if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
-                console.error("XML Parse Error:", xmlDoc.getElementsByTagName("parsererror")[0].textContent);
+                throwError("XML Parse Error: "+xmlDoc.getElementsByTagName("parsererror")[0].textContent)
                 return false;
             }
 
             const tilesRoot = xmlDoc.getElementsByTagName("tiles")[0];
 
             const tileElements = tilesRoot.getElementsByTagName("tile");
+            const parsedTiles = [];
             for (const tileEl of tileElements) {
                 const type = tileEl.getAttribute("type");
                 //const id = tileEl.getAttribute("id");
@@ -227,46 +248,82 @@ class SchematicLoader {
 
                 const data = {
                     id: tileEl.getAttribute("id"),
-                    voltage: this.processInputUnits(tileEl.getAttribute("voltage")),
-                    amperage: this.processInputUnits(tileEl.getAttribute("amperage")),
-                    resistance: this.processInputUnits(tileEl.getAttribute("resistance")),
-                    capacity: this.processInputUnits(tileEl.getAttribute("capacity")),
+                    voltage: this.processInput(tileEl.getAttribute("voltage")),
+                    amperage: this.processInput(tileEl.getAttribute("amperage")),
+                    resistance: this.processInput(tileEl.getAttribute("resistance")),
+                    capacity: this.processInput(tileEl.getAttribute("capacity")),
                 };
 
+                // Register all into instructions &
+                // Register all into global circuit
+                if (data.id) {
+                    const parts = data.id.split(' ');
+                    parts[1] = parts[1] || "";
+
+                    let base; let primaryValue; let unit; let instructionWorthy = true;
+                    if (data.voltage) { base = "U"; unit = "V"; primaryValue = data.voltage }
+                    else if (data.amperage) { base = "I"; unit = "A"; primaryValue = data.amperage }
+                    else if (data.resistance) { base = "R"; unit = "&ohm;"; primaryValue = data.resistance }
+                    else if (data.capacity) { base = "C"; unit = "F"; primaryValue = data.capacity }
+                    else instructionWorthy = false;
+                    
+                    if (instructionWorthy) {
+                        circuit[base + parts[1]] = primaryValue;
+                        $("#instructionsparams")[0].innerHTML += `${base}<sub>${parts[1]}</sub> = <b>${primaryValue}</b>${unit}<br>`;
+                    }
+                }
+
                 const tile = new SchematicTile(type, x, y, rotation, data);
-                this.tiles.push(tile);
+                parsedTiles.push(tile);
             }
+
+            if (requestVersion !== this.loadVersion) {
+                return false;
+            }
+
+            this.tiles = parsedTiles;
 
             console.log(`Loaded ${this.tiles.length} tiles from XML`);
             return true;
         } catch (error) {
-            console.error("Error loading XML:", error);
+            throwError("Error loading XML: "+error)
+            return false;
+        }
+    }
+    processInput(value) {
+        if (!value) return null;
+
+        try {
+            const parts = value.split('e');
+
+            if (value.includes("rand")) {
+                const randParts = value.split(';'); // rand;<min>;<max>;<multiplier-exponential>
+                parts[0] = this.rng.int(randParts[1], randParts[2]);
+                parts[1] = randParts[3];
+            }
+
+            const exp = parseInt(parts[1]) || 0;
+            const remainder = exp % 3;
+            const base = parseFloat(parts[0]) * (10 ** remainder);
+            const magnitude = exp - remainder;
+            const suffix = magnitudes.get(magnitude);
+
+            return base + suffix;
+        }
+        catch (error) {
+            throwError("Error processing tile XML: "+error);
             return false;
         }
     }
 
-    processInput(value) {
-        if (!value) return null;
-        const parts = value.split('e');
-        if (parts[1]) return parts[0]*(10**parts[1]);
-        else return parts[0];
-    } 
-    processInputUnits(value) {
-        if (!value) return null;
-        const parts = value.split('e');
-
-        const exp = parseInt(parts[1]) || 0;
-        const remainder = exp % 3;
-        const base = parseFloat(parts[0]) * (10 ** remainder);
-        const magnitude = exp - remainder;
-        const suffix = magnitudes.get(magnitude);
-
-        return base + suffix;
+    clear() {
+        // Clear all tiles
+        this.svgContainer.querySelectorAll(".schematic-tile").forEach(el => el.remove());
     }
 
     render(containerWidth, containerHeight) {
         // Clear previous tiles
-        this.svgContainer.querySelectorAll(".schematic-tile").forEach(el => el.remove());
+        this.clear();
 
         const centerX = containerWidth / 2;
         const centerY = containerHeight / 2;
@@ -277,8 +334,8 @@ class SchematicLoader {
             tile.render(this.svgContainer, centerX, centerY, this.scale);
         });
 
-        // Render junction and dot tiles last (on top) so they override
-        const topTiles = this.tiles.filter(t => ['junction', 'dot'].includes(t.type));
+        // Render junction, dot, and terminal tiles last (on top) so they override
+        const topTiles = this.tiles.filter(t => ['junction', 'dot', 'terminal'].includes(t.type));
         topTiles.forEach(tile => {
             tile.render(this.svgContainer, centerX, centerY, this.scale);
         });
@@ -313,3 +370,15 @@ class SchematicLoader {
 // Export for use in global scope
 window.SchematicTile = SchematicTile;
 window.SchematicLoader = SchematicLoader;
+
+function pseudoRandom(seed) {
+    let value = seed;
+
+    return function () {
+        value = value * 16807 % 2147483647;
+        return value;
+    }
+}
+
+const circuit = {};
+window.circuit = circuit;

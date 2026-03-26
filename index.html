@@ -6,6 +6,52 @@
         <link href="schematic.css" rel="stylesheet">
     </head>
     <body>
+        <div id="dialog" style="display: none;">
+            <div id="dialogbox">
+                <div id="dialogtopbar">
+                    <span id="dialogtitle" class="dialog_print">Tisk dokumentu</span>
+                    <span id="dialogtitle" class="dialog_view">Zobrazit schéma</span>
+                    <span id="dialogtitle" class="dialog_error">⚠CHYBA⚠</span>
+                    <span id="dialogclose" onclick="dialogClose();">✕</span>
+                </div>
+                <div id="dialogcontent">
+                    <span class="dialog_print">
+                        Doporučená velikost A4, tisk na šířku.<br>
+                        Okraje jsou nastaveny na 5mm.<br>
+                        <button id="dialogbutton" onclick="dialogFuncPrint();">Tisk</button>
+                    </span>
+                    <span class="dialog_view">
+                        <label for="schematicInput">Schéma</label><br>
+                        <select id="schematicInput" style="width: 100%"></select>
+                        <br>
+                        <input type="text" id="seedInput" placeholder="<přirozené číslo>" min="0" step="1"></input>
+                        <label for="seedInput">Číselný fragment</label>
+                        <br>
+                        <note>Číselný fragment vynechte pro náhodný příklad.</note>
+                        <br>
+                        <input type="submit" id="dialogbutton"
+                            onclick="dialogFuncView(
+                                document.getElementById('schematicInput').value,
+                                document.getElementById('seedInput').value
+                            );" value="Vykreslit schéma" />
+                    </span>
+                    <span class="dialog_error">
+                        Vyskytla se kritická chyba.<br>
+                        Stránka nemůže pokračovat v běhu.<br>
+                        <separator></separator><br>
+                        Záznam:<br>
+                        <div id="dialog_error-tracecontainer">
+                            <code id="dialog_error-trace">ERROR REPORT</code>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="submit" id="dialogbutton" onclick="dialogFuncReload();" value="Načíst znovu" />
+                            <input type="submit" id="dialogbutton" onclick="alert('Error reporting ještě není implementovaný.');" value="Nahlásit" />
+                        </div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
         <div id="topbar">
             <noprint>
                 <span>
@@ -19,10 +65,12 @@
                 </span>
             </noprint>
             <span>
-                <u id="presetName">Zatížený napěťový dělič</u>
-                 #<b id="presetSeed">1081</b>
-                    &emsp14;
-                    &emsp14;
+                <clickable onclick='dialogOpen("view");''>
+                    <u id="presetName"><span style="color: red;">Nevybráno</span></u>
+                    #<b id="presetSeed"><span style="color: red;">NaN</span></b>
+                        &emsp14;
+                        &emsp14;
+                </clickable>
             </span>
             <noprint>
                     <span>
@@ -51,30 +99,32 @@
         <div id="schematic">
             <div id="schematicViewport">
                 <svg id="schematicSvg" viewBox="0 0 1200 800" aria-label="Schematic canvas" preserveAspectRatio="xMidYMid meet">
-                    <g id="schematicGridLayer"></g>
+<!--                    <g id="schematicGridLayer"></g>
                     <g id="schematicWireLayer"></g>
                     <g id="schematicElementLayer"></g>
                     <g id="schematicPeripheralLayer"></g>
-                    <g id="schematicNodeLayer"></g>
+                    <g id="schematicNodeLayer"></g>-->
                 </svg>
             </div>
         </div>
 
         <div id="instructions">
-            R<sub>1</sub> = <b>120</b> &ohm;
-            <br>
-            R<sub>2</sub> = <b>200</b> &ohm;
-         <br>-----<br>
-            I<sub>3</sub> = <b>?</b>
+            <span id="instructionsparams"></span>
+         <!--<br>-->-----<br>
+            <span id="instructionsquests">Existence?</span>
         </div>
 
         <div id="solvingbar">
             <h3>Řešení</h3>
-            <separator/>
+            <separator></separator>
+            <br>
+            Postupy & řešení budou implementovány v budoucnu.
         </div>
         <div id="infobar">
             <h3>Informace</h3>
-            <separator/>
+            <separator></separator>
+            <br>
+            Klávesou <code>Home</code> nebo dvojitým kliknutím myši ve schématu přejdete do úvodní pozice.
         </div>
         <div id="solvingbarResizer" class="panel-resizer"></div>
         <div id="infobarResizer" class="panel-resizer"></div>
@@ -92,9 +142,110 @@
             </span>
         </div>
     </body>
+    <script src="config.js"></script>
     <script src="jQuery.js"></script>
+    <script src="rng.js"></script>
     <script src="schematic-loader.js"></script>
     <script>
+        // Initialize schematic loader
+        (function() {
+            const schematicSvg = document.getElementById("schematicSvg");
+            const schematicLoader = new SchematicLoader(schematicSvg);
+
+            // Load default schematic
+            /*chematicLoader.loadXML("schematics/testing.xml", seed).then(() => {
+                const viewport = document.getElementById("schematicViewport");
+                schematicLoader.render(viewport.clientWidth, viewport.clientHeight);
+            });*/
+
+            // Re-render on viewport resize
+            window.addEventListener("resize", function() {
+                const viewport = document.getElementById("schematicViewport");
+                schematicLoader.render(viewport.clientWidth, viewport.clientHeight);
+            });
+
+            // Expose loader globally for debugging/control
+            window.schematicLoader = schematicLoader;
+
+            // Drag and zoom interaction handler
+            const viewport = document.getElementById("schematicViewport");
+            let panX = 0, panY = 0, zoom = 1;
+            let isDragging = false, dragStartX = 0, dragStartY = 0;
+
+            function updateTransform() {
+                schematicSvg.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+            }
+
+            function resetView() {
+                panX = 0;
+                panY = 0;
+                zoom = 1;
+                updateTransform();
+            }
+
+            viewport.addEventListener("mousedown", (e) => {
+                isDragging = true;
+                dragStartX = e.clientX - panX;
+                dragStartY = e.clientY - panY;
+                viewport.style.cursor = "grabbing";
+            });
+
+            document.addEventListener("mousemove", (e) => {
+                if (isDragging) {
+                    panX = e.clientX - dragStartX;
+                    panY = e.clientY - dragStartY;
+                    updateTransform();
+                }
+            });
+
+            document.addEventListener("mouseup", () => {
+                isDragging = false;
+                viewport.style.cursor = "grab";
+            });
+
+            // Double-click to reset view
+            viewport.addEventListener("dblclick", () => {
+                resetView();
+            });
+
+            // Home key to reset view
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Home") {
+                    resetView();
+                }
+            });
+
+            viewport.addEventListener("wheel", (e) => {
+                e.preventDefault();
+                
+                // Get cursor position relative to viewport
+                const rect = viewport.getBoundingClientRect();
+                const cursorX = e.clientX - rect.left;
+                const cursorY = e.clientY - rect.top;
+                
+                // Calculate point in SVG space before zoom
+                const svgX = (cursorX - panX) / zoom;
+                const svgY = (cursorY - panY) / zoom;
+                
+                // Apply zoom change with adaptive speed based on current zoom level
+                const baseSpeed = 0.1;
+                const zoomSpeed = baseSpeed * Math.sqrt(zoom); // Slows down at extremes
+                const newZoom = zoom + (e.deltaY > 0 ? -zoomSpeed : zoomSpeed);
+                zoom = Math.max(1/3, Math.min(5, newZoom)); // Clamp zoom to 1/3-5x (33-500%)
+                
+                // Adjust pan to keep the same point under the cursor
+                panX = cursorX - svgX * zoom;
+                panY = cursorY - svgY * zoom;
+                
+                updateTransform();
+            }, { passive: false });
+        })();
+    </script>
+    <script src="dialog.js"></script>
+    <script>
+        /* USER BEGIN Debug */
+        dialogFuncView("thevenin-2", "");
+        /* USER END Debug */
         const root = document.documentElement;
 
         function getPxVar(name, fallback=0) {
@@ -140,7 +291,7 @@
 
         function queryPrint() {
             //////
-            print();
+            dialogOpen("print");
             //////
         }
 
@@ -203,27 +354,6 @@
             window.addEventListener("resize", function () {
                 setWidths(getPxVar("--infobar-width", 280), getPxVar("--solvingbar-width", 280), "solvingbar");
             });
-        })();
-
-        // Initialize schematic loader
-        (function() {
-            const schematicSvg = document.getElementById("schematicSvg");
-            const schematicLoader = new SchematicLoader(schematicSvg);
-
-            // Load default schematic
-            schematicLoader.loadXML("schematics/testing.xml").then(() => {
-                const viewport = document.getElementById("schematicViewport");
-                schematicLoader.render(viewport.clientWidth, viewport.clientHeight);
-            });
-
-            // Re-render on viewport resize
-            window.addEventListener("resize", function() {
-                const viewport = document.getElementById("schematicViewport");
-                schematicLoader.render(viewport.clientWidth, viewport.clientHeight);
-            });
-
-            // Expose loader globally for debugging/control
-            window.schematicLoader = schematicLoader;
         })();
 
     </script>
