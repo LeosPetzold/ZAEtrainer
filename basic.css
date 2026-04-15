@@ -279,6 +279,10 @@ note {
     font-style: italic;
 }
 
+#solutionContents {
+    overflow-y: auto;
+}
+
 @media print {
     @page {
         size: A4 landscape;
