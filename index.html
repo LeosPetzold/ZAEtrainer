@@ -18,6 +18,15 @@
                     <span class="dialog_print">
                         Doporučená velikost A4, tisk na šířku.<br>
                         Okraje jsou nastaveny na 5mm.<br>
+                        <br>
+                        <separator></separator>
+                        <note>Upozornění: Tisk se může na malých obrazovákch
+                        <br>vykreslovat jinak.
+                        Některé jeho části mohou chybět.<br>
+                        Vše se vytiskne správně.
+                        </note>
+                        <separator></separator>
+                        <br>
                         <button id="dialogbutton" onclick="dialogFuncPrint();">Tisk</button>
                     </span>
                     <span class="dialog_view">
@@ -118,7 +127,9 @@
             <h3>Řešení</h3>
             <separator></separator>
             <br>
-            Postupy & řešení budou implementovány v budoucnu.
+            <span id="solutionContents">
+                Žádné řešení není k dispozici.
+            </span>
         </div>
         <div id="infobar">
             <h3>Informace</h3>
@@ -244,7 +255,7 @@
     <script src="dialog.js"></script>
     <script>
         /* USER BEGIN Debug */
-        dialogFuncView("thevenin-2", "");
+        dialogFuncView("zatizeny-delic-napeti", "");
         /* USER END Debug */
         const root = document.documentElement;
 

@@ -175,7 +175,7 @@
         height: 100% !important;
         background: #fff !important;
         border: none !important;
-        border-left: 1px solid var(--border-color) !important;
+        /*border-left: 1px solid var(--border-color) !important;*/
         cursor: auto !important;
     }
 

@@ -277,6 +277,11 @@ class SchematicLoader {
                 parsedTiles.push(tile);
             }
 
+            // Parse solutions
+            const methods = xmlDoc.getElementsByTagName("methods")[0];
+            const expression = methods ? methods.getElementsByTagName("method")[0].getElementsByTagName("contents")[0].textContent : "";
+            $('#solutionContents')[0].innerHTML = eval(expression) || "Žádné řešení není k dispozici.";
+
             if (requestVersion !== this.loadVersion) {
                 return false;
             }

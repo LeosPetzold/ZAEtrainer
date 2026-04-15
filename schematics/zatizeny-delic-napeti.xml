@@ -41,4 +41,12 @@
     <tile type="half-wire" x="1" y="2" rotation="180" />
     <tile type="half-wire" x="1" y="2" rotation="270" />
   </tiles>
+  <methods>
+    <method>
+      <name>Ohmův zákon a Kirchhoffovy zákony</name>
+      <contents>
+      `Jelikož U<sub>R<sub>z</sub></sub>=${window.circuit.U}V, bla bla bla...`
+      </contents>
+    </method>
+  </methods>
 </schematic>
