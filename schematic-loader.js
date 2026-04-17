@@ -40,7 +40,10 @@ magnitudes.set(9, "G");
 magnitudes.set(12, "T");
 magnitudes.set(15, "P");
 
+let methods = new Map();
+
 const tileSize = 20 * (96 / 25.4); // 20mm tiles on screen, // ! change approach here.
+const isSafariEngine = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
 class SchematicTile {
     constructor(type, x, y, rotation, data = {}) {
@@ -67,6 +70,8 @@ class SchematicTile {
 
         // Load tile SVG
         const tileImage = document.createElementNS("http://www.w3.org/2000/svg", "image");
+        // Safari compatibility: set both href and xlink:href on SVG <image>.
+        tileImage.setAttribute("href", `media/tiles/tile-${this.type}.svg`);
         tileImage.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", `media/tiles/tile-${this.type}.svg`);
         tileImage.setAttribute("x", -size / 2);
         tileImage.setAttribute("y", -size / 2);
@@ -144,7 +149,8 @@ class SchematicTile {
                 }
                 if (newLine) {
                     const pom = 0.5 * tileSize;
-                    transformAttr += ` translate(${textOffsetX + pom - closeupOffset} ${textOffsetY - pom + 1.5})`;
+                    const safariLabelYOffset = isSafariEngine ? 4 : 0;
+                    transformAttr += ` translate(${textOffsetX + pom - closeupOffset} ${textOffsetY - pom + 1.5 + safariLabelYOffset})`;
                     label.setAttribute("dominant-baseline", "middle");
 
                 } else
@@ -210,7 +216,7 @@ class SchematicLoader {
      * </schematic>
      */
 
-    async loadXML(xmlPath, seed) {
+    async loadXML(xmlPath, variant, seed) {
         const requestVersion = ++this.loadVersion;
         this.rng = new RandomNumberGenerator(seed);
 
@@ -278,9 +284,25 @@ class SchematicLoader {
             }
 
             // Parse solutions
-            const methods = xmlDoc.getElementsByTagName("methods")[0];
-            const expression = methods ? methods.getElementsByTagName("method")[0].getElementsByTagName("contents")[0].textContent : "";
-            $('#solutionContents')[0].innerHTML = eval(expression) || "Žádné řešení není k dispozici.";
+            const methodsElement = xmlDoc.getElementsByTagName("methods")[0];
+            methods = new Map();
+            let options = "";
+            if (methodsElement) {
+                const methodsList = methodsElement.getElementsByTagName("method");
+                for (const method of methodsList) {
+                    methods.set(method.getAttribute("name") || "[Bez názvu]", eval(method.textContent) || "[Prázdné řešení]");
+                }
+                methods.forEach((value, key) => {
+                    options += `<option value="${key}">${key}</option>`;
+                });
+            }
+
+            $("#methodSelect")[0].innerHTML = options;
+            $("#methodSelect").off("change").on("change", function() {
+                updateMethod(this.value);
+            });
+            updateMethodBlind();
+
 
             if (requestVersion !== this.loadVersion) {
                 return false;
@@ -368,6 +390,15 @@ class SchematicLoader {
                 const centerY = container.parentElement.clientHeight / 2;
                 tile.render(container, centerX, centerY, this.scale);
             }
+
+            // Variant overrides
+            const variants = tile.getElementsByName("variant");
+            if (variants.length > 0) {
+                const variant = variants[0];
+                for (i=0; i<variant.attributes.length; i++) {
+                    tile.setAttribute(variant.attributes[i].nodeName, variant.attributes[i].nodeValue);
+                }
+            }
         }
     }
 }
@@ -383,6 +414,13 @@ function pseudoRandom(seed) {
         value = value * 16807 % 2147483647;
         return value;
     }
+}
+
+function updateMethodBlind() {
+    updateMethod($("#methodSelect").val());
+}
+function updateMethod(key) {
+    $('#solutionContents')[0].innerHTML = methods.get(key);
 }
 
 const circuit = {};

@@ -1,4 +1,4 @@
 <svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
   <!-- Connection dot: small filled circle for junctions of 3+ connections -->
-  <circle cx="64" cy="64" r="6" fill="#000" stroke="none"/>
+  <circle cx="64" cy="64" r="6" fill="#fff" stroke="none"/>
 </svg>

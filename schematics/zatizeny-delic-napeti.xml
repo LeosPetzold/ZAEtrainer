@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schematic>
+  <tasks>
+    <variant id="1">Jaký je úbytek napětí na resistoru R<sub>1</sub>?</variant>
+    <variant id="2">Jaký je odpor resistoru R<sub>1</sub>?</variant>
+  </tasks>
   <tiles>
     <tile type="half-wire" x="-1" y="-2" rotation="0" />
     <tile type="half-wire" x="-1" y="-2" rotation="90" />
@@ -10,10 +14,12 @@
 
     <tile type="wire" x="-1" y="-1" rotation="90" />
 
-    <tile type="resistor" id="R 1" x="0" y="-1" rotation="90" resistance="1"/>
-    
+    <tile type="resistor" id="R 1" x="0" y="-1" rotation="90" >
+      <variant id="1" resistance="rand;1;5;0" />
+      <variant id="2" voltage="rand;1;5;0" />
+    </tile>
 
-    <tile type="voltage-source" id="U" x="-1" y="0" rotation="0" voltage="5"/>
+    <tile type="voltage-source" id="U" x="-1" y="0" rotation="0" voltage="rand;1;2;1"/>
 
     <tile type="half-wire" x="0" y="0" rotation="270" />
     <tile type="half-wire" x="0" y="0" rotation="0" />
@@ -26,9 +32,9 @@
 
     <tile type="wire" x="-1" y="1" rotation="90" />
 
-    <tile type="resistor" id="R 2" x="0" y="1" rotation="90" resistance="2"/>
+    <tile type="resistor" id="R 2" x="0" y="1" rotation="90" resistance="rand;1;5;0"/>
     
-    <tile type="resistor" id="R Z" x="1" y="1" rotation="90" resistance="4"/>
+    <tile type="resistor" id="R Z" x="1" y="1" rotation="90" resistance="rand;1;5;0"/>
 
     <tile type="half-wire" x="-1" y="2" rotation="0" />
     <tile type="half-wire" x="-1" y="2" rotation="270" />
@@ -42,11 +48,11 @@
     <tile type="half-wire" x="1" y="2" rotation="270" />
   </tiles>
   <methods>
-    <method>
-      <name>Ohmův zákon a Kirchhoffovy zákony</name>
-      <contents>
-      `Jelikož U<sub>R<sub>z</sub></sub>=${window.circuit.U}V, bla bla bla...`
-      </contents>
+    <method name="Ohmův zákon a Kirchhoffovy zákony">
+      `Jelikož U<sub>R<sub>z</sub></sub>=${window.circuit.U}V, bla bla bla... <var1>Toto jest var1!</var1><var2>Toto jest var2!</var2>`
+    </method>
+    <method name="Theveninův theorém">
+      `Theveninův theorém...`
     </method>
   </methods>
 </schematic>

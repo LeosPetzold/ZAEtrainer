@@ -133,22 +133,24 @@
 }
 
 .schematic-tile image {
-    /* Keep source SVGs black for print, render white in browser only */
-    filter: invert(1);
+    /* Safari can ignore filters on SVG <image>; keep tile artwork natively white */
+    -webkit-filter: none;
+    filter: none;
 }
 
 .schematic-tile:hover image {
-    filter: invert(1) brightness(1.2);
+    opacity: 0.88;
 }
 
 /* Junction tiles render on top and "clear" the background */
 .tile-junction image,
 .tile-dot image {
-    filter: invert(1);
+    -webkit-filter: none;
+    filter: none;
 }
 
 .tile-junction:hover image {
-    filter: invert(1) brightness(0.9);
+    opacity: 0.78;
 }
 
 .schematic-tile-label { 
@@ -183,9 +185,10 @@
         transform: none !important;
     }
 
-    /* Keep print output as source black artwork (no screen filter in print) */
+    /* Convert white screen artwork to black in print output */
     #schematicViewport image {
-        filter: none !important;
+        -webkit-filter: brightness(0) !important;
+        filter: brightness(0) !important;
     }
 
     .schematic-tile-label {

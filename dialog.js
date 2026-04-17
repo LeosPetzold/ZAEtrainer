@@ -41,24 +41,34 @@ function dialogFuncReload() {
 
 const schematicSvg = document.getElementById("schematicSvg");
 const schematicLoader = window.schematicLoader;
-function dialogFuncView(schematic, seed) {
-    if (seed == "") seed = Math.floor(Math.random()*4294967295)
+function dialogFuncView(schematic, variant, seed) {
+    if (seed == "") seed = Math.floor(Math.random()*4294967295);
+    if (variant == "") variant = 1;
+    let invalid = false;
     if (!isNumber(seed)) {
         $("#seedInput")[0].value = "";
         $("#seedInput")[0].classList.add("border-flash");
             setTimeout(() => $("#seedInput")[0].classList.remove("border-flash"), 600);
-            return;
+            invalid = true;
     }
+    if (!isNumber(variant)) {
+        $("#variantInput")[0].value = "";
+        $("#variantInput")[0].classList.add("border-flash");
+            setTimeout(() => $("#variantInput")[0].classList.remove("border-flash"), 600);
+            invalid = true;
+    }
+    if (invalid) return;
     
-    console.log(`Drawing "${schematic}" with seed ${seed}`);
+    console.log(`Drawing "${schematic}" variant ${variant} with seed ${seed}`);
 
     schematicLoader.clear();
-    schematicLoader.loadXML(`schematics/${schematic}.xml`, seed).then(() => {
+    schematicLoader.loadXML(`schematics/${schematic}.xml`, variant, seed).then(() => {
         const viewport = document.getElementById("schematicViewport");
         schematicLoader.render(viewport.clientWidth, viewport.clientHeight);
     });
 
     $("#presetName")[0].innerText = schematics[schematic];
+    $("#presetVariant")[0].innerText = variant;
     $("#presetSeed")[0].innerText = seed;
 
     dialogClose();

@@ -1,9 +1,9 @@
 <svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
   <!-- Capacitor: plates scaled 1.5x, non-rounded linecaps -->
-  <line x1="0" y1="64" x2="52" y2="64" stroke="#000" stroke-width="3" stroke-linecap="butt"/>
+  <line x1="0" y1="64" x2="52" y2="64" stroke="#fff" stroke-width="3" stroke-linecap="butt"/>
   <!-- Top plate -->
-  <line x1="52" y1="28" x2="52" y2="100" stroke="#000" stroke-width="2.5"/>
+  <line x1="52" y1="28" x2="52" y2="100" stroke="#fff" stroke-width="2.5"/>
   <!-- Bottom plate -->
-  <line x1="76" y1="28" x2="76" y2="100" stroke="#000" stroke-width="2.5"/>
-  <line x1="76" y1="64" x2="128" y2="64" stroke="#000" stroke-width="3" stroke-linecap="butt"/>
+  <line x1="76" y1="28" x2="76" y2="100" stroke="#fff" stroke-width="2.5"/>
+  <line x1="76" y1="64" x2="128" y2="64" stroke="#fff" stroke-width="3" stroke-linecap="butt"/>
 </svg>

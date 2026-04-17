@@ -33,7 +33,10 @@
                         <label for="schematicInput">Schéma</label><br>
                         <select id="schematicInput" style="width: 100%"></select>
                         <br>
-                        <input type="text" id="seedInput" placeholder="<přirozené číslo>" min="0" step="1"></input>
+                        <input type="text" id="variantInput" placeholder="<přirozené No>" min="0" step="1"></input>
+                        <label for="variantInput">Varianta</label>
+                        <br>
+                        <input type="text" id="seedInput" placeholder="<nezáporné celé No>" min="0" step="1"></input>
                         <label for="seedInput">Číselný fragment</label>
                         <br>
                         <note>Číselný fragment vynechte pro náhodný příklad.</note>
@@ -41,6 +44,7 @@
                         <input type="submit" id="dialogbutton"
                             onclick="dialogFuncView(
                                 document.getElementById('schematicInput').value,
+                                document.getElementById('variantInput').value,
                                 document.getElementById('seedInput').value
                             );" value="Vykreslit schéma" />
                     </span>
@@ -76,6 +80,7 @@
             <span>
                 <clickable onclick='dialogOpen("view");''>
                     <u id="presetName"><span style="color: red;">Nevybráno</span></u>
+                    <span id="presetVariantContainer">varianta <span id="presetVariant"><span style="color: red;">NaN</span></span></span>
                     #<b id="presetSeed"><span style="color: red;">NaN</span></b>
                         &emsp14;
                         &emsp14;
@@ -119,7 +124,7 @@
 
         <div id="instructions">
             <span id="instructionsparams"></span>
-         <!--<br>-->-----<br>
+            <!--<br>-->-----<br>
             <span id="instructionsquests">Existence?</span>
         </div>
 
@@ -128,8 +133,7 @@
             <separator></separator>
             <br>
             <label for="methodSelect">Metoda</label>
-            <select id="methodSelect">
-                
+            <select id="methodSelect" style="max-width: 100%; width: 100%;">
             </select>
             <separator></separator>
             <br>
@@ -266,7 +270,7 @@
     <script src="dialog.js"></script>
     <script>
         /* USER BEGIN Debug */
-        dialogFuncView("zatizeny-delic-napeti", "");
+        dialogFuncView("zatizeny-delic-napeti", "", "");
         /* USER END Debug */
         const root = document.documentElement;
 

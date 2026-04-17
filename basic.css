@@ -265,6 +265,10 @@ onlyprint {
     display: none;
 }
 
+.hidden {
+    display: none;
+}
+
 code {
     color: crimson;
     background-color: var(--contrast-color);
