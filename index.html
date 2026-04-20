@@ -6,6 +6,7 @@
         <title>ZAE Trainer</title>
         <link href="basic.css" rel="stylesheet">
         <link href="schematic.css" rel="stylesheet">
+        <link href="print.css" rel="stylesheet">
     </head>
     <body>
         <div id="dialog" style="display: none;">
@@ -117,7 +118,7 @@
                 <div id="instructions">
                     <span id="instructionsparams"></span>
                     <separator></separator><br>
-                    <span id="instructionsquests">Existence?</span>
+                    <span id="instructionsquests"><i>Instrukce nebyly dány.</i></span>
                 </div>
                 <svg id="schematicSvg" viewBox="0 0 1200 800" aria-label="Schematic canvas" preserveAspectRatio="xMidYMid meet">
 <!--                    <g id="schematicGridLayer"></g>
@@ -133,11 +134,13 @@
             <h3>Řešení</h3>
             <separator></separator>
             <br>
-            <label for="methodSelect">Metoda</label>
-            <select id="methodSelect" style="max-width: 100%; width: 100%;">
-            </select>
-            <separator></separator>
-            <br>
+            <div id="methodSelectDiv">
+                <label for="methodSelect">Metoda</label>
+                <select id="methodSelect" style="max-width: 100%; width: 100%;">
+                </select>
+                <separator></separator>
+                <br>
+            </div>
             <span id="solutionContents">
                 Žádné řešení není k dispozici.
             </span>
@@ -380,6 +383,53 @@
 
             window.addEventListener("resize", function () {
                 setWidths(getPxVar("--infobar-width", 280), getPxVar("--solvingbar-width", 280), "solvingbar");
+            });
+        })();
+
+        (function () {
+            let originalPrintTransform = null;
+
+            function isSolvingbarHidden() {
+                const solvingbar = document.getElementById("solvingbar");
+                if (!solvingbar) return true;
+                return window.getComputedStyle(solvingbar).display === "none";
+            }
+
+            function setPrintLayoutClasses() {
+                const hidden = isSolvingbarHidden();
+                document.body.classList.toggle("print-solv-hidden", hidden);
+                document.body.classList.toggle("print-solv-visible", !hidden);
+                return hidden;
+            }
+
+            function applyPrintTransformFit() {
+                const svg = document.getElementById("schematicSvg");
+                if (!svg) {
+                    return;
+                }
+
+                if (originalPrintTransform === null) {
+                    originalPrintTransform = svg.style.transform || "";
+                }
+                svg.style.transform = "translate(0px, 0px) scale(1)";
+            }
+
+            function restorePrintTransform() {
+                const svg = document.getElementById("schematicSvg");
+                if (svg && originalPrintTransform !== null) {
+                    svg.style.transform = originalPrintTransform;
+                }
+                originalPrintTransform = null;
+                document.body.classList.remove("print-solv-hidden", "print-solv-visible");
+            }
+
+            window.addEventListener("beforeprint", function () {
+                setPrintLayoutClasses();
+                applyPrintTransformFit();
+            });
+
+            window.addEventListener("afterprint", function () {
+                restorePrintTransform();
             });
         })();
 

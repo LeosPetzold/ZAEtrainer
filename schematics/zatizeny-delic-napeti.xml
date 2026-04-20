@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schematic>
-  <tasks>
+  <task>
     <variant id="1">Jaký je úbytek napětí na resistoru R<sub>1</sub>?</variant>
     <variant id="2">Jaký je odpor resistoru R<sub>1</sub>?</variant>
-  </tasks>
-  <tiles>
+  </task>
+  <tiles offX="0" offY="0">
     <tile type="half-wire" x="-1" y="-2" rotation="0" />
     <tile type="half-wire" x="-1" y="-2" rotation="90" />
 
@@ -49,7 +49,7 @@
   </tiles>
   <methods>
     <method name="Ohmův zákon a Kirchhoffovy zákony">
-      `Jelikož U<sub>R<sub>z</sub></sub>=${window.circuit.U}V, bla bla bla... <var1>Toto jest var1!</var1><var2>Toto jest var2!</var2>`
+      `Jelikož U<sub>R<sub>z</sub></sub>=${window.circuit.U}V, bla bla bla... @1Toto jest var1!@@2Toto jest var2!@`
     </method>
     <method name="Theveninův theorém">
       `Theveninův theorém...`

@@ -287,10 +287,6 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 3px;
 }
 
-onlyprint {
-    display: none;
-}
-
 code {
     color: var(--highlight-color);
     background-color: var(--contrast-color);
@@ -305,94 +301,10 @@ note {
     font-style: italic;
 }
 
+/*var {
+    display: none;
+}*/
+
 #solutionContents {
     overflow-y: auto;
-}
-
-@media print {
-    @page {
-        size: A4 landscape;
-        margin: 5mm;
-        
-    }
-
-    /*html, body {
-        print-color-adjust: economy;
-        -webkit-print-color-adjust: economy;
-    }*/
-
-    :root {
-        --solvingbar-width: 80mm !important;
-        --infobar-width: 50mm !important;
-    }
-
-    html, body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-
-        color: black;
-    }
-
-    body {
-        overflow: visible;
-    }
-
-    noprint {
-        display: none !important;
-    }
-    onlyprint {
-        display: initial !important;
-    }
-    #instructions {
-        display: initial !important;
-        border-left: solid 1px var(--border-color);
-        border-right-style: dotted;
-        border-bottom-style: dotted;
-
-        padding: 10px 16px;
-        padding-right: 20px;
-    }
-
-    #topbar, #bottombar {
-        padding-left: 8px;
-        padding-right: 8px;
-        border: solid 1px var(--border-color);
-
-        z-index: 2;
-    }
-    #topbar {
-        width: min(100%, calc(100% - var(--infobar-width) - var(--solvingbar-width) + 1px));
-    }
-
-    #solvingbar, #infobar {
-        /*top: var(--topbar-height);*/ top: 0;
-        bottom: var(--bottombar-height);
-        height: auto;
-        padding: 10px;
-
-        font-size: 0.92rem;
-        line-height: 1.25;
-
-        overflow: visible;
-
-        border-left-style: dotted;
-        border-top: solid 1px var(--border-color);
-    }
-    #infobar {
-        border-right: solid 1px var(--border-color);
-    }
-    #solvingbar h3, #infobar h3 {
-        margin-bottom: 2px;
-
-        font-size: 1rem;
-    }
-    #solvingbar separator, #infobar separator {
-        padding-bottom: 1px;
-    }
-
-    #dialog {
-        display: none;
-    }
 }

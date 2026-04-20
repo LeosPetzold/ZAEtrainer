@@ -43,7 +43,7 @@ const schematicSvg = document.getElementById("schematicSvg");
 const schematicLoader = window.schematicLoader;
 function dialogFuncView(schematic, variant, seed) {
     if (seed == "") seed = Math.floor(Math.random()*4294967295);
-    if (variant == "") variant = 1;
+    if (variant == "") variant = -1;
     let invalid = false;
     if (!isNumber(seed)) {
         $("#seedInput")[0].value = "";

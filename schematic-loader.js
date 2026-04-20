@@ -46,6 +46,11 @@ const tileSize = 20 * (96 / 25.4); // 20mm tiles on screen, // ! change approach
 const isSafariEngine = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 const tileSvgTemplateCache = new Map();
 
+function formatMethodOutput(output, variant) {
+    return String(output ?? "")
+        .replace(/@(\d+)([\s\S]*?)@/g, (_match, id, content) => `<var style="display:${id==variant ? "initial" : "none"};">${content}</var>`);
+}
+
 function rethemeTileSvg(svgRoot) {
     const paintTargets = svgRoot.querySelectorAll("[stroke], [fill]");
     for (const node of paintTargets) {
@@ -257,8 +262,7 @@ class SchematicLoader {
         this.svgContainer = svgContainer;
         this.tiles = [];
         this.scale = 1;
-        this.loadVersion = 0;
-    }
+        this.loadVersion = 0;    }
 
     /**
      * Load schematic from XML
@@ -281,7 +285,18 @@ class SchematicLoader {
      * </schematic>
      */
 
-    async loadXML(xmlPath, variant, seed) {
+    async loadXML(xmlPath, variant, seed) {        // Globals cleanup
+        window.circuit = circuit;
+        Object.keys(circuit).forEach((key) => {
+            delete circuit[key];
+        });
+
+        // Loader-side states
+        variant = Number(variant);
+        if (!Number.isFinite(variant)) {
+            variant = -1;
+        }
+
         const requestVersion = ++this.loadVersion;
         this.rng = new RandomNumberGenerator(seed);
 
@@ -307,22 +322,80 @@ class SchematicLoader {
             }
 
             const tilesRoot = xmlDoc.getElementsByTagName("tiles")[0];
+            const tilesOffsetX = parseFloat(tilesRoot?.getAttribute("offX")) || 0;
+            const tilesOffsetY = parseFloat(tilesRoot?.getAttribute("offY")) || 0;
 
             const tileElements = tilesRoot.getElementsByTagName("tile");
             const parsedTiles = [];
+            const instructionRows = [];
+            const instructionOrder = { U: 0, I: 1, R: 2, C: 3 };
+            const collectAttributes = (element) => {
+                const attributes = {};
+                for (const attribute of element.attributes) {
+                    attributes[attribute.name] = attribute.value;
+                }
+                return attributes;
+            };
+
+            // Task parsing
+            const tasksRoot = xmlDoc.getElementsByTagName("task")[0];
+            const taskVariants = tasksRoot ? Array.from(tasksRoot.getElementsByTagName("variant")) : [];
+
+            if (variant === -1 && taskVariants.length > 0) {
+                const taskVariantIds = taskVariants
+                    .map((candidate) => Number.parseInt(candidate.getAttribute("id") || "", 10))
+                    .filter((id) => Number.isFinite(id));
+
+                if (taskVariantIds.length > 0) {
+                    variant = this.rng.pick(taskVariantIds);
+                }
+            }
+
+            const presetVariantEl = $("#presetVariant")[0];
+            if (presetVariantEl) {
+                presetVariantEl.innerText = variant;
+            }
+            const selectedVariant = String(variant);
+            const hasVariant = variant >= 0;
+
+            if (tasksRoot) {
+                if (hasVariant && taskVariants.length > 0) {
+                    const taskVariant = taskVariants.find(
+                        (candidate) => (candidate.getAttribute("id") || "1") === selectedVariant
+                    ) || null;
+                    $("#instructionsquests")[0].innerHTML = taskVariant ? taskVariant.innerHTML : tasksRoot.textContent;
+                } else {
+                    $("#instructionsquests")[0].innerHTML = tasksRoot.textContent;
+                }
+            } else {
+                $("#instructionsquests")[0].innerHTML = "<i>Instrukce nebyly dány.</i>";
+            }
+
             for (const tileEl of tileElements) {
                 const type = tileEl.getAttribute("type");
                 //const id = tileEl.getAttribute("id");
-                const x = parseFloat(tileEl.getAttribute("x")) || 0;
-                const y = parseFloat(tileEl.getAttribute("y")) || 0;
+                const x = (parseFloat(tileEl.getAttribute("x")) || 0) + tilesOffsetX;
+                const y = (parseFloat(tileEl.getAttribute("y")) || 0) + tilesOffsetY;
                 const rotation = parseFloat(tileEl.getAttribute("rotation")) || 0;
+
+                // Variant handling
+                const tileVariants = tileEl.getElementsByTagName("variant");
+                const variantTile = hasVariant
+                    ? Array.from(tileVariants).find((candidate) => (candidate.getAttribute("id") || "1") === selectedVariant) || null
+                    : null;
+
+                const mergedAttributes = hasVariant && variantTile
+                    ? { ...collectAttributes(variantTile), ...collectAttributes(tileEl) }
+                    : collectAttributes(tileEl);
+
+                const getTileAttribute = (name) => mergedAttributes[name] ?? null;
 
                 const data = {
                     id: tileEl.getAttribute("id"),
-                    voltage: this.processInput(tileEl.getAttribute("voltage")),
-                    amperage: this.processInput(tileEl.getAttribute("amperage")),
-                    resistance: this.processInput(tileEl.getAttribute("resistance")),
-                    capacity: this.processInput(tileEl.getAttribute("capacity")),
+                    voltage:    this.processInput(getTileAttribute("voltage")),
+                    amperage:   this.processInput(getTileAttribute("amperage")),
+                    resistance: this.processInput(getTileAttribute("resistance")),
+                    capacity:   this.processInput(getTileAttribute("capacity")),
                 };
 
                 // Register all into instructions &
@@ -340,7 +413,12 @@ class SchematicLoader {
                     
                     if (instructionWorthy) {
                         circuit[base + parts[1]] = primaryValue;
-                        $("#instructionsparams")[0].innerHTML += `${base}<sub>${parts[1]}</sub> = <b>${primaryValue}</b>${unit}<br>`;
+                        instructionRows.push({
+                            base,
+                            sub: parts[1],
+                            value: primaryValue,
+                            unit,
+                        });
                     }
                 }
 
@@ -348,18 +426,37 @@ class SchematicLoader {
                 parsedTiles.push(tile);
             }
 
+            instructionRows.sort((a, b) => {
+                const baseDiff = instructionOrder[a.base] - instructionOrder[b.base];
+                if (baseDiff !== 0) {
+                    return baseDiff;
+                }
+                return a.sub.localeCompare(b.sub, undefined, { numeric: true, sensitivity: "base" });
+            });
+
+            $("#instructionsparams")[0].innerHTML = instructionRows
+                .map((row) => `${row.base}<sub>${row.sub}</sub> = <b>${row.value}</b>${row.unit}<br>`)
+                .join("");
+
             // Parse solutions
             const methodsElement = xmlDoc.getElementsByTagName("methods")[0];
             methods = new Map();
             let options = "";
-            if (methodsElement) {
-                const methodsList = methodsElement.getElementsByTagName("method");
+            const methodsList = methodsElement ? methodsElement.getElementsByTagName("method") : [];
+            if (methodsElement && methodsList.length > 0) {
+                $("#methodSelectDiv")[0].style.display = "initial";
                 for (const method of methodsList) {
-                    methods.set(method.getAttribute("name") || "[Bez názvu]", eval(method.textContent) || "[Prázdné řešení]");
+                    const evaluatedMethod = eval(method.textContent);
+                    methods.set(
+                        method.getAttribute("name") || "[Bez názvu]",
+                        formatMethodOutput(evaluatedMethod ?? "[Prázdné řešení]", variant)
+                    );
                 }
                 methods.forEach((value, key) => {
                     options += `<option value="${key}">${key}</option>`;
                 });
+            } else {
+                $("#methodSelectDiv")[0].style.display = "none";
             }
 
             $("#methodSelect")[0].innerHTML = options;
@@ -454,15 +551,6 @@ class SchematicLoader {
                 const centerX = container.parentElement.clientWidth / 2;
                 const centerY = container.parentElement.clientHeight / 2;
                 tile.render(container, centerX, centerY, this.scale);
-            }
-
-            // Variant overrides
-            const variants = tile.getElementsByName("variant");
-            if (variants.length > 0) {
-                const variant = variants[0];
-                for (i=0; i<variant.attributes.length; i++) {
-                    tile.setAttribute(variant.attributes[i].nodeName, variant.attributes[i].nodeValue);
-                }
             }
         }
     }
