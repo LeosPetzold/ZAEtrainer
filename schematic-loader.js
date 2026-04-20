@@ -420,7 +420,7 @@ function updateMethodBlind() {
     updateMethod($("#methodSelect").val());
 }
 function updateMethod(key) {
-    $('#solutionContents')[0].innerHTML = methods.get(key);
+    $('#solutionContents')[0].innerHTML = methods.get(key) || "<i>Žádné definované řešení.</i>";
 }
 
 const circuit = {};
