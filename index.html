@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>ZAE Trainer</title>
         <link href="basic.css" rel="stylesheet">
+        <link id="themeStylesheet" href="theme/classic.css" rel="stylesheet">
         <link href="schematic.css" rel="stylesheet">
         <link href="print.css" rel="stylesheet">
     </head>
@@ -100,8 +101,11 @@
                         <label for="infobarButton">Informace</label>
                     </span>
             </noprint>
-                <span style="margin-left: auto;">
-                    <noprint><span id="timeIndicator"></span></noprint>
+                <span style="display: inline-flex; align-items: center; gap: 8px; margin-left: auto;">
+                    <noprint>
+                        <select id="themeSelect" aria-label="Theme"></select>
+                        <span id="timeIndicator"></span>
+                    </noprint>
                     <script>
                         function updateTime() {
                             const now = new Date();
@@ -277,6 +281,72 @@
         dialogFuncView("zatizeny-delic-napeti", "", "");
         /* USER END Debug */
         const root = document.documentElement;
+        const themeStorageKey = "zae-theme";
+        const themes = [
+            { name: "classic", label: "Classic" },
+            { name: "midnight", label: "Midnight" },
+            { name: "paper", label: "Paper" },
+            { name: "red-light", label: "Red Light" },
+            { name: "red-dark", label: "Red Dark" },
+            { name: "github-light", label: "GitHub Light" },
+            { name: "github-dark", label: "GitHub Dark" },
+            { name: "forest-light", label: "Forest Light" },
+            { name: "forest-dark", label: "Forest Dark" },
+            { name: "ocean-light", label: "Ocean Light" },
+            { name: "ocean-dark", label: "Ocean Dark" },
+            { name: "emerald", label: "Emerald" }
+        ];
+
+        const themeAliases = new Map([
+            ["red", "red-light"],
+            ["github", "github-light"]
+        ]);
+
+        function getSavedThemeName() {
+            try {
+                const savedTheme = localStorage.getItem(themeStorageKey);
+                const normalizedTheme = themeAliases.get(savedTheme) || savedTheme;
+                return themes.some((theme) => theme.name === normalizedTheme) ? normalizedTheme : themes[0].name;
+            } catch (_error) {
+                return themes[0].name;
+            }
+        }
+
+        function setTheme(themeName) {
+            const selectedTheme = themes.find((theme) => theme.name === themeName) || themes[0];
+            const themeStylesheet = document.getElementById("themeStylesheet");
+
+            if (themeStylesheet) {
+                themeStylesheet.href = `theme/${selectedTheme.name}.css`;
+            }
+
+            document.documentElement.dataset.theme = selectedTheme.name;
+
+            try {
+                localStorage.setItem(themeStorageKey, selectedTheme.name);
+            } catch (_error) {
+            }
+        }
+
+        function initThemeSelect() {
+            const themeSelect = document.getElementById("themeSelect");
+            if (!themeSelect) {
+                return;
+            }
+
+            themeSelect.innerHTML = themes
+                .map((theme) => `<option value="${theme.name}">${theme.label}</option>`)
+                .join("");
+
+            themeSelect.value = getSavedThemeName();
+            themeSelect.addEventListener("change", function () {
+                setTheme(this.value);
+            });
+
+            setTheme(themeSelect.value);
+        }
+
+        initThemeSelect();
 
         function getPxVar(name, fallback=0) {
             const value = getComputedStyle(root).getPropertyValue(name).trim();
@@ -388,6 +458,11 @@
 
         (function () {
             let originalPrintTransform = null;
+            let themeStylesheetWasDisabled = false;
+
+            function getThemeStylesheet() {
+                return document.getElementById("themeStylesheet");
+            }
 
             function isSolvingbarHidden() {
                 const solvingbar = document.getElementById("solvingbar");
@@ -414,6 +489,16 @@
                 svg.style.transform = "translate(0px, 0px) scale(1)";
             }
 
+            function disableThemeStylesheet() {
+                const themeStylesheet = getThemeStylesheet();
+                if (!themeStylesheet) {
+                    return;
+                }
+
+                themeStylesheetWasDisabled = themeStylesheet.disabled;
+                themeStylesheet.disabled = true;
+            }
+
             function restorePrintTransform() {
                 const svg = document.getElementById("schematicSvg");
                 if (svg && originalPrintTransform !== null) {
@@ -421,9 +506,16 @@
                 }
                 originalPrintTransform = null;
                 document.body.classList.remove("print-solv-hidden", "print-solv-visible");
+
+                const themeStylesheet = getThemeStylesheet();
+                if (themeStylesheet) {
+                    themeStylesheet.disabled = themeStylesheetWasDisabled;
+                }
+                themeStylesheetWasDisabled = false;
             }
 
             window.addEventListener("beforeprint", function () {
+                disableThemeStylesheet();
                 setPrintLayoutClasses();
                 applyPrintTransformFit();
             });

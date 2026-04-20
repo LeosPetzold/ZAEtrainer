@@ -9,6 +9,14 @@ onlyprint {
     }
 
     :root {
+        --theme-color: #000;
+        --muted-color: #444;
+        --highlight-color: #000;
+        --border-color: #ddd;
+        --background-color: #fff;
+        --contrast-color: #fff;
+        --contrast-color-subtle: #eee;
+        --surface-color: #fff;
         --solvingbar-width: 78mm !important;
     }
 
@@ -119,6 +127,7 @@ onlyprint {
         border: 1px solid var(--border-color) !important;
         border-top: 0 !important;
         border-bottom: 0 !important;
+        border-radius: 0 !important;
         background: #fff !important;
         overflow: hidden;
     }

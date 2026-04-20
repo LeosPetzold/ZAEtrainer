@@ -46,6 +46,9 @@ const tileSize = 20 * (96 / 25.4); // 20mm tiles on screen, // ! change approach
 const isSafariEngine = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 const tileSvgTemplateCache = new Map();
 
+const globalTileOffsetX = -1;
+const globalTileOffsetY = 0;
+
 function formatMethodOutput(output, variant) {
     return String(output ?? "")
         .replace(/@(\d+)([\s\S]*?)@/g, (_match, id, content) => `<var style="display:${id==variant ? "initial" : "none"};">${content}</var>`);
@@ -108,8 +111,8 @@ class SchematicTile {
     render(container, centerX, centerY, scale = 1) {
         const size = tileSize * scale;
 
-        const screenX = centerX + (this.x * size);
-        const screenY = centerY + (this.y * size);
+        const screenX = centerX + ((this.x + globalTileOffsetX )* size);
+        const screenY = centerY + ((this.y + globalTileOffsetY )* size);
 
         // Create tile group
         const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
