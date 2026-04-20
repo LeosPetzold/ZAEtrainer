@@ -44,6 +44,51 @@ let methods = new Map();
 
 const tileSize = 20 * (96 / 25.4); // 20mm tiles on screen, // ! change approach here.
 const isSafariEngine = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+const tileSvgTemplateCache = new Map();
+
+function rethemeTileSvg(svgRoot) {
+    const paintTargets = svgRoot.querySelectorAll("[stroke], [fill]");
+    for (const node of paintTargets) {
+        const stroke = node.getAttribute("stroke");
+        if (stroke && stroke !== "none") {
+            node.setAttribute("stroke", "currentColor");
+        }
+
+        const fill = node.getAttribute("fill");
+        if (fill && fill !== "none") {
+            node.setAttribute("fill", "currentColor");
+        }
+    }
+}
+
+async function getTileSvgTemplate(tilePath) {
+    if (tileSvgTemplateCache.has(tilePath)) {
+        return tileSvgTemplateCache.get(tilePath);
+    }
+
+    const response = await fetch(tilePath);
+    if (!response.ok) {
+        throw new Error(`Failed to load tile SVG: ${tilePath}`);
+    }
+
+    const svgText = await response.text();
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
+    const template = svgDoc.documentElement;
+
+    if (!template || template.nodeName.toLowerCase() !== "svg") {
+        throw new Error(`Invalid SVG tile file: ${tilePath}`);
+    }
+
+    template.removeAttribute("width");
+    template.removeAttribute("height");
+    template.setAttribute("class", "schematic-tile-svg");
+    template.setAttribute("overflow", "visible");
+    rethemeTileSvg(template);
+
+    tileSvgTemplateCache.set(tilePath, template);
+    return template;
+}
 
 class SchematicTile {
     constructor(type, x, y, rotation, data = {}) {
@@ -68,16 +113,36 @@ class SchematicTile {
         group.setAttribute("data-tile-id", this.id);
         group.setAttribute("transform", `translate(${screenX}, ${screenY}) rotate(${this.rotation})`);
 
-        // Load tile SVG
+        const tilePath = `media/tiles/tile-${this.type}.svg`;
+
+        // Fallback image is shown only if inline SVG loading fails.
         const tileImage = document.createElementNS("http://www.w3.org/2000/svg", "image");
-        // Safari compatibility: set both href and xlink:href on SVG <image>.
-        tileImage.setAttribute("href", `media/tiles/tile-${this.type}.svg`);
-        tileImage.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", `media/tiles/tile-${this.type}.svg`);
+        tileImage.setAttribute("href", tilePath);
+        tileImage.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", tilePath);
         tileImage.setAttribute("x", -size / 2);
         tileImage.setAttribute("y", -size / 2);
         tileImage.setAttribute("width", size);
         tileImage.setAttribute("height", size);
+        tileImage.setAttribute("visibility", "hidden");
         group.appendChild(tileImage);
+
+        getTileSvgTemplate(tilePath)
+            .then((template) => {
+                const inlineSvg = document.importNode(template, true);
+                inlineSvg.setAttribute("x", -size / 2);
+                inlineSvg.setAttribute("y", -size / 2);
+                inlineSvg.setAttribute("width", size);
+                inlineSvg.setAttribute("height", size);
+                inlineSvg.setAttribute("viewBox", template.getAttribute("viewBox") || "0 0 128 128");
+                inlineSvg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+
+                if (group.contains(tileImage)) {
+                    group.replaceChild(inlineSvg, tileImage);
+                }
+            })
+            .catch(() => {
+                tileImage.setAttribute("visibility", "visible");
+            });
 
         // Add data label if present
         if (this.data.id || this.data.voltage || this.data.amperage || this.data.resistance || this.data.capacity) {

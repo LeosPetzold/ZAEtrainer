@@ -2,6 +2,8 @@
 <html lang="cs">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>ZAE Trainer</title>
         <link href="basic.css" rel="stylesheet">
         <link href="schematic.css" rel="stylesheet">
     </head>
@@ -20,7 +22,7 @@
                         Okraje jsou nastaveny na 5mm.<br>
                         <br>
                         <separator></separator>
-                        <note>Upozornění: Tisk se může na malých obrazovákch
+                        <note>Upozornění: Tisk se může na malých obrazovkách
                         <br>vykreslovat jinak.
                         Některé jeho části mohou chybět.<br>
                         Vše se vytiskne správně.
@@ -112,6 +114,11 @@
 
         <div id="schematic">
             <div id="schematicViewport">
+                <div id="instructions">
+                    <span id="instructionsparams"></span>
+                    <separator></separator><br>
+                    <span id="instructionsquests">Existence?</span>
+                </div>
                 <svg id="schematicSvg" viewBox="0 0 1200 800" aria-label="Schematic canvas" preserveAspectRatio="xMidYMid meet">
 <!--                    <g id="schematicGridLayer"></g>
                     <g id="schematicWireLayer"></g>
@@ -120,12 +127,6 @@
                     <g id="schematicNodeLayer"></g>-->
                 </svg>
             </div>
-        </div>
-
-        <div id="instructions">
-            <span id="instructionsparams"></span>
-            <!--<br>-->-----<br>
-            <span id="instructionsquests">Existence?</span>
         </div>
 
         <div id="solvingbar">

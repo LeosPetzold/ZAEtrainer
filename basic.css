@@ -1,11 +1,26 @@
 :root {
-    --theme-color: whitesmoke;
-    --border-color: #30363d;
-    --background-color: #0d1117;
-    --contrast-color: #010409;
-    --contrast-color-subtle: #0b0c0e;
+    --theme-color: #1f2a36;
+    --muted-color: #66788f;
+    --highlight-color: #0f8f7e;
+    --border-color: #cfd8e3;
+
+    --background-color: #f3f6fb;
+    --contrast-color: #ffffff;
+    --contrast-color-subtle: #e9eef5;
+    --surface-color: #ffffff;
+    
     --infobar-width: 280px;
     --solvingbar-width: 280px;
+    --topbar-height: 40px;
+    --bottombar-height: 40px;
+
+    --font-smooth: "IBM Plex Sans", "Segoe UI", sans-serif;
+    --font-tech: "JetBrains Mono", ui-monospace, monospace;
+
+    --font-size-base: 14px;
+    --font-size-tech: 12px;
+    --font-size-panel: 13px;
+    --font-size-instructions: 0.96rem;
 }
 
 html {
@@ -25,7 +40,8 @@ body {
     position: relative;
     
     color: var(--theme-color);
-    font-family: "Roboto", sans-serif;
+    font-family: var(--font-smooth);
+    font-size: var(--font-size-base);
     background: var(--contrast-color);
     background-size: cover;
     background-position: center bottom;
@@ -39,9 +55,11 @@ body {
     align-items: center;
     flex-direction: row;
     box-sizing: border-box;
-    padding-left: 20px; padding-right: 20px;
+    padding-left: 16px;
+    padding-right: 16px;
 
-    font-family: monospace;
+    font-family: var(--font-tech);
+    font-size: var(--font-size-tech);
     line-height: 1;
     
     background: var(--background-color);
@@ -51,7 +69,7 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 30px;
+    height: var(--topbar-height);
     z-index: 2;
 
     border-bottom: solid 1px var(--border-color);
@@ -61,7 +79,7 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 25px;
+    height: var(--bottombar-height);
 
     border-top: solid 1px var(--border-color);
 }
@@ -75,37 +93,39 @@ body {
 #solvingbar, #infobar {
     min-width: 150px;
     max-width: 80vw;
-    padding: 20px;
+    padding: 16px;
 
     /*font-family: ui-sans-serif, -apple-system, system-ui, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";*/
-    font-family: monospace;
+    font-family: var(--font-smooth);
+    font-size: var(--font-size-panel);
     
     border-left: solid 1px var(--border-color);
     background: var(--background-color);
+    box-shadow: -14px 0px 22px -6px rgba(0,0,0,0.065);
 
     box-sizing: border-box;
     overflow: auto;
 }
 #solvingbar {
     position: absolute;
-    top: 30px;
+    top: var(--topbar-height);
     right: var(--infobar-width);
     width: var(--solvingbar-width);
-    height: calc(100vh - 55px);
+    height: calc(100vh - var(--topbar-height) - var(--bottombar-height));
 }
 #infobar {
     position: absolute;
-    top: 30px;
+    top: var(--topbar-height);
     right: 0;
     width: var(--infobar-width);
-    height: calc(100vh - 55px);
+    height: calc(100vh - var(--topbar-height) - var(--bottombar-height));
 }
 
 .panel-resizer {
     position: absolute;
-    top: 30px;
+    top: var(--topbar-height);
     width: 8px;
-    height: calc(100vh - 55px);
+    height: calc(100vh - var(--topbar-height) - var(--bottombar-height));
     cursor: ew-resize;
     z-index: 3;
 }
@@ -118,18 +138,21 @@ body {
 
 #instructions {
     position: absolute;
-    top: 30px;
-    left: 0;
+    top: 12px;
+    left: 12px;
     width: fit-content;
+    max-width: min(70%, 720px);
+    z-index: 4;
 
-    font-family: monospace;
-    font-size: 1.1em;
-    padding: 15px 25px;
-    padding-right: 45px;
+    font-family: var(--font-smooth);
+    font-size: var(--font-size-instructions);
+    padding: 12px 18px;
+    padding-right: 24px;
 
-    border-bottom: solid 1px var(--border-color);
-    border-right: solid 1px var(--border-color);
+    border: solid 1px var(--border-color);
+    border-radius: 10px;
     background: var(--contrast-color);
+    box-shadow: 0px 6px 18px -8px rgba(0,0,0,0.18);
 }
 /*#instructionsparams {
     word-break: break-all;
@@ -143,7 +166,8 @@ body {
     background-color: #0008;
     backdrop-filter: blur(0.5px);
 
-    font-family: monospace;
+    font-family: var(--font-tech);
+    font-size: var(--font-size-panel);
 
     z-index: 10;
 }
@@ -182,18 +206,19 @@ body {
     cursor: pointer;
 }
 #dialogcontent {
-    padding: 10px;
+    padding: 12px;
 }
 #dialogbutton {
     margin-top: 7px;
     margin-bottom: 4px;
-    padding: 5px;
+    padding: 6px 8px;
     width: 100%;
 
     border: solid 1px var(--border-color);
-    background: var(--contrast-color);
+    background: var(--background-color);
     color: var(--theme-color);
-    font-family: monospace;
+    font-family: var(--font-tech);
+    font-size: var(--font-size-tech);
 
     cursor: pointer;
 }
@@ -211,13 +236,14 @@ body {
 input[type="text"], select {
     margin-top: 4px;
     margin-bottom: 4px;
-    padding: 5px;
+    padding: 6px 8px;
     width: auto;
 
     border: solid 1px var(--border-color);
-    background: var(--contrast-color);
+    background: var(--background-color);
     color: var(--theme-color);
-    font-family: monospace;
+    font-family: var(--font-tech);
+    font-size: var(--font-size-tech);
 
     cursor: pointer;
 }
@@ -265,12 +291,8 @@ onlyprint {
     display: none;
 }
 
-.hidden {
-    display: none;
-}
-
 code {
-    color: crimson;
+    color: var(--highlight-color);
     background-color: var(--contrast-color);
     padding: 2px;
     padding-left: 4px;
@@ -279,7 +301,7 @@ code {
 }
 
 note {
-    color: gray;
+    color: var(--muted-color);
     font-style: italic;
 }
 
@@ -329,12 +351,13 @@ note {
         border-right-style: dotted;
         border-bottom-style: dotted;
 
-        padding: 10px 20px;
-        padding-right: 40px;
+        padding: 10px 16px;
+        padding-right: 20px;
     }
 
     #topbar, #bottombar {
-        padding-left: 10px; padding-right: 10px;
+        padding-left: 8px;
+        padding-right: 8px;
         border: solid 1px var(--border-color);
 
         z-index: 2;
@@ -344,10 +367,10 @@ note {
     }
 
     #solvingbar, #infobar {
-        /*top: 30px;*/ top: 0;
-        bottom: 25px;
+        /*top: var(--topbar-height);*/ top: 0;
+        bottom: var(--bottombar-height);
         height: auto;
-        padding: 10px 12px;
+        padding: 10px;
 
         font-size: 0.92rem;
         line-height: 1.25;
