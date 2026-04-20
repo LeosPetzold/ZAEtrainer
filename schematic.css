@@ -145,7 +145,7 @@
 
 .schematic-tile:hover image,
 .schematic-tile:hover .schematic-tile-svg {
-    opacity: 0.9;
+    opacity: 1;
 }
 
 /* Junction tiles render on top and "clear" the background */

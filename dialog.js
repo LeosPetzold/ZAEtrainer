@@ -68,7 +68,7 @@ function dialogFuncView(schematic, variant, seed) {
     });
 
     $("#presetName")[0].innerText = schematics[schematic];
-    $("#presetVariant")[0].innerText = variant;
+    //$("#presetVariant")[0].innerText = variant;
     $("#presetSeed")[0].innerText = seed;
 
     dialogClose();

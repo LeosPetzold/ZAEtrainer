@@ -354,10 +354,7 @@ class SchematicLoader {
                 }
             }
 
-            const presetVariantEl = $("#presetVariant")[0];
-            if (presetVariantEl) {
-                presetVariantEl.innerText = variant;
-            }
+            $("#presetVariant")[0].innerText = variant == -1 ? "základní" : variant;
             const selectedVariant = String(variant);
             const hasVariant = variant >= 0;
 
