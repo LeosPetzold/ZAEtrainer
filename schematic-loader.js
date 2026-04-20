@@ -51,6 +51,7 @@ const globalTileOffsetY = 0;
 
 function formatMethodOutput(output, variant) {
     return String(output ?? "")
+        .replace(/\n/g, "<br>")
         .replace(/@(\d+)([\s\S]*?)@/g, (_match, id, content) => `<var style="display:${id==variant ? "initial" : "none"};">${content}</var>`);
 }
 
