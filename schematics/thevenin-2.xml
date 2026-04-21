@@ -7,7 +7,7 @@
     <tile type="resistor" x="-1" y="-2" id="R 1" resistance="rand;1;5;0" />
 
     <tile type="half-wire" x="0" y="-2" rotation="0" />
-    <tile type="half-wire" x="0" y="-2" rotation="90" />
+    <tile type="terminal-half-wire" x="0" y="-2" rotation="90" id="1" />
     <tile type="half-wire" x="0" y="-2" rotation="180" />
     <tile type="dot" x="0" y="-2" />
 
@@ -19,9 +19,9 @@
 
     <tile type="wire" x="-2" y="-1" rotation="90" />
 
-    <tile type="terminal" x="0" y="-1.75" id="1" />
+    <!--<tile type="terminal-wire" x="0" y="-1.75" id="1" />-->
     <tile type="resistor" x="0" y="-1" rotation="90" id="R 5" resistance="rand;1;5;0" />
-    <tile type="terminal" x="0" y="-0.25" id="2" />
+    <!--<tile type="terminal-wire" x="0" y="-0.25" id="2" />-->
 
     <tile type="wire" x="2" y="-1" rotation="90" />
 
@@ -35,7 +35,7 @@
 
     <tile type="half-wire" x="0" y="0" rotation="0" />
     <tile type="half-wire" x="0" y="0" rotation="180" />
-    <tile type="half-wire" x="0" y="0" rotation="270" />
+    <tile type="terminal-half-wire" x="0" y="0" rotation="270" id="2" />
     <tile type="dot" x="0" y="0" />
 
     <tile type="resistor" x="1" y="0" id="R 4" resistance="rand;1;5;0" />

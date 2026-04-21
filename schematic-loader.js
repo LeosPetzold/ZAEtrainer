@@ -185,6 +185,16 @@ class SchematicTile {
                 case "terminal":
                     closeupOffset = 30;
                     break;
+                case "wire":
+                case "terminal-wire":
+                    // !
+                    break;
+                case "half-wire":
+                case "terminal-half-wire":
+                    doLines = this.rotation % 180 != 0; // ! Fix .svg!
+                    textOffsetY = 18.5 + (this.rotation % 270 == 0 ? -tileSize/2 : 0);
+                    closeupOffset = 30;
+                    break;
             }
 
             // Set y AFTER switch, so it uses the final doLines value
