@@ -510,7 +510,20 @@ class SchematicLoader {
             if (methodsElement && methodsList.length > 0) {
                 $("#methodSelectDiv")[0].style.display = "initial";
                 for (const method of methodsList) {
-                    const evaluatedMethod = eval(method.textContent);
+                    let methodSource = "";
+                    for (const child of method.children) {
+                        if (child.tagName && child.tagName.toLowerCase() === "data") {
+                            methodSource = child.textContent || "";
+                            break;
+                        }
+                    }
+
+                    // Backward compatibility: older schematics stored code directly in <method>.
+                    if (!methodSource.trim()) {
+                        methodSource = method.textContent || "";
+                    }
+
+                    const evaluatedMethod = eval(methodSource);
                     methods.set(
                         method.getAttribute("name") || "[Bez názvu]",
                         formatMethodOutput(evaluatedMethod ?? "[Prázdné řešení]", variant)
@@ -582,7 +595,7 @@ class SchematicLoader {
         const centerY = containerHeight / 2;
 
         // Render regular tiles first
-        const regularTiles = this.tiles.filter(t => !['junction', 'dot'].includes(t.type));
+        const regularTiles = this.tiles.filter(t => !['junction', 'dot', 'terminal'].includes(t.type));
         regularTiles.forEach(tile => {
             tile.render(this.svgContainer, centerX, centerY, this.scale);
         });

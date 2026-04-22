@@ -48,7 +48,8 @@
     <tile type="half-wire" x="1" y="2" rotation="270" />
   </tiles>
   <methods>
-    <method name="Ohmův zákon a Kirchhoffovy zákony"><![CDATA[
+    <method name="Ohmův zákon a Kirchhoffovy zákony">
+      <data><![CDATA[
       (() => {
         const R1 = Number(window.circuit.R1);
         const R2 = Number(window.circuit.R2);
@@ -84,9 +85,16 @@
         $$U_1 = R_1 \\cdot I_1 = R_1 \\cdot \\frac{U}{R} = ${R1} \\cdot \\frac{${U}}{${R}} = ${U1}\\,\\text{V}$$
         <final>$$U_1 = ${U1}\\,\\text{V}$$</final>`;
       })()
-    ]]></method>
-    <method name="Theveninův theorém"><![CDATA[
+      ]]></data>
+      <tiles>
+        [ HERE SHALL BE METHOD-SPECIFIC SMALL "PIP" VIEWPORT SCHEMATIC TILES ]
+        <tile type="half-wire" x="1" y="4" rotation="180" />
+      </tiles>
+    </method>
+    <method name="Theveninův theorém">
+    <data><![CDATA[
       `Theveninův theorém...`
-    ]]></method>
+    ]]></data>
+    </method>
   </methods>
 </schematic>

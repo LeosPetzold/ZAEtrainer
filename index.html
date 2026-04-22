@@ -503,19 +503,6 @@
                 return document.getElementById("themeStylesheet");
             }
 
-            function isSolvingbarHidden() {
-                const solvingbar = document.getElementById("solvingbar");
-                if (!solvingbar) return true;
-                return window.getComputedStyle(solvingbar).display === "none";
-            }
-
-            function setPrintLayoutClasses() {
-                const hidden = isSolvingbarHidden();
-                document.body.classList.toggle("print-solv-hidden", hidden);
-                document.body.classList.toggle("print-solv-visible", !hidden);
-                return hidden;
-            }
-
             function applyPrintTransformFit() {
                 const svg = document.getElementById("schematicSvg");
                 if (!svg) {
@@ -544,7 +531,6 @@
                     svg.style.transform = originalPrintTransform;
                 }
                 originalPrintTransform = null;
-                document.body.classList.remove("print-solv-hidden", "print-solv-visible");
 
                 const themeStylesheet = getThemeStylesheet();
                 if (themeStylesheet) {
@@ -555,7 +541,6 @@
 
             window.addEventListener("beforeprint", function () {
                 disableThemeStylesheet();
-                setPrintLayoutClasses();
                 applyPrintTransformFit();
             });
 
