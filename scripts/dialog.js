@@ -19,7 +19,7 @@ function dialogOpen(title, force=false) {
             break;
         case "status":
         case "view":
-            $("#dialogclose").hide();
+            if (force) $("#dialogclose").hide();
             break;
     }
 
@@ -49,6 +49,10 @@ function dialogFuncReload() {
 const schematicSvg = document.getElementById("schematicSvg");
 const schematicLoader = window.schematicLoader;
 function dialogFuncView(schematic, variant, seed) {
+    // DEBUG ONLY DEBUG ONLY DEBUG ONLY
+    variant = 1;
+    // DEBUG END DEBUG END DEBUG END
+
     if (seed == "") seed = Math.floor(Math.random()*4294967295);
     if (variant == "") variant = -1;
     let invalid = false;

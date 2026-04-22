@@ -5,8 +5,8 @@ const schematics = {
     "testing": "Testovací schéma"
 }
 
-const dev = false;
-window.dev = dev;
+const production = true;
+window.dev = production;
 
 ///// Utilities
 const isNumber = (value) => !isNaN(value) && !isNaN(parseFloat(value));

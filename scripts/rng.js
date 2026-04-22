@@ -4,6 +4,7 @@
 
 class RandomNumberGenerator {
   constructor(seed = 1) {
+    console.log(`Starting RNG with seed ${seed}`);
     // Mix the seed hard into a uint32 state (avalanche effect).
     // Accepts numbers or strings.
     this.state = RandomNumberGenerator._seedToU32(seed);
