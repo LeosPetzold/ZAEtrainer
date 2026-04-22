@@ -1,6 +1,6 @@
 //const seed = 1081;
 const schematics = {
-    "thevenin-2": "Theveninův teorém II.",
+    "thevenin-1": "Théveninův teorém I.",
     "zatizeny-delic-napeti": "Zatížený napěťový dělič",
     "testing": "Testovací schéma"
 }

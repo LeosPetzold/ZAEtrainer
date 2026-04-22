@@ -63,6 +63,34 @@
     cursor: grab;
 }
 
+#viewportLoading, #viewportCoordinates {
+    position: absolute;
+    z-index: 5;
+
+    display: block;
+
+    padding: 3px 6px;
+    border: solid 1px var(--border-color);
+    border-radius: 999px;
+    background: var(--surface-color);
+    color: var(--muted-color);
+    font-family: monospace;
+    font-size: 0.72rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+}
+#viewportLoading {
+    left: 12px;
+    bottom: 10px;
+}
+#viewportCoordinates {
+    right: 12px;
+    bottom: 10px;
+}
+
 #schematicSvg {
     display: block;
     width: 100%;

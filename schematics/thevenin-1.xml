@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schematic>
-  <tiles>
+  <tiles offX="-0.5" offY="0.5">
     <tile type="half-wire" x="-2" y="-2" rotation="0" />
     <tile type="half-wire" x="-2" y="-2" rotation="90" />
     
     <tile type="resistor" x="-1" y="-2" id="R 1" resistance="rand;1;5;0" />
 
     <tile type="half-wire" x="0" y="-2" rotation="0" />
-    <tile type="terminal-half-wire" x="0" y="-2" rotation="90" id="1" />
+    <tile type="terminal-half-wire" x="0" y="-2" rotation="90" id="A" />
     <tile type="half-wire" x="0" y="-2" rotation="180" />
     <tile type="dot" x="0" y="-2" />
 
@@ -35,7 +35,7 @@
 
     <tile type="half-wire" x="0" y="0" rotation="0" />
     <tile type="half-wire" x="0" y="0" rotation="180" />
-    <tile type="terminal-half-wire" x="0" y="0" rotation="270" id="2" />
+    <tile type="terminal-half-wire" x="0" y="0" rotation="270" id="B" />
     <tile type="dot" x="0" y="0" />
 
     <tile type="resistor" x="1" y="0" id="R 4" resistance="rand;1;5;0" />
@@ -57,5 +57,48 @@
 
     <tile type="half-wire" x="2" y="1" rotation="180" />
     <tile type="half-wire" x="2" y="1" rotation="270" />
+
+    <!--Reálný zdroj napětí-->
+
+    <tile type="half-wire" x="3" y="-2" rotation="0" />
+    <tile type="half-wire" x="3" y="-2" rotation="90" />
+
+    <tile type="resistor" x="4" y="-2" id="R i" />
+
+    <tile type="terminal-half-wire-corner" x="5" y="-2" rotation="180" />
+    <tile type="terminal-half-wire-corner" x="5" y="-2" rotation="90" id="A" />
+
+
+    <tile type="voltage-source" x="3" y="-1" rotation="0" id="U 0" />
+
+    <tile type="resistor" x="5" y="-1" rotation="90" id="R Z" />
+
+
+    <tile type="half-wire" x="3" y="0" rotation="0" />
+    <tile type="half-wire" x="3" y="0" rotation="270" />
+
+    <tile type="wire" x="4" y="0" />
+
+    <tile type="terminal-half-wire-corner" x="5" y="0" rotation="180" />
+    <tile type="terminal-half-wire-corner" x="5" y="0" rotation="270" id="B" />
+    <extra>
+
+    </extra>
   </tiles>
+  <methods>
+    <method name="Théveninův theorém">
+      <data><![CDATA[
+      (() => {
+        const R1 = Number(window.circuit.R1);
+        const R2 = Number(window.circuit.R2);
+        const R3 = Number(window.circuit.R3);
+        const R4 = Number(window.circuit.R4);
+        const R5 = Number(window.circuit.R5);
+        const U = Number(window.circuit.U);
+
+        return `Théveninův theorém říká, že `;
+      })()
+      ]]></data>
+    </method>
+  </methods>
 </schematic>

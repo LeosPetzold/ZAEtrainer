@@ -82,4 +82,6 @@ function throwError(trace) {
     console.error(trace);
     $("#dialog_error-trace")[0].innerText = trace;
     dialogOpen("error");
+    loadstatShow();
+    loadstatStatus("CHYBA");
 }

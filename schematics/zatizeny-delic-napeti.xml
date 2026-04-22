@@ -79,21 +79,19 @@
 
         Z Ohmova zákona plyne, že:
         $$I = \\frac{U}{R} = I_1 = \\frac{${U}}{${R}} = ${I}\\,\\text{A}$$
-
         <h3>Finále</h3>
         Z Ohmova zákona lze snadno odvodit, že $U_1 = R_1 \\cdot I_1$, tedy:
         $$U_1 = R_1 \\cdot I_1 = R_1 \\cdot \\frac{U}{R} = ${R1} \\cdot \\frac{${U}}{${R}} = ${U1}\\,\\text{V}$$
         <final>$$U_1 = ${U1}\\,\\text{V}$$</final>`;
       })()
       ]]></data>
-      <tiles>
-        [ HERE SHALL BE METHOD-SPECIFIC SMALL "PIP" VIEWPORT SCHEMATIC TILES ]
+      <!--<tiles>
         <tile type="half-wire" x="1" y="4" rotation="180" />
-      </tiles>
+      </tiles>-->
     </method>
-    <method name="Theveninův theorém">
+    <method name="Théveninův theorém">
     <data><![CDATA[
-      `Theveninův theorém...`
+      `Théveninův theorém...`
     ]]></data>
     </method>
   </methods>

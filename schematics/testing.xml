@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schematic>
-  <tiles>
+  <tiles offX="-3">
     <!-- Variation board: wires (all rotations) -->
     <tile type="wire" x="-3" y="-6" rotation="0" />
     <tile type="wire" x="-1" y="-6" rotation="90" />
@@ -46,5 +46,19 @@
     <tile type="dot" x="1" y="6" />
     <tile type="half-wire" x="3" y="6" rotation="180" />
     <tile type="half-wire" x="3" y="6" rotation="270" />
+
+    <!-- Variation board: terminals (all rotations) -->
+    <tile type="terminal-wire" x="5" y="-6" rotation="0" id="A" />
+    <tile type="terminal-wire" x="7" y="-6" rotation="90" id="A" />
+    <tile type="terminal-wire" x="9" y="-6" rotation="180" id="A" />
+    <tile type="terminal-wire" x="11" y="-6" rotation="270" id="A" />
+    <tile type="terminal-half-wire" x="5" y="-4" rotation="0" id="A" />
+    <tile type="terminal-half-wire" x="7" y="-4" rotation="90" id="A" />
+    <tile type="terminal-half-wire" x="9" y="-4" rotation="180" id="A" />
+    <tile type="terminal-half-wire" x="11" y="-4" rotation="270" id="A" />
+    <tile type="terminal-half-wire-corner" x="5" y="-2" rotation="0" id="A" />
+    <tile type="terminal-half-wire-corner" x="7" y="-2" rotation="90" id="A" />
+    <tile type="terminal-half-wire-corner" x="9" y="-2" rotation="180" id="A" />
+    <tile type="terminal-half-wire-corner" x="11" y="-2" rotation="270" id="A" />
   </tiles>
 </schematic>

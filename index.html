@@ -12,7 +12,10 @@
         <!--KaTeX-->
         <link rel="stylesheet" href="KaTeX/katex.css">
         <style>
-            .katex-display { margin: 1em 0 0.5em 0; }
+            .katex-display {
+                margin: 0.5em 0 0.5em 0;
+                line-height: 1.5;
+            }
             .katex {
                 display: inline-block;
                 white-space: nowrap;
@@ -22,8 +25,14 @@
                 overflow-wrap: normal;
             }
             #solutionContents .katex-display {
-                overflow-x: auto;
-                overflow-y: hidden;
+                overflow-x: visible;
+                overflow-y: visible;
+                padding-top: 0.15em;
+                padding-bottom: 0.15em;
+            }
+            #solutionContents .katex-display > .katex,
+            #solutionContents .katex-display > .katex * {
+                line-height: 1.5;
             }
             #solutionContents .katex-display > .katex,
             #solutionContents .katex-display > .katex * {
@@ -160,6 +169,8 @@
                     <separator></separator><br>
                     <span id="instructionsquests"><i>Instrukce nebyly dány.</i></span>
                 </div>
+                <noprint id="viewportLoading" aria-hidden="true">STALL</noprint>
+                <noprint id="viewportCoordinates" aria-hidden="true">x: --  y: --</noprint>
                 <svg id="schematicSvg" viewBox="0 0 1200 800" aria-label="Schematic canvas" preserveAspectRatio="xMidYMid meet">
 <!--                    <g id="schematicGridLayer"></g>
                     <g id="schematicWireLayer"></g>
@@ -214,10 +225,13 @@
             </span>
         </div>
     </body>
-    <script src="config.js"></script>
-    <script src="jQuery.js"></script>
-    <script src="rng.js"></script>
-    <script src="schematic-loader.js"></script>
+    <script src="scripts/config.js"></script>
+    <script src="scripts/jQuery.js"></script>
+    <script src="scripts/rng.js"></script>
+
+    <script src="scripts/schematic-loader.js"></script>
+    <script src="scripts/schematic-viewport.js"></script>
+
     <script>
         // Initialize schematic loader
         (function() {
@@ -238,85 +252,12 @@
 
             // Expose loader globally for debugging/control
             window.schematicLoader = schematicLoader;
-
-            // Drag and zoom interaction handler
-            const viewport = document.getElementById("schematicViewport");
-            let panX = 0, panY = 0, zoom = 1;
-            let isDragging = false, dragStartX = 0, dragStartY = 0;
-
-            function updateTransform() {
-                schematicSvg.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
-            }
-
-            function resetView() {
-                panX = 0;
-                panY = 0;
-                zoom = 1;
-                updateTransform();
-            }
-
-            viewport.addEventListener("mousedown", (e) => {
-                isDragging = true;
-                dragStartX = e.clientX - panX;
-                dragStartY = e.clientY - panY;
-                viewport.style.cursor = "grabbing";
-            });
-
-            document.addEventListener("mousemove", (e) => {
-                if (isDragging) {
-                    panX = e.clientX - dragStartX;
-                    panY = e.clientY - dragStartY;
-                    updateTransform();
-                }
-            });
-
-            document.addEventListener("mouseup", () => {
-                isDragging = false;
-                viewport.style.cursor = "grab";
-            });
-
-            // Double-click to reset view
-            viewport.addEventListener("dblclick", () => {
-                resetView();
-            });
-
-            // Home key to reset view
-            document.addEventListener("keydown", (e) => {
-                if (e.key === "Home") {
-                    resetView();
-                }
-            });
-
-            viewport.addEventListener("wheel", (e) => {
-                e.preventDefault();
-                
-                // Get cursor position relative to viewport
-                const rect = viewport.getBoundingClientRect();
-                const cursorX = e.clientX - rect.left;
-                const cursorY = e.clientY - rect.top;
-                
-                // Calculate point in SVG space before zoom
-                const svgX = (cursorX - panX) / zoom;
-                const svgY = (cursorY - panY) / zoom;
-                
-                // Apply zoom change with adaptive speed based on current zoom level
-                const baseSpeed = 0.1;
-                const zoomSpeed = baseSpeed * Math.sqrt(zoom); // Slows down at extremes
-                const newZoom = zoom + (e.deltaY > 0 ? -zoomSpeed : zoomSpeed);
-                zoom = Math.max(1/3, Math.min(5, newZoom)); // Clamp zoom to 1/3-5x (33-500%)
-                
-                // Adjust pan to keep the same point under the cursor
-                panX = cursorX - svgX * zoom;
-                panY = cursorY - svgY * zoom;
-                
-                updateTransform();
-            }, { passive: false });
         })();
     </script>
-    <script src="dialog.js"></script>
+    <script src="scripts/dialog.js"></script>
     <script>
         /* USER BEGIN Debug */
-        dialogFuncView("zatizeny-delic-napeti", "1", "");
+        dialogFuncView("thevenin-1", "1", "");
         /* USER END Debug */
         const root = document.documentElement;
         const themeStorageKey = "zae-theme";

@@ -49,63 +49,16 @@ const tileSvgTemplateCache = new Map();
 const globalTileOffsetX = -1;
 const globalTileOffsetY = 0;
 
+window.schematicViewportMetrics = {
+    tileSize,
+    globalTileOffsetX,
+    globalTileOffsetY,
+};
+
 function toLatexFraction(value, inMath) {
     const simplified = new Fraction(value).simplify(1e-8);
     const latex = simplified.toLatex();
     return inMath ? latex : `$${latex}$`;
-}
-
-function convertFractionsInSegment(segment, inMath) {
-    return segment
-        .replace(/(-?\d+)\.(\d*)\((\d+)\)/g, (_m, i, n, r) => toLatexFraction(`${i}.${n}(${r})`, inMath))
-        .replace(/(-?\d+)\.(\d+)(?:\.\.\.|…)/g, (_m, i, r) => toLatexFraction(`${i}.(${r})`, inMath))
-        .replace(/-?\d+\.\d{4,}/g, (decimal) => toLatexFraction(decimal, inMath));
-}
-
-function convertFractionsForKatex(text) {
-    const source = String(text ?? "");
-    const segments = source.split(/(\$\$[\s\S]*?\$\$|\$[^$\n]*\$)/g);
-
-    return segments.map((segment) => {
-        if (!segment) {
-            return segment;
-        }
-
-        if (segment.startsWith("$$") && segment.endsWith("$$")) {
-            const inner = segment.slice(2, -2);
-            return `$$${convertFractionsInSegment(inner, true)}$$`;
-        }
-
-        if (segment.startsWith("$") && segment.endsWith("$")) {
-            const inner = segment.slice(1, -1);
-            return `$${convertFractionsInSegment(inner, true)}$`;
-        }
-
-        return convertFractionsInSegment(segment, false);
-    }).join("");
-}
-
-function convertNewlinesOutsideMath(text) {
-    const source = String(text ?? "");
-    const segments = source.split(/(\$\$[\s\S]*?\$\$|\$[^$\n]*\$)/g);
-
-    return segments.map((segment) => {
-        if (!segment) {
-            return segment;
-        }
-
-        if ((segment.startsWith("$$") && segment.endsWith("$$")) ||
-            (segment.startsWith("$") && segment.endsWith("$"))) {
-            return segment;
-        }
-
-        return segment.replace(/\n/g, "<br>");
-    }).join("");
-}
-
-function formatMethodOutput(output, variant) {
-    return convertNewlinesOutsideMath(convertFractionsForKatex(output))
-        .replace(/@(\d+)([\s\S]*?)@/g, (_match, id, content) => `<var style="display:${id==variant ? "initial" : "none"};">${content}</var>`);
 }
 
 function rethemeTileSvg(svgRoot) {
@@ -218,6 +171,8 @@ class SchematicTile {
 
             let closeupOffset = 0;
 
+            this.rotation = this.rotation % 360;
+
             let doLines = this.rotation % 180 == 0;
             label.setAttribute("x", 0);
             switch (this.type) {
@@ -240,12 +195,15 @@ class SchematicTile {
                     break;
                 case "wire":
                 case "terminal-wire":
-                    // !
+                case "terminal-half-wire-corner":
+                    doLines = this.rotation % 180 != 0; // ! Fix .svg!
+                    closeupOffset = 30;
                     break;
                 case "half-wire":
                 case "terminal-half-wire":
                     doLines = this.rotation % 180 != 0; // ! Fix .svg!
-                    textOffsetY = 18.5 + (this.rotation % 270 == 0 ? -tileSize/2 : 0);
+                    textOffsetX = (doLines ? 0 : tileSize/4) + (this.rotation == 180 ? -tileSize/2 : 0);
+                    textOffsetY = (doLines ? tileSize/4 : 0) + (this.rotation == 270 ? -tileSize/2 : 0);
                     closeupOffset = 30;
                     break;
             }
@@ -352,27 +310,34 @@ class SchematicLoader {
      * </schematic>
      */
 
-    async loadXML(xmlPath, variant, seed) {        // Globals cleanup
-        window.circuit = circuit;
-        Object.keys(circuit).forEach((key) => {
-            delete circuit[key];
-        });
+    async loadXML(xmlPath, variant, seed) {
+        loadstatShow();
+        loadstatStatus("Načítám XML schéma..");
 
-        // Loader-side states
-        variant = Number(variant);
-        if (!Number.isFinite(variant)) {
-            variant = -1;
+        // Setup block
+        const requestVersion = ++this.loadVersion; // Same-time loading prevention
+        try {
+            // Globals cleanup & setup
+            window.circuit = circuit;
+            Object.keys(circuit).forEach((key) => {
+                delete circuit[key];
+            });
+            // Locals (tiles+) cleanup & setup
+            this.rng = new RandomNumberGenerator(seed);
+            this.tiles = [];
+            this.clear();
+
+            // Loader-side states and corrections
+            variant = Number(variant);
+        } catch (error) {
+            throwError("Error setting up XML loader: "+error);
+            return false;
         }
 
-        const requestVersion = ++this.loadVersion;
-        this.rng = new RandomNumberGenerator(seed);
-
-        // Start each load from a clean state.
-        this.tiles = [];
-        this.clear();
-
+        // Loader block
         try {
-            $("#instructionsparams")[0].innerHTML = ""; // Clear out instructions
+            // Cleanup
+            $("#instructionsparams")[0].innerHTML = "";
 
             const response = await fetch(xmlPath);
             const xmlText = await response.text();
@@ -388,10 +353,16 @@ class SchematicLoader {
                 return false;
             }
 
+            // Tiles data root
             const tilesRoot = xmlDoc.getElementsByTagName("tiles")[0];
             const tilesOffsetX = parseFloat(tilesRoot?.getAttribute("offX")) || 0;
             const tilesOffsetY = parseFloat(tilesRoot?.getAttribute("offY")) || 0;
+            window.schematicXmlOffsets = {
+                x: tilesOffsetX,
+                y: tilesOffsetY,
+            };
 
+            // Tile data handling
             const tileElements = tilesRoot.getElementsByTagName("tile");
             const parsedTiles = [];
             const instructionRows = [];
@@ -407,7 +378,7 @@ class SchematicLoader {
             // Task parsing
             const tasksRoot = xmlDoc.getElementsByTagName("task")[0];
             const taskVariants = tasksRoot ? Array.from(tasksRoot.getElementsByTagName("variant")) : [];
-
+            // Task variant parsing
             if (variant === -1 && taskVariants.length > 0) {
                 const taskVariantIds = taskVariants
                     .map((candidate) => Number.parseInt(candidate.getAttribute("id") || "", 10))
@@ -418,10 +389,12 @@ class SchematicLoader {
                 }
             }
 
+            // Variant handling
             $("#presetVariant")[0].innerText = variant == -1 ? "základní" : variant;
             const selectedVariant = String(variant);
             const hasVariant = variant >= 0;
 
+            // Task handling
             if (tasksRoot) {
                 if (hasVariant && taskVariants.length > 0) {
                     const taskVariant = taskVariants.find(
@@ -435,9 +408,13 @@ class SchematicLoader {
                 $("#instructionsquests")[0].innerHTML = "<i>Instrukce nebyly dány.</i>";
             }
 
+            let counter = 0;
+            const tileElementsLength = tileElements.length;
+            // Tile (<tile>) handling
             for (const tileEl of tileElements) {
+                loadstatStatus(`Načítám blok ${counter+1} z ${tileElementsLength}..`);
+
                 const type = tileEl.getAttribute("type");
-                //const id = tileEl.getAttribute("id");
                 const x = (parseFloat(tileEl.getAttribute("x")) || 0) + tilesOffsetX;
                 const y = (parseFloat(tileEl.getAttribute("y")) || 0) + tilesOffsetY;
                 const rotation = parseFloat(tileEl.getAttribute("rotation")) || 0;
@@ -489,7 +466,8 @@ class SchematicLoader {
                 const tile = new SchematicTile(type, x, y, rotation, data);
                 parsedTiles.push(tile);
             }
-
+            loadstatStatus(`Data post-processing..`);
+            // Post-loop instruction finale
             instructionRows.sort((a, b) => {
                 const baseDiff = instructionOrder[a.base] - instructionOrder[b.base];
                 if (baseDiff !== 0) {
@@ -497,11 +475,9 @@ class SchematicLoader {
                 }
                 return a.sub.localeCompare(b.sub, undefined, { numeric: true, sensitivity: "base" });
             });
-
             $("#instructionsparams")[0].innerHTML = instructionRows
                 .map((row) => `${row.base}<sub>${row.sub}</sub> = <b>${row.value}</b>${row.unit}<br>`)
                 .join("");
-
             // Parse solutions
             const methodsElement = xmlDoc.getElementsByTagName("methods")[0];
             methods = new Map();
@@ -518,10 +494,10 @@ class SchematicLoader {
                         }
                     }
 
-                    // Backward compatibility: older schematics stored code directly in <method>.
+                    /*// Backward compatibility: older schematics stored code directly in <method>.
                     if (!methodSource.trim()) {
                         methodSource = method.textContent || "";
-                    }
+                    }*/
 
                     const evaluatedMethod = eval(methodSource);
                     methods.set(
@@ -535,19 +511,22 @@ class SchematicLoader {
             } else {
                 $("#methodSelectDiv")[0].style.display = "none";
             }
-
+            // Method selector
             $("#methodSelect")[0].innerHTML = options;
             $("#methodSelect").off("change").on("change", function() {
                 updateMethod(this.value);
             });
             updateMethodBlind();
 
-
             if (requestVersion !== this.loadVersion) {
                 return false;
             }
 
+            // Final tiles assignment
             this.tiles = parsedTiles;
+
+            loadstatStatus("Načteno!");
+            setTimeout(() => {loadstatHide(); }, 800 )
 
             console.log(`Loaded ${this.tiles.length} tiles from XML`);
             return true;
@@ -556,6 +535,7 @@ class SchematicLoader {
             return false;
         }
     }
+    // Input processing - exponential numbers and "rand" (random number) expressions
     processInput(value) {
         if (!value) return null;
 
@@ -588,23 +568,28 @@ class SchematicLoader {
     }
 
     render(containerWidth, containerHeight) {
-        // Clear previous tiles
-        this.clear();
+        try {
+            // Clear previous tiles
+            this.clear();
 
-        const centerX = containerWidth / 2;
-        const centerY = containerHeight / 2;
+            const centerX = containerWidth / 2;
+            const centerY = containerHeight / 2;
 
-        // Render regular tiles first
-        const regularTiles = this.tiles.filter(t => !['junction', 'dot', 'terminal'].includes(t.type));
-        regularTiles.forEach(tile => {
-            tile.render(this.svgContainer, centerX, centerY, this.scale);
-        });
+            // Render regular tiles first
+            const regularTiles = this.tiles.filter(t => !['junction', 'dot', 'terminal'].includes(t.type));
+            regularTiles.forEach(tile => {
+                tile.render(this.svgContainer, centerX, centerY, this.scale);
+            });
 
-        // Render junction, dot, and terminal tiles last (on top) so they override
-        const topTiles = this.tiles.filter(t => ['junction', 'dot', 'terminal'].includes(t.type));
-        topTiles.forEach(tile => {
-            tile.render(this.svgContainer, centerX, centerY, this.scale);
-        });
+            // Render junction, dot, and terminal tiles last (on top) so they override
+            const topTiles = this.tiles.filter(t => ['junction', 'dot', 'terminal'].includes(t.type));
+            topTiles.forEach(tile => {
+                tile.render(this.svgContainer, centerX, centerY, this.scale);
+            });
+        }
+        catch (error) {
+            throwError("Error rendering: "+error)
+        }
     }
 
     setScale(scale) {
@@ -637,15 +622,13 @@ class SchematicLoader {
 window.SchematicTile = SchematicTile;
 window.SchematicLoader = SchematicLoader;
 
-function pseudoRandom(seed) {
-    let value = seed;
+const circuit = {};
+window.circuit = circuit;
 
-    return function () {
-        value = value * 16807 % 2147483647;
-        return value;
-    }
-}
 
+//// UTILITY FUNCTIONS
+
+// Method text handling
 function updateMethodBlind() {
     updateMethod($("#methodSelect").val());
 }
@@ -658,6 +641,76 @@ function updateMethod(key) {
         ],
     });
 }
+function convertFractionsInSegment(segment, inMath) {
+    return segment
+        .replace(/(-?\d+)\.(\d*)\((\d+)\)/g, (_m, i, n, r) => toLatexFraction(`${i}.${n}(${r})`, inMath))
+        .replace(/(-?\d+)\.(\d+)(?:\.\.\.|…)/g, (_m, i, r) => toLatexFraction(`${i}.(${r})`, inMath))
+        .replace(/-?\d+\.\d{4,}/g, (decimal) => toLatexFraction(decimal, inMath));
+}
+function convertFractionsForKatex(text) {
+    const source = String(text ?? "");
+    const segments = source.split(/(\$\$[\s\S]*?\$\$|\$[^$\n]*\$)/g);
 
-const circuit = {};
-window.circuit = circuit;
+    return segments.map((segment) => {
+        if (!segment) {
+            return segment;
+        }
+
+        if (segment.startsWith("$$") && segment.endsWith("$$")) {
+            const inner = segment.slice(2, -2);
+            return `$$${convertFractionsInSegment(inner, true)}$$`;
+        }
+
+        if (segment.startsWith("$") && segment.endsWith("$")) {
+            const inner = segment.slice(1, -1);
+            return `$${convertFractionsInSegment(inner, true)}$`;
+        }
+
+        return convertFractionsInSegment(segment, false);
+    }).join("");
+}
+function convertNewlinesOutsideMath(text) {
+    const source = String(text ?? "");
+    const segments = source.split(/(\$\$[\s\S]*?\$\$|\$[^$\n]*\$)/g);
+
+    return segments.map((segment) => {
+        if (!segment) {
+            return segment;
+        }
+
+        if ((segment.startsWith("$$") && segment.endsWith("$$")) ||
+            (segment.startsWith("$") && segment.endsWith("$"))) {
+            return segment;
+        }
+
+        return segment.replace(/\n/g, "<br>");
+    }).join("");
+}
+function formatMethodOutput(output, variant) {
+    return convertNewlinesOutsideMath(convertFractionsForKatex(output))
+        .replace(/@(\d+)([\s\S]*?)@/g, (_match, id, content) => `<var style="display:${id==variant ? "initial" : "none"};">${content}</var>`);
+}
+// Method text handling END
+
+// RNG
+/*function pseudoRandom(seed) {
+    let value = seed;
+
+    return function () {
+        value = value * 16807 % 2147483647;
+        return value;
+    }
+}*/
+// RNG END
+
+// Viewport loading status text
+function loadstatShow() {
+    $("#viewportLoading")[0].style.display = "initial";
+}
+function loadstatStatus(value) {
+    $("#viewportLoading")[0].innerHTML = value;
+}
+function loadstatHide() {
+    $("#viewportLoading")[0].style.display = "none";
+}
+// Viewport loading status text END
