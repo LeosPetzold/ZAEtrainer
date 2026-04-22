@@ -1,0 +1,5 @@
+# Sloupec řešení
+- In-line math
+- Fix math
+
+- Napsat nějaké extra obvody + obvody s více zdroji a metody
