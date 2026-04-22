@@ -96,7 +96,7 @@
         const R5 = Number(window.circuit.R5);
         const U = Number(window.circuit.U);
 
-        return `Théveninův theorém říká, že `;
+        return `Toto řešení nebylo dosud definováno.`;
       })()
       ]]></data>
     </method>

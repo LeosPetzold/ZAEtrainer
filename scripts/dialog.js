@@ -8,13 +8,17 @@ function dialogClose() {
     $("#dialog")[0].style.display = "none";
 }
 
-function dialogOpen(title) {
+function dialogOpen(title, force=false) {
     dialogCleanup();
     $(".dialog_" + title).show();
 
     // Special overrides
     switch(title) {
         case "error":
+            $("#dialogclose").hide();
+            break;
+        case "status":
+        case "view":
             $("#dialogclose").hide();
             break;
     }

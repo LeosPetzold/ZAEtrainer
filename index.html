@@ -108,7 +108,9 @@
                     <span class="dialog_status">
                         Tento projekt je v ranném stavu. Očekávejte chyby a špatný výkon.
                         <br>
-                        <input type="submit" id="dialogbutton" onclick="dialogClose();" value="OK" />
+                        <b>Vše je dosud stavěno na velké obrazovky (počítače).</b>
+                        <br>
+                        <input type="submit" id="dialogbutton" onclick="dialogClose(); dialogOpen('view', true)" value="OK" />
                     </span>
                 </div>
             </div>
@@ -127,7 +129,7 @@
                 </span>
             </noprint>
             <span>
-                <clickable onclick='dialogOpen("view");''>
+                <clickable onclick='dialogOpen("view", true);''>
                     <u id="presetName"><span style="color: red;">Nevybráno</span></u>
                     <span id="presetVariantContainer">varianta <span id="presetVariant"><span style="color: red;">NaN</span></span></span>
                     #<b id="presetSeed"><span style="color: red;">NaN</span></b>
@@ -257,14 +259,15 @@
     <script src="scripts/dialog.js"></script>
     <script>
         /* USER BEGIN Debug */
-        dialogFuncView("thevenin-1", "1", "");
+        if (!window.dev) dialogFuncView("thevenin-1", "1", "");
         /* USER END Debug */
         const root = document.documentElement;
         const themeStorageKey = "zae-theme";
         const themes = [
+            { name: "paper", label: "Paper" },
             { name: "classic", label: "Classic" },
             { name: "midnight", label: "Midnight" },
-            { name: "paper", label: "Paper" },
+            /*{ name: "paper", label: "Paper" },*/
             { name: "red-light", label: "Red Light" },
             { name: "red-dark", label: "Red Dark" },
             { name: "github-light", label: "GitHub Light" },
@@ -491,6 +494,6 @@
         })();
 
         // STATUS DIALOG
-        if (false) dialogOpen("status");
+        if (window.dev) dialogOpen("status", true);
     </script>
 </html>
