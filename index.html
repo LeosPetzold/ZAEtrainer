@@ -16,9 +16,10 @@
                     <span id="dialogtitle" class="dialog_print">Tisk dokumentu</span>
                     <span id="dialogtitle" class="dialog_view">Zobrazit schéma</span>
                     <span id="dialogtitle" class="dialog_error">⚠CHYBA⚠</span>
+                    <span id="dialogtitle" class="dialog_status">Stav projektu</span>
                     <span id="dialogclose" onclick="dialogClose();">✕</span>
                 </div>
-                <div id="dialogcontent">
+                <div id="dialogcontent"></div>
                     <span class="dialog_print">
                         Doporučená velikost A4, tisk na šířku.<br>
                         Okraje jsou nastaveny na 5mm.<br>
@@ -64,6 +65,11 @@
                             <input type="submit" id="dialogbutton" onclick="dialogFuncReload();" value="Načíst znovu" />
                             <input type="submit" id="dialogbutton" onclick="alert('Error reporting ještě není implementovaný.');" value="Nahlásit" />
                         </div>
+                    </span>
+                    <span class="dialog_status">
+                        Tento projekt je v ranném stavu. Očekávejte chyby a špatný výkon.
+                        <br>
+                        <button onclick="dialogClose();">OK</button>
                     </span>
                 </div>
             </div>
@@ -277,6 +283,7 @@
     </script>
     <script src="dialog.js"></script>
     <script>
+        if (true) dialogOpen("status");
         /* USER BEGIN Debug */
         dialogFuncView("zatizeny-delic-napeti", "1", "");
         /* USER END Debug */
