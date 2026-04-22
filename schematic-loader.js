@@ -49,9 +49,62 @@ const tileSvgTemplateCache = new Map();
 const globalTileOffsetX = -1;
 const globalTileOffsetY = 0;
 
+function toLatexFraction(value, inMath) {
+    const simplified = new Fraction(value).simplify(1e-8);
+    const latex = simplified.toLatex();
+    return inMath ? latex : `$${latex}$`;
+}
+
+function convertFractionsInSegment(segment, inMath) {
+    return segment
+        .replace(/(-?\d+)\.(\d*)\((\d+)\)/g, (_m, i, n, r) => toLatexFraction(`${i}.${n}(${r})`, inMath))
+        .replace(/(-?\d+)\.(\d+)(?:\.\.\.|…)/g, (_m, i, r) => toLatexFraction(`${i}.(${r})`, inMath))
+        .replace(/-?\d+\.\d{4,}/g, (decimal) => toLatexFraction(decimal, inMath));
+}
+
+function convertFractionsForKatex(text) {
+    const source = String(text ?? "");
+    const segments = source.split(/(\$\$[\s\S]*?\$\$|\$[^$\n]*\$)/g);
+
+    return segments.map((segment) => {
+        if (!segment) {
+            return segment;
+        }
+
+        if (segment.startsWith("$$") && segment.endsWith("$$")) {
+            const inner = segment.slice(2, -2);
+            return `$$${convertFractionsInSegment(inner, true)}$$`;
+        }
+
+        if (segment.startsWith("$") && segment.endsWith("$")) {
+            const inner = segment.slice(1, -1);
+            return `$${convertFractionsInSegment(inner, true)}$`;
+        }
+
+        return convertFractionsInSegment(segment, false);
+    }).join("");
+}
+
+function convertNewlinesOutsideMath(text) {
+    const source = String(text ?? "");
+    const segments = source.split(/(\$\$[\s\S]*?\$\$|\$[^$\n]*\$)/g);
+
+    return segments.map((segment) => {
+        if (!segment) {
+            return segment;
+        }
+
+        if ((segment.startsWith("$$") && segment.endsWith("$$")) ||
+            (segment.startsWith("$") && segment.endsWith("$"))) {
+            return segment;
+        }
+
+        return segment.replace(/\n/g, "<br>");
+    }).join("");
+}
+
 function formatMethodOutput(output, variant) {
-    return String(output ?? "")
-        .replace(/\n/g, "<br>")
+    return convertNewlinesOutsideMath(convertFractionsForKatex(output))
         .replace(/@(\d+)([\s\S]*?)@/g, (_match, id, content) => `<var style="display:${id==variant ? "initial" : "none"};">${content}</var>`);
 }
 
@@ -423,7 +476,7 @@ class SchematicLoader {
                     else instructionWorthy = false;
                     
                     if (instructionWorthy) {
-                        circuit[base + parts[1]] = primaryValue;
+                        circuit[base + parts[1]] = Number(primaryValue);
                         instructionRows.push({
                             base,
                             sub: parts[1],
@@ -585,6 +638,12 @@ function updateMethodBlind() {
 }
 function updateMethod(key) {
     $('#solutionContents')[0].innerHTML = methods.get(key) || "<i>Žádné definované řešení.</i>";
+    window.renderMathInElement($('#solutionContents')[0], {
+        delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false },
+        ],
+    });
 }
 
 const circuit = {};

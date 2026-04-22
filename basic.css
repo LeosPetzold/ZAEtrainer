@@ -1,6 +1,6 @@
 :root {
-    --infobar-width: 280px;
-    --solvingbar-width: 280px;
+    --infobar-width: 200px;
+    --solvingbar-width: 480px;
     --topbar-height: 40px;
     --bottombar-height: 40px;
 
@@ -124,6 +124,10 @@ body {
 }
 #solvingbarResizer {
     right: calc(var(--infobar-width) + var(--solvingbar-width) - 4px);
+}
+
+#solutionContents {
+    word-wrap: normal;
 }
 
 #instructions {
@@ -290,6 +294,10 @@ note {
     color: var(--muted-color);
     font-style: italic;
 }
+
+/*final {
+    font-weight: 800;
+}*/
 
 /*var {
     display: none;

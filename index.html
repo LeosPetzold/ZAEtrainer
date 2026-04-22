@@ -8,6 +8,34 @@
         <link id="themeStylesheet" href="theme/classic.css" rel="stylesheet">
         <link href="schematic.css" rel="stylesheet">
         <link href="print.css" rel="stylesheet">
+
+        <!--KaTeX-->
+        <link rel="stylesheet" href="KaTeX/katex.css">
+        <style>
+            .katex-display { margin: 1em 0 0.5em 0; }
+            .katex {
+                display: inline-block;
+                white-space: nowrap;
+            }
+            #solutionContents {
+                word-break: normal;
+                overflow-wrap: normal;
+            }
+            #solutionContents .katex-display {
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+            #solutionContents .katex-display > .katex,
+            #solutionContents .katex-display > .katex * {
+                white-space: nowrap !important;
+            }
+        </style>
+        <script src="KaTeX/katex.js"></script>
+        <script src="KaTeX/auto-render.js"></script>
+        <script src="KaTeX/fraction.js"></script>
+        <script>
+            window.renderMathInElement = renderMathInElement;
+        </script>
     </head>
     <body>
         <div id="dialog" style="display: none;">
@@ -19,7 +47,7 @@
                     <span id="dialogtitle" class="dialog_status">Stav projektu</span>
                     <span id="dialogclose" onclick="dialogClose();">✕</span>
                 </div>
-                <div id="dialogcontent"></div>
+                <div id="dialogcontent">
                     <span class="dialog_print">
                         Doporučená velikost A4, tisk na šířku.<br>
                         Okraje jsou nastaveny na 5mm.<br>
@@ -69,7 +97,7 @@
                     <span class="dialog_status">
                         Tento projekt je v ranném stavu. Očekávejte chyby a špatný výkon.
                         <br>
-                        <button onclick="dialogClose();">OK</button>
+                        <input type="submit" id="dialogbutton" onclick="dialogClose();" value="OK" />
                     </span>
                 </div>
             </div>

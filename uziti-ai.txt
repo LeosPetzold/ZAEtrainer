@@ -4,6 +4,7 @@ Umělá inteligence byla využita v následujících oborech:
 - základní načítání obvodů
 - integrace vzhledového systému
 - generace testového schémata
+- integrace LaTeX (KaTeX) systému do řešení
 
 Neosvědčila se v:
 - debuggingu

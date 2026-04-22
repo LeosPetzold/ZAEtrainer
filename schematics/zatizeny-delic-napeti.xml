@@ -49,18 +49,41 @@
   </tiles>
   <methods>
     <method name="Ohmův zákon a Kirchhoffovy zákony"><![CDATA[
-      `Jelikož U<sub>R<sub>z</sub></sub>=${window.circuit.U}V, bla bla bla...
-      
-      @1Toto jest var1!@@2Toto jest var2!@
-      
-      @1
-      Kombinace resistorů:
-      ${(window.circuit.R2 * window.circuit.RZ) / (window.circuit.R2 + window.circuit.RZ)}
-      @
+      (() => {
+        const R1 = Number(window.circuit.R1);
+        const R2 = Number(window.circuit.R2);
+        const RZ = Number(window.circuit.RZ);
+        const U = Number(window.circuit.U);
 
-      ${window.circuit.U}
-      ${window.circuit.R2}
-      ${window.circuit.RZ}`
+        const R2Z = (R2 * RZ) / (R2 + RZ);
+        const R = R1 + R2Z;
+        const I = U / R;
+        const U1 = R1 * I;
+
+        return `Tento obvod lze vyřešit pomocí tří základních zákonů bez použití jakékoliv externí metody.
+
+        Chceme-li vypočítat úbytek napětí $U_1$ na resistoru $R_1$, musíme nejprve znát $R_1$ a $I_1$.
+        $R_1$ je nám ze zadání dáno, $I_1$ je však třeba vypočítat.
+
+        Jelikož je odpor sériově připojen ke zdroji, všechen proud prochází resistorem $R_1$.
+        Pro výpočet proudu $I_1$ tedy potřebujeme znát $U$ (v zadání) a odpor zapojení.
+
+        <h3>Výpočet $R$ a $I$</h3>
+        Odpor zapojení $R$ se vypočítá jako součet odporů $R_1$, $R_2$ a $R_Z$.
+
+        $R_2$ a $R_Z$ jsou zapojeny paralelně, můžeme tedy použít vzoreček:
+        $$R_{2Z} = \\frac{R_2 \\cdot R_Z}{R_2 + R_Z} = \\frac{${R2} \\cdot ${RZ}}{${R2} + ${RZ}} = ${R2Z}\\,\\Omega$$
+        $R_1$ je k výslednému $R_{2Z}$ připojen v sérii, tedy:
+        $$R = R_1 + R_{2Z} = ${R1} + ${R2Z} = ${R}\\,\\Omega$$
+
+        Z Ohmova zákona plyne, že:
+        $$I = \\frac{U}{R} = I_1 = \\frac{${U}}{${R}} = ${I}\\,\\text{A}$$
+
+        <h3>Finále</h3>
+        Z Ohmova zákona lze snadno odvodit, že $U_1 = R_1 \\cdot I_1$, tedy:
+        $$U_1 = R_1 \\cdot I_1 = R_1 \\cdot \\frac{U}{R} = ${R1} \\cdot \\frac{${U}}{${R}} = ${U1}\\,\\text{V}$$
+        <final>$$U_1 = ${U1}\\,\\text{V}$$</final>`;
+      })()
     ]]></method>
     <method name="Theveninův theorém"><![CDATA[
       `Theveninův theorém...`
