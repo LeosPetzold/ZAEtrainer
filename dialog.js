@@ -29,9 +29,12 @@ for (var key in schematics) {
 }
 
 ///// Specific dialog functions
-function dialogFuncPrint() {
+function dialogFuncPrintSchematic() {
     dialogClose();
     print();
+}
+function dialogFuncPrintSolution() {
+    alert("Tisk řešení není zatím implementován.");
 }
 
 function dialogFuncReload() {

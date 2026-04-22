@@ -4,7 +4,7 @@
     <variant id="1">Jaký je úbytek napětí na resistoru R<sub>1</sub>?</variant>
     <variant id="2">Jaký je odpor resistoru R<sub>1</sub>?</variant>
   </task>
-  <tiles offX="0" offY="0">
+  <tiles offX="1" offY="0">
     <tile type="half-wire" x="-1" y="-2" rotation="0" />
     <tile type="half-wire" x="-1" y="-2" rotation="90" />
 

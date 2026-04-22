@@ -1,0 +1,12 @@
+:root {
+    color-scheme: dark;
+    --theme-color: #d8e7ff;
+    --muted-color: #7ea3d8;
+    --highlight-color: #2dffb0;
+    --border-color: #334e8a;
+
+    --background-color: #060b17;
+    --contrast-color: #0e1630;
+    --contrast-color-subtle: #162447;
+    --surface-color: #0f1b39;
+}

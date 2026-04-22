@@ -51,6 +51,7 @@
                     <span class="dialog_print">
                         Doporučená velikost A4, tisk na šířku.<br>
                         Okraje jsou nastaveny na 5mm.<br>
+                        Tisk záhlaví a zápatí je třeba vypnout přímo v tiskovém dialogu.<br>
                         <br>
                         <separator></separator>
                         <note>Upozornění: Tisk se může na malých obrazovkách
@@ -60,7 +61,8 @@
                         </note>
                         <separator></separator>
                         <br>
-                        <button id="dialogbutton" onclick="dialogFuncPrint();">Tisk</button>
+                        <button id="dialogbutton" onclick="dialogFuncPrintSchematic();">Tisk schémata</button>
+                        <button id="dialogbutton" onclick="dialogFuncPrintSolution();">Tisk řešení</button>
                     </span>
                     <span class="dialog_view">
                         <label for="schematicInput">Schéma</label><br>
@@ -193,6 +195,8 @@
             prostřednictvím náhodně generovaných příkladů, které lze s pomocí seedového čísla jednodušše sdílet
             nebo vytisknout.
             </note>
+            <br><br>
+            Vpravo nahoře lze vybrat téma vzhledu. Téma nemá dopad na výsledný černobíly výtisk.
         </div>
         <div id="solvingbarResizer" class="panel-resizer"></div>
         <div id="infobarResizer" class="panel-resizer"></div>
@@ -311,7 +315,6 @@
     </script>
     <script src="dialog.js"></script>
     <script>
-        if (true) dialogOpen("status");
         /* USER BEGIN Debug */
         dialogFuncView("zatizeny-delic-napeti", "1", "");
         /* USER END Debug */
@@ -329,7 +332,8 @@
             { name: "forest-dark", label: "Forest Dark" },
             { name: "ocean-light", label: "Ocean Light" },
             { name: "ocean-dark", label: "Ocean Dark" },
-            { name: "emerald", label: "Emerald" }
+            { name: "emerald", label: "Emerald" },
+            { name: "cyberflux", label: "Neon" },
         ];
 
         const themeAliases = new Map([
@@ -560,5 +564,7 @@
             });
         })();
 
+        // STATUS DIALOG
+        if (false) dialogOpen("status");
     </script>
 </html>
