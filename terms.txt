@@ -1,0 +1,8 @@
+Stránka používá malé textové pole (local storage) přímo ve Vašem prohlížeči, aby si zapamatovala Vámi vybrané barevné téma.
+Cookies nejsou sbírány. Analytická data nejsou shromažďována, jedná se o prostý hostigový webserver.
+IP adresy ani další data nejsou jakkoliv posílány serveru. Klient (prohlížeč uživatele) pouze poroučí serveru, která data mu má server poslat, jednoduchým požadavkem.
+Jedná se o prostou webovou stránku, která je volně k využití pod níže stanovenými podmínkami:
+
+Všechny prvky na stránce vyjm. ikony stránky (favicon.ico) patří pod majitele stránky.
+Distribuce prvků, prodej, zneužití, přivlastňování a plagarizace jsou plně zakázány. To platí i pro výtisky, není-li osobně nebo písemně schváleno majitelem.
+Za škody způsobené stránkou ručí uživatel. Majitel stránky není zodpovědný.

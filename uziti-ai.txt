@@ -6,9 +6,11 @@ Umělá inteligence byla využita v následujících oborech:
 - generace testového schémata
 - integrace LaTeX (KaTeX) systému do řešení
 
-Neosvědčila se v:
+Neosvědčila se v / nebyla použita při:
 - debuggingu
 - závažně funkčním programování
+- zkušenostech v základech elektrotechniky z hlediska textového doplňování
+- schématech (krom. části testovacího schémata) a textech řešení
 
 To jsou samozřejmě pouhé limitace relativně levných komerčně dostupných modelů.
 
