@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schematic>
+  <task>
+    <variant id="1">Určete napětí $U_Z$ na resistoru $R_Z$.</variant>
+  </task>
   <tiles offX="-0.5" offY="0.5">
     <tile type="half-wire" x="-2" y="-2" rotation="0" />
     <tile type="half-wire" x="-2" y="-2" rotation="90" />
@@ -20,7 +23,7 @@
     <tile type="wire" x="-2" y="-1" rotation="90" />
 
     <!--<tile type="terminal-wire" x="0" y="-1.75" id="1" />-->
-    <tile type="resistor" x="0" y="-1" rotation="90" id="R 5" resistance="rand;1;5;0" />
+    <tile type="resistor" x="0" y="-1" rotation="90" id="R Z" resistance="rand;1;5;0" />
     <!--<tile type="terminal-wire" x="0" y="-0.25" id="2" />-->
 
     <tile type="wire" x="2" y="-1" rotation="90" />
@@ -93,11 +96,54 @@
         const R2 = Number(window.circuit.R2);
         const R3 = Number(window.circuit.R3);
         const R4 = Number(window.circuit.R4);
-        const R5 = Number(window.circuit.R5);
+        const RZ = Number(window.circuit.RZ);
         const U = Number(window.circuit.U);
 
-        return `Toto řešení nebylo dosud definováno.`;
-      })()
+        const R13 = R1 + R3;
+        const R24 = R2 + R4;
+        const R = (R13 * R24) / (R13 + R24);
+        const I = U / R;
+        const I13 = (R24 / (R13 + R24)) * I;
+        const I24 = (R13 / (R13 + R24)) * I;
+        const U1 = I13 * R1;
+        const U2 = I24 * R2;
+
+        const U0 = U2 - U1;
+
+        return `Théveninův theorém udává, že každý lineární obvod lze nahradit svorkami obvodu ekvivalentními.
+        To je provedeno nahrazením původního obvodu ideálním zdrojem napětí $U_0$ s vnitřním odporem $R_i$.
+        
+        <h3>Výpočet $U_0$</h3>
+        Pro výpočet napětí $U_0$ mezi svorkami zátěže <b>A</b> a <b>B</b> je třeba nejdříve zátěž (resistor $R_Z$) odstranit a poté spočítat napětí mezi těmito svorkami.
+        Vyjměme tedy $R_Z$; zůstane pouhé sério-paralelní zapojení.
+        
+        Nyní vypočtěme rozdíl napětí svorek <b>A</b> a <b>B</b>, tedy napětí na resistoru $R_Z$.
+        Dostaneme se k němu přes II. Kirchhoffův zákon a úbytky napětí na okolních rezistorech. Pro výpočet úbytků napětí známe odpory a zbývá proud.
+        $$I = \\frac{U}{R}$$
+        Vypočtěme celkový odpor obvodu.
+        $$R_{1+3} = R_1 + R_3 = ${R13}&ohm;$$$$R_{2+4} = R_2 + R_4 = ${R24}&ohm;$$$$R = \\frac{R_{1+3} \\cdot R_{2+4}}{R_{1+3} + R_{2+4}} = ${R}&ohm;$$
+        Z toho proud $I$ procházající obvodem:
+        $$I = \\frac{U}{R} = \\frac{${U}}{${R}} = ${I}A$$
+        
+        Stanovme si napětí na svorkách:
+        - Svorka <b>A</b>: Proud prochází od zdroje přes rezistor $R_1$, napětí na svorce bude tedy $U - U_1$.
+        - Svorka <b>B</b>: Proud prochází od zdroje přes rezistor $R_2$, napětí na svorce bude tedy $U - U_2$.
+
+        Úbytky napětí $U_1$ a $U_2$ lze s proudem a odpory snadno vypočítat.
+        Pro každou větev nejdříve spočtěme s pomocí separátního procházejícího proudu (jedná se o dvě paralelně zapojené větve) úbytek napětí na rezistorech:
+        $$I_{1+3} = \\frac{R_{2+4}}{R_{1+3} + R_{2+4}} \\cdot I = ${I13}A$$$$I_{2+4} = \\frac{R_{1+3}}{R_{1+3} + R_{2+4}} \\cdot I = ${I24}A$$
+        $$U_1 = I_{1+3} \\cdot R_1 = ${U1}V$$$$U_2 = I_{2+4} \\cdot R_2 = ${U2}V$$
+        
+        Výsledné napětí $U_0$ mezi svorkami <b>A</b> a <b>B</b> je rozdílem jejich potenciálu:
+        $$U_0 = (U - U_1) - (U - U_2) = U_2 - U_1 = ${U2}V - ${U1}V = ${U2 - U1}V$$
+        <h3>Výpočet $R_i$</h3>
+        Pro výpočet proudu $R_i$ je třeba zkratovat všechny zdroje napětí a spočítat odpor mezi svorkami <b>A</b> a <b>B</b>.
+        Po zkratování zdrojů napětí se odpor mezi svorkami <b>A</b> a <b>B</b> bude skládat z paralelního zapojení $R_1$ a $R_2$ a paralelního zapojení $R_3$ a $R_4$, které jsou navzájem sériově propojené.
+        Nejedná se o dvě separátní větve, protože se zkrat ze zdroje chová jako vodič, který napětí mostí, tedy jeden celistvý uzel.
+
+        Vypočtěme tedy odpor $R_i$ mezi svorkami:
+        // !
+      `;})()
       ]]></data>
     </method>
   </methods>
