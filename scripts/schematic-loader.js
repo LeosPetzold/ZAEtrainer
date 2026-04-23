@@ -1,32 +1,3 @@
-/**
- * Schematic Tile System
- * Loads XML schematics and renders modular circuit tiles with seamless wire connections.
- * 
- * Design Principle:
- *   - Tiles are INVISIBLE; only the circuit diagram is visible
- *   - Wires extend edge-to-edge within each tile so adjacent tiles connect seamlessly
- *   - Components are modular but appear as one continuous circuit
- * 
- * Coordinate System:
- *   - Origin (0, 0) is at the center of the schematic viewport
- *   - X and Y are expressed in TILE UNITS (1.0 = one tile width/height ~= 20mm)
- *   - Example: x=1, y=0 places tile one tile-width to the right of center
- * 
- * Component Design (all tiles ~= 20mm × 20mm):
- *   - Each component has wires extending to tile edges for seamless connection
- *   - Resistor: left wire (32px) + elongated rectangle body (64px wide) + right wire (32px)
- *   - Voltage source: left wire (40px) + circle+symbol (24px dia) + right wire (40px)
- *   - Amperage source: left wire (40px) + circle+arrow (24px dia) + right wire (40px)
- *   - Capacitor: left wire (48px) + two plates (16px apart) + right wire (48px)
- *   - Wire: full 120px wire across entire tile edge-to-edge
- *   - Half-wire: extends from tile center (64,64) to edge (128,64), rotates for corners
- * 
- * Corner Formation:
- *   - Two half-wires at the same position with different rotations form a corner
- *   - Half-wire rotation 0°: points up; 90°: points right; 180°: points down; 270°: points left
- *   - Example: half-wire at rot=90° + half-wire at rot=180° = L-shaped corner
- */
-
 let magnitudes = new Map();
 magnitudes.set(-15, "f");
 magnitudes.set(-12, "p");
@@ -288,27 +259,6 @@ class SchematicLoader {
         this.tiles = [];
         this.scale = 1;
         this.loadVersion = 0;    }
-
-    /**
-     * Load schematic from XML
-     * Expected XML format (each component = 1 tile):
-     * <schematic>
-     *   <tiles>
-     *     <!-- Voltage source: single tile (wire + body + wire) -->
-     *     <tile type="voltage-source" id="V1" x="0" y="0" rotation="0" name="V1" value="12" unit="V"/>
-     *     
-     *     <!-- Resistor: single tile (wire + body + wire) -->
-     *     <tile type="resistor" id="R1" x="1" y="0" rotation="0" name="R1" value="120" unit="Ω"/>
-     *     
-     *     <!-- Wire: single tile -->
-     *     <tile type="wire" id="W1" x="2" y="0" rotation="0"/>
-     *     
-     *     <!-- Corner: two half-wires at same position, different rotations -->
-     *     <tile type="half-wire" id="HW1" x="3" y="0" rotation="90"/>
-     *     <tile type="half-wire" id="HW2" x="3" y="0" rotation="180"/>
-     *   </tiles>
-     * </schematic>
-     */
 
     async loadXML(xmlPath, variant, seed) {
         loadstatShow();

@@ -21,16 +21,18 @@
                 white-space: nowrap;
             }
             #solutionContents {
-                word-break: normal;
-                overflow-wrap: normal;
+                /*word-break: normal;
+                overflow-wrap: normal;*/
             }
             #solutionContents .katex-display {
-                overflow-x: visible;
-                overflow-y: visible;
                 padding-top: 0.15em;
                 padding-bottom: 0.15em;
             }
-            #solutionContents .katex-display > .katex,
+            #solutionContents .katex-display > .katex {
+                overflow-x: scroll !important;
+                overflow-y: clip !important;
+                line-height: 1.5;
+            }
             #solutionContents .katex-display > .katex * {
                 line-height: 1.5;
             }

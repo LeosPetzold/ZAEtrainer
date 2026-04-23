@@ -1,8 +1,3 @@
-/**
- * Schematic viewport interaction manager
- * Handles pan, zoom, reset, and the subtle cursor coordinate indicator.
- */
-
 (function () {
     const viewport = document.getElementById("schematicViewport");
     const schematicSvg = document.getElementById("schematicSvg");
