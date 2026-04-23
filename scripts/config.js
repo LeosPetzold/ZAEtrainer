@@ -5,7 +5,7 @@ const schematics = {
     "testing": "Testovací schéma"
 }
 
-const production = false;
+const production = true;
 window.dev = production;
 
 ///// Utilities
