@@ -444,10 +444,15 @@ class SchematicLoader {
                         }
                     }
 
-                    /*// Backward compatibility: older schematics stored code directly in <method>.
-                    if (!methodSource.trim()) {
-                        methodSource = method.textContent || "";
-                    }*/
+                    // EVALUATION UTILITIES BEGIN
+                    function parallel() {
+                        let sum = 0;
+                        for (const value of arguments) {
+                            sum += 1 / value;
+                        }
+                        return 1 / sum;
+                    }
+                    // EVALUATION UTILITIES END
 
                     const evaluatedMethod = eval(methodSource);
                     methods.set(

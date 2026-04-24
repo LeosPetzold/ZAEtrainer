@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schematic>
+  <task>
+    Vypočtěte proudy na všech resistorech.
+  </task>
+  <tiles offX="0" offY="0">
+    <tile type="half-wire" x="-1" y="-2" />
+    <tile type="half-wire" x="-1" y="-2" rotation = "90" />
+
+    <tile type="half-wire" x="0" y="-2" />
+    <tile type="half-wire" x="0" y="-2" rotation = "90" />
+    <tile type="half-wire" x="0" y="-2" rotation = "180" />
+    <tile type="dot" x="0" y="-2" />
+
+    <tile type="half-wire" x="1" y="-2" rotation = "90" />
+    <tile type="half-wire" x="1" y="-2" rotation = "180" />
+
+
+    <tile type="resistor" id="R 1" x="-1" y="-1" rotation="90" resistance="rand;1;5;0" />
+    <tile type="resistor-arrow" x="-1" y="-1" rotation="270" />
+
+    <tile type="half-wire" x="0" y="-1" rotation="270" />
+
+    <tile type="resistor" id="R 2" x="1" y="-1" rotation="90" resistance="rand;1;5;0" />
+    <tile type="resistor-arrow" x="1" y="-1" rotation="270" />
+
+
+    <tile type="voltage-source" id="U 1" x="-1" y="0" rotation="0" voltage="rand;5;10;0" />
+
+    <tile type="resistor" id="R 3" x="0" y="-0.5" rotation="90" resistance="rand;1;5;0" />
+    <tile type="resistor-arrow" x="0" y="-0.5" rotation="90" />
+
+    <tile type="voltage-source" id="U 2" x="1" y="0" rotation="0" voltage="rand;5;10;0" />
+
+    <tile type="half-wire" x="-1" y="1" />
+    <tile type="half-wire" x="-1" y="1" rotation = "270" />
+
+    <tile type="half-wire" x="0" y="1" />
+    <tile type="wire" x="0" y="0.5" rotation = "90" />
+    <tile type="half-wire" x="0" y="1" rotation = "180" />
+    <tile type="dot" x="0" y="1" />
+
+    <tile type="half-wire" x="1" y="1" rotation = "270" />
+    <tile type="half-wire" x="1" y="1" rotation = "180" />"
+  </tiles>
+  <methods>
+    <method name="Metoda lineární superpozice">
+      <data><![CDATA[
+      (() => {
+        const U1 = window.circuit.U1;
+        const U2 = window.circuit.U2;
+        const R1 = window.circuit.R1;
+        const R2 = window.circuit.R2;
+        const R3 = window.circuit.R3;
+
+        const AR = R1 + parallel(R2, R3);
+        const BR = R2 + parallel(R1, R3);
+
+        const AI = U1 / AR;
+        const BI = U2 / BR;
+
+        const AI1 = AI; const AUR1 = AI1 * R1;
+        const AU23 = U1 - AUR1;
+        const AI2 = -(U1-AUR1)/R2;
+        const AI3 = (U1-AUR1)/R3;
+
+        const BI2 = BI; const BUR2 = BI2 * R2;
+        const BU13 = U2 - BUR2;
+        const BI1 = -(U2-BUR2)/R1;
+        const BI3 = (U2-BUR2)/R3;
+
+        const I1 = AI1 + BI1;
+        const I2 = AI2 + BI2;
+        const I3 = AI3 + BI3;
+
+        return `Metoda lineární superpozice využívá kombinaci stavů resistorů s jednotnými zdroji.
+        Pro každý zdroj se pro příslušném nahrazení ostatních zdrojů vyjádří proud procházející každým resistorem. Tyto proudy se následně sečtou:
+        $$I_k = I_k' + I_k'' \\text{ pro každý resistor}$$
+        <h3>Tvorba alternativních obvodů</h3><note>Takto projdeme každým zdrojem v obvodu.</note>
+        Vybraný zdroj ponecháme a ostatní nahradíme:
+        <ul><li>Je-li zdroj k nahrazení napěťový, nahrazuje se <b>zkratem</b>.</li><li>Je-li zdroj k nahrazení proudový, nahrazuje se <b>otevřenými svorkami</b>.</li></ul>
+        <h4>Výpočet alternativního obvodu pro zdroj $U_1$</h4>$U_1$ ponecháváme.
+        $U_2$ je napěťový zdroj, nahradíme jej zkratem.
+        $$R' = R_1 + \\frac{R_2 \\cdot R_3}{R_2 + R_3} = ${R1} + \\frac{${R2} \\cdot ${R3}}{${R2} + ${R3}} = ${AR}$$$$I' = \\frac{U_1}{R'} = \\frac{${U1}}{${AR}} = ${AI}A$$Vzniká jednoduché sério-paralelní zapojení, ze kterého lze snadno spočítat proudy:
+        $R_1$ je sériově zapojen s jediným zdrojem potenciálu, $U_1$:
+        $$I_1' = I' = ${AI}A$$$R_2$ a $R_3$ jsou paralelně zapojeny, je na nic napětí $U_{23}' = U_1 - U_{R1}$:
+        $$I_2' = -\\frac{U_{23}'}{R_2} = -\\frac{${U1}-${AUR1}}{${R2}} = ${AI2}A$$<note>Všimněte si, že $I_2'$ je počítáno záporně, protože šipkou vyznačený směr jde proti skutečnému směru proudu (od $+$ k $-$ zdroje)</note>
+        $$I_3' = \\frac{U_{23}'}{R_3} = \\frac{${U1}-${AUR1}}{${R3}} = ${AI3}A$$
+        <h4>Výpočet alternativního obvodu pro zdroj $U_2$</h4>$U_2$ ponecháváme.
+        $U_1$ je napěťový zdroj, nahradíme jej zkratem.
+        $$R'' = R_2 + \\frac{R_1 \\cdot R_3}{R_1 + R_3} = ${R2} + \\frac{${R1} \\cdot ${R3}}{${R1} + ${R3}} = ${BR}$$$$I'' = \\frac{U_2}{R''} = \\frac{${U2}}{${BR}} = ${BI}A$$Vzniká jednoduché sério-paralelní zapojení, ze kterého lze snadno spočítat proudy:
+        $R_2$ je sériově zapojen s jediným zdrojem potenciálu, $U_2$:
+        $$I_2'' = I'' = ${BI}A$$$R_1$ a $R_3$ jsou paralelně zapojeny, je na nic napětí $U_{13}'' = U_2 - U_{R2}$:
+        $$I_1'' = -\\frac{U_{13}''}{R_1} = -\\frac{${U2}-${BUR2}}{${R1}} = ${BI1}A$$<note>Všimněte si, že $I_1''$ je počítáno záporně, protože šipkou vyznačený směr jde proti skutečnému směru proudu (od $+$ k $-$ zdroje)</note>
+        $$I_3'' = \\frac{U_{13}''}{R_3} = \\frac{${U2}-${BUR2}}{${R3}} = ${BI3}A$$
+        <h3>Výsledné výpočty</h3>Nyní lze sečíst proudy z obou alternativních obvodů pro každý resistor (se zachování pozitivity nebo negativity hodnoty):
+        
+        <final>$$I_1 = I_1' + I_1'' = ${AI1} + ${BI1} = ${I1}A$$$$I_2 = I_2' + I_2'' = ${AI2} + ${BI2} = ${I2}A$$$$I_3 = I_3' + I_3'' = ${AI3} + ${BI3} = ${I3}A$$</final>
+      `;})()
+      ]]></data>
+      <!--<tiles>
+        <tile type="half-wire" x="1" y="4" rotation="180" />
+      </tiles>-->
+    </method>
+  </methods>
+</schematic>
