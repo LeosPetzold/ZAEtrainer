@@ -33,6 +33,13 @@
                 overflow-y: clip !important;
                 line-height: 1.5;
             }
+            @supports (-webkit-touch-callout: none) {
+                #solutionContents .katex-display > .katex {
+                    overflow-x: auto !important;
+                    overflow-y: hidden !important;
+                    -webkit-overflow-scrolling: touch;
+                }
+            }
             #solutionContents .katex-display > .katex * {
                 line-height: 1.5;
             }

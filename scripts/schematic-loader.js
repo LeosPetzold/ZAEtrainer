@@ -179,7 +179,6 @@ class SchematicTile {
                     break;
             }
 
-            // Set y AFTER switch, so it uses the final doLines value
             label.setAttribute("y", doLines ? size / 2 : size / 2 + 14);
 
             const textRotation = parseFloat(-this.rotation);
@@ -228,6 +227,7 @@ class SchematicTile {
 
             if (this.data.id) {
                 const idData = this.data.id.split(" ");
+                //addLine(idData[0], idData[1] || "");
                 addLine(idData[0], idData[1] || "");
             }
             if (this.data.voltage) addLine(this.data.voltage + "V");
