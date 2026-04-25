@@ -27,10 +27,11 @@
 }
 final {
     display: block;
-    margin-top: 1em;
-    padding: 0.5em;
-    background-color: none;
-    border: double var(--border-color) 3mm;
+    width: 100%;
+    box-sizing: border-box;
+
+    padding-left: 1mm; padding-right: 1mm;
+    border: double 1mm var(--border-color);
 }
 .frac-line {
     border-bottom-width: 1.5px !important;
