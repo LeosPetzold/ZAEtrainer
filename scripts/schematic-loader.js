@@ -341,7 +341,7 @@ class SchematicLoader {
                 delete circuit[key];
             });
 
-            this.rng = new RandomNumberGenerator(seed);
+            this.rng = new RandomNumberGenerator(Number(seed));
             this.tiles = [];
             this.clear();
 

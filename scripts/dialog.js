@@ -90,7 +90,7 @@ function dialogFuncView(schematic, variant, seed) {
     variant = 1;
     // DEBUG END DEBUG END DEBUG END
 
-    if (seed == "") seed = Math.floor(Math.random()*4294967295);
+    if (seed == "") seed = Math.floor(Math.random()*1000000);
     if (variant == "") variant = -1;
     let invalid = false;
     if (!isNumber(seed)) {
