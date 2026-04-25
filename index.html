@@ -8,6 +8,7 @@
         <link id="themeStylesheet" href="theme/classic.css" rel="stylesheet">
         <link href="schematic.css" rel="stylesheet">
         <link href="print.css" rel="stylesheet">
+        <link href="print-solution.css" rel="stylesheet">
 
         <!--KaTeX-->
         <link rel="stylesheet" href="KaTeX/katex.css">
@@ -128,7 +129,7 @@
                                 <li>Jádrový přepis kódu (na pozadí)</li>
                                 <li>Schémata pro řešení</li>
                                 <li>Zlepšení tisku schémata</li>
-                                <li>Tisk řešení</li>
+                                <li>&checkmark; Tisk řešení</li>
                             </ul>
                         </note>
                         <input type="submit" id="dialogbutton" onclick="dialogClose(); dialogOpen('view', true)" value="OK" />
@@ -205,6 +206,7 @@
         </div>
 
         <div id="solvingbar">
+            <div id="printSolutionMeta" aria-live="polite"></div>
             <h3>Řešení</h3>
             <separator></separator>
             <br>

@@ -81,14 +81,14 @@
         <ul><li>Je-li zdroj k nahrazení napěťový, nahrazuje se <b>zkratem</b>.</li><li>Je-li zdroj k nahrazení proudový, nahrazuje se <b>otevřenými svorkami</b>.</li></ul>
         <h4>Výpočet alternativního obvodu pro zdroj $U_1$</h4>$U_1$ ponecháváme.
         $U_2$ je napěťový zdroj, nahradíme jej zkratem.
-        $$R' = R_1 + \\frac{R_2 \\cdot R_3}{R_2 + R_3} = ${R1} + \\frac{${R2} \\cdot ${R3}}{${R2} + ${R3}} = ${AR}$$$$I' = \\frac{U_1}{R'} = \\frac{${U1}}{${AR}} = ${AI}A$$Vzniká jednoduché sério-paralelní zapojení, ze kterého lze snadno spočítat proudy:
+        $$R' = R_1 + \\frac{R_2 \\cdot R_3}{R_2 + R_3} = ${R1} + \\frac{${R2} \\cdot ${R3}}{${R2} + ${R3}} = ${AR}&ohm;$$$$I' = \\frac{U_1}{R'} = \\frac{${U1}}{${AR}} = ${AI}A$$Vzniká jednoduché sério-paralelní zapojení, ze kterého lze snadno spočítat proudy:
         $R_1$ je sériově zapojen s jediným zdrojem potenciálu, $U_1$:
         $$I_1' = I' = ${AI}A$$$R_2$ a $R_3$ jsou paralelně zapojeny, je na nic napětí $U_{23}' = U_1 - U_{R1}$:
         $$I_2' = -\\frac{U_{23}'}{R_2} = -\\frac{${U1}-${AUR1}}{${R2}} = ${AI2}A$$<note>Všimněte si, že $I_2'$ je počítáno záporně, protože šipkou vyznačený směr jde proti skutečnému směru proudu (od $+$ k $-$ zdroje)</note>
         $$I_3' = \\frac{U_{23}'}{R_3} = \\frac{${U1}-${AUR1}}{${R3}} = ${AI3}A$$
         <h4>Výpočet alternativního obvodu pro zdroj $U_2$</h4>$U_2$ ponecháváme.
         $U_1$ je napěťový zdroj, nahradíme jej zkratem.
-        $$R'' = R_2 + \\frac{R_1 \\cdot R_3}{R_1 + R_3} = ${R2} + \\frac{${R1} \\cdot ${R3}}{${R1} + ${R3}} = ${BR}$$$$I'' = \\frac{U_2}{R''} = \\frac{${U2}}{${BR}} = ${BI}A$$Vzniká jednoduché sério-paralelní zapojení, ze kterého lze snadno spočítat proudy:
+        $$R'' = R_2 + \\frac{R_1 \\cdot R_3}{R_1 + R_3} = ${R2} + \\frac{${R1} \\cdot ${R3}}{${R1} + ${R3}} = ${BR}&ohm;$$$$I'' = \\frac{U_2}{R''} = \\frac{${U2}}{${BR}} = ${BI}A$$Vzniká jednoduché sério-paralelní zapojení, ze kterého lze snadno spočítat proudy:
         $R_2$ je sériově zapojen s jediným zdrojem potenciálu, $U_2$:
         $$I_2'' = I'' = ${BI}A$$$R_1$ a $R_3$ jsou paralelně zapojeny, je na nic napětí $U_{13}'' = U_2 - U_{R2}$:
         $$I_1'' = -\\frac{U_{13}''}{R_1} = -\\frac{${U2}-${BUR2}}{${R1}} = ${BI1}A$$<note>Všimněte si, že $I_1''$ je počítáno záporně, protože šipkou vyznačený směr jde proti skutečnému směru proudu (od $+$ k $-$ zdroje)</note>

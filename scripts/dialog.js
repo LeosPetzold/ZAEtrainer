@@ -38,7 +38,41 @@ function dialogFuncPrintSchematic() {
     print();
 }
 function dialogFuncPrintSolution() {
-    alert("Tisk řešení není zatím implementován.");
+    dialogClose();
+
+    const html = document.documentElement;
+    const body = document.body;
+    const meta = document.getElementById("printSolutionMeta");
+    const presetName = document.getElementById("presetName");
+    const presetVariant = document.getElementById("presetVariant");
+    const presetSeed = document.getElementById("presetSeed");
+    const methodSelect = document.getElementById("methodSelect");
+
+    const nameText = presetName ? presetName.textContent.trim() : "Nevybráno";
+    const variantText = presetVariant ? presetVariant.textContent.trim() : "?";
+    const seedText = presetSeed ? presetSeed.textContent.trim() : "?";
+    const methodText = methodSelect && methodSelect.selectedOptions && methodSelect.selectedOptions[0]
+        ? methodSelect.selectedOptions[0].textContent.trim()
+        : "Neuvedeno";
+
+    if (meta) {
+        meta.textContent = `Schéma: ${nameText} | Varianta: ${variantText} | Seed: ${seedText} | Metoda: ${methodText}`;
+    }
+
+    html.classList.add("print-solution-mode");
+    body.classList.add("print-solution-mode");
+
+    function cleanupPrintSolutionMode() {
+        html.classList.remove("print-solution-mode");
+        body.classList.remove("print-solution-mode");
+        if (meta) {
+            meta.textContent = "";
+        }
+        window.removeEventListener("afterprint", cleanupPrintSolutionMode);
+    }
+
+    window.addEventListener("afterprint", cleanupPrintSolutionMode);
+    print();
 }
 
 function dialogFuncReload() {
