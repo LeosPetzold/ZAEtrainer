@@ -12,42 +12,7 @@
 
         <!--KaTeX-->
         <link rel="stylesheet" href="KaTeX/katex.css">
-        <style>
-            .katex-display {
-                margin: 0.65em 0 0.65em 0;
-                line-height: 1.5;
-            }
-            .katex {
-                display: inline-block;
-                white-space: nowrap;
-            }
-            #solutionContents .katex-display > .katex {
-                overflow-x: scroll !important;
-                overflow-y: clip !important;
-                line-height: 1.5;
-            }
-            @supports (-webkit-touch-callout: none) {
-                #solutionContents .katex-display > .katex {
-                    overflow-x: auto !important;
-                    overflow-y: hidden !important;
-                    -webkit-overflow-scrolling: touch;
-                }
-            }
-            #solutionContents .katex-display > .katex * {
-                line-height: 1.5;
-            }
-            #solutionContents .katex-display > .katex,
-            #solutionContents .katex-display > .katex * {
-                white-space: nowrap !important;
-            }
-            final {
-                display: block;
-                margin-top: 1em;
-                padding: 0.5em;
-                background-color: none;
-                border: double var(--border-color) 3px;
-            }
-        </style>
+        <link ref="stylesheet" href="KaTeX/katex-overrides.css">
         <script src="KaTeX/katex.min.js"></script>
         <script src="KaTeX/auto-render.js"></script>
         <script src="KaTeX/fraction.js"></script>
