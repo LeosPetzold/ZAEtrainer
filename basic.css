@@ -202,7 +202,7 @@ body {
 #dialogcontent {
     padding: 12px;
 }
-#dialogbutton {
+#dialogbutton, input[type="button"],input[type="submit"] {
     margin-top: 7px;
     margin-bottom: 4px;
     padding: 6px 8px;

@@ -8,7 +8,7 @@ const schematics = {
 }
 
 const version="0.2.0-beta";
-const production = false;
+const production = true;
 const schematicOverride = "transfigurace";
 const seedRoof = 1000000;
 window.dev = production;

@@ -64,7 +64,18 @@
         width: 100vw;
         max-width: unset;
     }
+    #solvingbar, #infobar {
+        border: none;
+    }
     #instructions {
         max-width: 180px;
+    }
+
+    #solvingbarResizer, #infobarResizer {
+        display: none;
+    }
+
+    #dialogcontent {
+        width: 80vw;
     }
 }

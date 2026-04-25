@@ -662,6 +662,11 @@ class SchematicLoader {
 
     render(containerWidth, containerHeight) {
         try {
+            if (containerWidth > 0 && containerHeight > 0) {
+                // Keep SVG user units aligned with viewport pixels.
+                this.svgContainer.setAttribute("viewBox", `0 0 ${containerWidth} ${containerHeight}`);
+            }
+
             // Clear previous tiles
             this.clear();
 

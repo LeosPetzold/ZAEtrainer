@@ -36,10 +36,47 @@ for (var key in schematics) {
 }
 
 ///// Specific dialog functions
+
+// Helper: Ensure schematic SVG is rendered before printing on mobile
+function ensureSchematicRenderedBeforePrint(callback) {
+    if (!window.mobile) {
+        // On desktop, just call the callback immediately
+        callback();
+        return;
+    }
+
+    // On mobile, switch to schematic view and wait for render
+    const viewSelect = $("#viewSelect")[0];
+    const originalView = viewSelect.value;
+
+    if (originalView === "schematic") {
+        // Already on schematic view, just ensure render is current
+        callback();
+        return;
+    }
+
+    // Switch to schematic view
+    viewSelect.value = "schematic";
+    if (window.updateMobileView) {
+        updateMobileView();
+    }
+
+    // Wait for render to complete and then call callback
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            callback();
+        });
+    });
+}
+
 function dialogFuncPrintSchematic() {
     dialogClose();
-    print();
+
+    ensureSchematicRenderedBeforePrint(() => {
+        print();
+    });
 }
+
 function dialogFuncPrintSolution() {
     dialogClose();
 
@@ -75,7 +112,11 @@ function dialogFuncPrintSolution() {
     }
 
     window.addEventListener("afterprint", cleanupPrintSolutionMode);
-    print();
+
+    // Ensure schematic is rendered before printing on mobile
+    ensureSchematicRenderedBeforePrint(() => {
+        print();
+    });
 }
 
 function dialogFuncReload() {

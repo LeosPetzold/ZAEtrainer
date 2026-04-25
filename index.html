@@ -7,9 +7,10 @@
         <link href="basic.css" rel="stylesheet">
         <link id="themeStylesheet" href="theme/classic.css" rel="stylesheet">
         <link href="schematic.css" rel="stylesheet">
-        <link href="print.css" rel="stylesheet">
-        <link href="print-solution.css" rel="stylesheet">
         <link href="mobile.css" rel="stylesheet">
+
+        <script src="scripts/jQuery.js"></script>
+        <script src="scripts/config.js"></script>
 
         <!--KaTeX-->
         <link rel="stylesheet" href="KaTeX/katex.css">
@@ -23,6 +24,9 @@
 
         <!--Mobile-->
         <style id="mobileStyle"></style>
+
+        <link href="print.css" rel="stylesheet">
+        <link href="print-solution.css" rel="stylesheet">
     </head>
     <body>
         <div id="dialog" style="display: none;">
@@ -40,6 +44,7 @@
                         Doporučená velikost A4, tisk na šířku.<br>
                         Okraje jsou nastaveny na 5mm.<br>
                         Tisk záhlaví a zápatí je třeba vypnout přímo v tiskovém dialogu.<br>
+                        <mobile><br><b>Tisk na mobilních zařízeních je experimentální.</b><br></mobile>
                         <br>
                         <separator></separator>
                         <note>Upozornění: Tisk se může na malých obrazovkách
@@ -116,6 +121,8 @@
                                 <li>&checkmark; Tisk řešení</li>
                                 <li>&checkmark; Sdílení odkazem</li>
                                 <li>Generace přijatelých výsledků</li>
+                                <li>&checkmark; Podpora mobilních telefonů</li>
+                                <li>Korekce tisku na mobilních zařízeních</li>
                             </ul>
                         </note>
                         <input type="submit" id="dialogbutton" onclick="dialogClose(); dialogOpen('view', true)" value="OK" />
@@ -166,11 +173,11 @@
             </noprint>
                 <span style="display: inline-flex; align-items: center; gap: 8px; margin-left: auto;">
                     <noprint>
-                        <pconly><select id="themeSelect" aria-label="Theme"></select>&emsp;&emsp;</pconly>
+                        <pconly><select id="themeSelectTopbar" aria-label="Theme"></select>&emsp;&emsp;</pconly>
                         <mobileonly><select id="viewSelect" aria-label="View">
                             <option value="schematic">Schéma</option>
                             <option value="solving">Řešení</option>
-                            <option value="info">Informace</option>
+                            <option value="info">Nástroje</option>
                         </select></mobileonly>
                         <pconly><span id="timeIndicator"></span></pconly>
                     </noprint>
@@ -221,7 +228,14 @@
             </span>
         </div>
         <div id="infobar">
-            <h3>Informace</h3>
+            <h3><pconly>Informace</pconly><mobile>Nástroje</mobile></h3>
+            <separator></separator><br>
+            <label for="themeSelectInfobar">Téma vzhledu</label>
+            <select id="themeSelectInfobar" aria-label="Theme" style="width: 100%;"></select>
+            <br>
+            <input type="submit" onclick="queryPrint()" value="Tisk 🖶"></input>
+            <input type="submit" onclick="dialogOpen('share');" value="Sdílet ⌯⌲"></input>
+            <br>
             <separator></separator><br>
             <b><pconly>Kliknutím</pconly><mobile>Klepnutím</mobile> na jméno schémata vlevo nahoře načtete jiné schéma, variantu nebo číselný kořen.</b><br><br>
             <pconly>Klávesou <code>Home</code> nebo dvojitým kliknutím myši</pconly><mobile>Dvojitým klepnutím</mobile> ve schématu přejdete do úvodní pozice.
@@ -233,13 +247,31 @@
             </note>
             <br><br>
             <pconly>Vpravo nahoře lze vybrat téma vzhledu. Téma nemá dopad na výsledné černobílé výtisky.</pconly>
-            <mobile>Téma vzhledu lze vybrat v kartě nástrojů.<br>Na telefonu tisknout nelze.</mobile>
+            <mobile>Téma vzhledu a možnosti tisku lze vybrat zde, v kartě nástrojů.</mobile>
+            <br>
+            <separator></separator>
+            <br>
+            <mobile>
+                <span>
+                    <a href="https://zae.leonetwork.eu">
+                        zae.leonetwork.eu</a>
+                    --
+                    nástroj pro generaci a řešení příkladů ze základů elektrotechniky
+                </span><br><br>
+                <span>
+                    <b>© Leoš Petzold 2026</b>, student, <a href="uziti-ai.html"> + extra</a>
+                </span><br><br>
+                <span style="display: inline-flex; align-items: center; gap: 8px; margin-left: auto;">
+                    <noprint>
+                        <a href="terms.html">Podmínky užití, autorská práva</a>
+                    </noprint>
+                </span>
+            </mobile>
         </div>
         <div id="solvingbarResizer" class="panel-resizer"></div>
         <div id="infobarResizer" class="panel-resizer"></div>
 
         <div id="bottombar">
-            <pconly>
                 <span>
                     <a href="https://zae.leonetwork.eu">
                         zae.leonetwork.eu</a>
@@ -255,12 +287,11 @@
                         <a href="terms.html">Podmínky užití, autorská práva</a>
                     </noprint>
                 </span>
-            </pconly>
         </div>
     </body>
-    <script src="scripts/config.js"></script>
-    <script src="scripts/jQuery.js"></script>
     <script src="scripts/rng.js"></script>
+
+    <script src="scripts/mobile.js"></script>
 
     <script src="scripts/schematic-loader.js"></script>
     <script src="scripts/schematic-viewport.js"></script>
@@ -363,21 +394,29 @@
         }
 
         function initThemeSelect() {
-            const themeSelect = document.getElementById("themeSelect");
-            if (!themeSelect) {
-                return;
-            }
+            const themeSelects = [
+                document.getElementById("themeSelectTopbar"),
+                document.getElementById("themeSelectInfobar")
+            ].filter(Boolean);
 
-            themeSelect.innerHTML = themes
-                .map((theme) => `<option value="${theme.name}">${theme.label}</option>`)
-                .join("");
+            const savedThemeName = getSavedThemeName();
 
-            themeSelect.value = getSavedThemeName();
-            themeSelect.addEventListener("change", function () {
-                setTheme(this.value);
+            themeSelects.forEach((themeSelect) => {
+                themeSelect.innerHTML = themes
+                    .map((theme) => `<option value="${theme.name}">${theme.label}</option>`)
+                    .join("");
+                themeSelect.value = savedThemeName;
+                themeSelect.addEventListener("change", function () {
+                    setTheme(this.value);
+                    themeSelects.forEach((select) => {
+                        if (select !== this) {
+                            select.value = this.value;
+                        }
+                    });
+                });
             });
 
-            setTheme(themeSelect.value);
+            setTheme(savedThemeName);
         }
 
         initThemeSelect();
@@ -547,5 +586,4 @@
         // STATUS DIALOG
         if (window.dev && !window.skipIntroduction) dialogOpen("status", true);
     </script>
-    <script src="scripts/mobile.js"></script>
 </html>
