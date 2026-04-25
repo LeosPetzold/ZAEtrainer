@@ -328,3 +328,12 @@ note {
     color: var(--muted-color);
     cursor: pointer;
 }
+
+final {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+
+    padding-left: 1mm; padding-right: 1mm;
+    border: double 1mm var(--border-color);
+}

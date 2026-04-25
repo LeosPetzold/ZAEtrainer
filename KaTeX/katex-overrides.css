@@ -30,5 +30,8 @@ final {
     margin-top: 1em;
     padding: 0.5em;
     background-color: none;
-    border: double var(--border-color) 3px;
+    border: double var(--border-color) 3mm;
+}
+.frac-line {
+    border-bottom-width: 1.5px !important;
 }
