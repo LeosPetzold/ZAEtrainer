@@ -38,13 +38,17 @@
     <script src="config.js"></script>
     <script src="schematic.js"></script>
     <script>
-        function updateTabs() {
+        function updateTabs(override=null) { 
             const contentRoot = $("#content")[0];
-            const selectedTab = $("#tab")[0].value;
+            const selectedTab = override || $("#tab")[0].value;
             for (let i = 0; i < contentRoot.children.length; i++) {
                 contentRoot.children[i].style.display = 'none';
             }
             document.getElementById(selectedTab).style.display = 'block';
+
+            window.schematicMode = selectedTab == "schematic";
+            window.methodMode = selectedTab == "method";
+
         } updateTabs();
 
         

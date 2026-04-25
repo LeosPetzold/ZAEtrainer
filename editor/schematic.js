@@ -81,6 +81,8 @@ function viewportClick(event) {
 }
 
 document.addEventListener('keydown', function(event) {
+    if (!window.schematicMode) return;
+
     switch(event.key) {
         case 'Enter':
             assembleXML();
