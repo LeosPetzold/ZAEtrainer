@@ -328,3 +328,7 @@ note {
     color: var(--muted-color);
     cursor: pointer;
 }
+
+mobileonly {
+    display: none;
+}

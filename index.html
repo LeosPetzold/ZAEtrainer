@@ -9,6 +9,7 @@
         <link href="schematic.css" rel="stylesheet">
         <link href="print.css" rel="stylesheet">
         <link href="print-solution.css" rel="stylesheet">
+        <link href="mobile.css" rel="stylesheet">
 
         <!--KaTeX-->
         <link rel="stylesheet" href="KaTeX/katex.css">
@@ -19,6 +20,9 @@
         <script>
             window.renderMathInElement = renderMathInElement;
         </script>
+
+        <!--Mobile-->
+        <style id="mobileStyle"></style>
     </head>
     <body>
         <div id="dialog" style="display: none;">
@@ -122,22 +126,24 @@
 
         <div id="topbar">
             <noprint>
-                <span>
-                    <clickable id="instructionsButton" onclick="instructionsShow()">Zadání ▽</clickable>
-                    &emsp14;
-                </span>
-                <span>
-                    <clickable onclick="queryPrint();">Tisk 🖶</clickable>
-                    &emsp14;
-                </span>
-                <span>
-                    <clickable onclick="dialogOpen('share');">Sdílet ⌯⌲</clickable>
-                    &emsp14;
-                    &emsp14;
-                </span>
+                <pconly>
+                    <span>
+                        <clickable id="instructionsButton" onclick="instructionsShow()">Zadání ▽</clickable>
+                        &emsp14;
+                    </span>
+                    <span>
+                        <clickable onclick="queryPrint();">Tisk 🖶</clickable>
+                        &emsp14;
+                    </span>
+                    <span>
+                        <clickable onclick="dialogOpen('share');">Sdílet ⌯⌲</clickable>
+                        &emsp14;
+                        &emsp14;
+                    </span>
+                </pconly>
             </noprint>
             <span>
-                <clickable onclick="dialogOpen('view');">
+                <clickable onclick="dialogOpen('view');" id="schematicInfo">
                     <u id="presetName"><span style="color: red;">Nevybráno</span></u>
                     <span id="presetVariantContainer">varianta <span id="presetVariant"><span style="color: red;">NaN</span></span></span>
                     #<b id="presetSeed"><span style="color: red;">NaN</span></b>
@@ -146,6 +152,7 @@
                 </clickable>
             </span>
             <noprint>
+                <pconly>
                     <span>
                         <input type="checkbox" id="solvingbarButton" checked>
                         <label for="solvingbarButton">Řešení</label>
@@ -155,11 +162,17 @@
                         <input type="checkbox" id="infobarButton" checked>
                         <label for="infobarButton">Informace</label>
                     </span>
+                </pconly>
             </noprint>
                 <span style="display: inline-flex; align-items: center; gap: 8px; margin-left: auto;">
                     <noprint>
-                        <select id="themeSelect" aria-label="Theme"></select>&emsp;&emsp;
-                        <span id="timeIndicator"></span>
+                        <pconly><select id="themeSelect" aria-label="Theme"></select>&emsp;&emsp;</pconly>
+                        <mobileonly><select id="viewSelect" aria-label="View">
+                            <option value="schematic">Schéma</option>
+                            <option value="solving">Řešení</option>
+                            <option value="info">Informace</option>
+                        </select></mobileonly>
+                        <pconly><span id="timeIndicator"></span></pconly>
                     </noprint>
                     <script>
                         function updateTime() {
@@ -210,8 +223,8 @@
         <div id="infobar">
             <h3>Informace</h3>
             <separator></separator><br>
-            <b>Kliknutím na jméno schémata vlevo nahoře načtete jiné schéma, variantu nebo číselný kořen.</b><br><br>
-            Klávesou <code>Home</code> nebo dvojitým kliknutím myši ve schématu přejdete do úvodní pozice.
+            <b><pconly>Kliknutím</pconly><mobile>Klepnutím</mobile> na jméno schémata vlevo nahoře načtete jiné schéma, variantu nebo číselný kořen.</b><br><br>
+            <pconly>Klávesou <code>Home</code> nebo dvojitým kliknutím myši</pconly><mobile>Dvojitým klepnutím</mobile> ve schématu přejdete do úvodní pozice.
             <br><br>
             <note>
             Tento nástroj byl vytvořen za účelem obohacení obecné vědomosti o základech elektrotechniky
@@ -219,27 +232,30 @@
             nebo vytisknout.
             </note>
             <br><br>
-            Vpravo nahoře lze vybrat téma vzhledu. Téma nemá dopad na výsledné černobílé výtisky.
+            <pconly>Vpravo nahoře lze vybrat téma vzhledu. Téma nemá dopad na výsledné černobílé výtisky.</pconly>
+            <mobile>Téma vzhledu lze vybrat v kartě nástrojů.<br>Na telefonu tisknout nelze.</mobile>
         </div>
         <div id="solvingbarResizer" class="panel-resizer"></div>
         <div id="infobarResizer" class="panel-resizer"></div>
 
         <div id="bottombar">
-            <span>
-                <a href="https://zae.leonetwork.eu">
-                    zae.leonetwork.eu</a>
-                --
-                nástroj pro generaci a řešení příkladů ze základů elektrotechniky
-                &emsp14;&emsp14;&emsp14;
-            </span>
-            <span>
-                <b>© Leoš Petzold 2026</b>, student, <a href="uziti-ai.html"> + extra</a>
-            </span>
-            <span style="display: inline-flex; align-items: center; gap: 8px; margin-left: auto;">
-                <noprint>
-                    <a href="terms.html">Podmínky užití, autorská práva</a>
-                </noprint>
-            </span>
+            <pconly>
+                <span>
+                    <a href="https://zae.leonetwork.eu">
+                        zae.leonetwork.eu</a>
+                    --
+                    nástroj pro generaci a řešení příkladů ze základů elektrotechniky
+                    &emsp14;&emsp14;&emsp14;
+                </span>
+                <span>
+                    <b>© Leoš Petzold 2026</b>, student, <a href="uziti-ai.html"> + extra</a>
+                </span>
+                <span style="display: inline-flex; align-items: center; gap: 8px; margin-left: auto;">
+                    <noprint>
+                        <a href="terms.html">Podmínky užití, autorská práva</a>
+                    </noprint>
+                </span>
+            </pconly>
         </div>
     </body>
     <script src="scripts/config.js"></script>
@@ -290,7 +306,7 @@
     </script>
     <script>
         /* USER BEGIN Debug */
-        if (!window.dev) dialogFuncView("thevenin-1", "1", "");
+        if (!window.dev) dialogFuncView(window.schematicOverride, "1", "");
         /* USER END Debug */
 
         document.querySelector("#dialogtopbar .dialog_status").innerText = `ZAETrainer v${version}`;
@@ -531,4 +547,5 @@
         // STATUS DIALOG
         if (window.dev && !window.skipIntroduction) dialogOpen("status", true);
     </script>
+    <script src="scripts/mobile.js"></script>
 </html>

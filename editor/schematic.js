@@ -173,7 +173,7 @@ function assembleXML() {
                     .join("")
                 : "";
 
-            xml += `  <tile name="${escapeXmlAttr(tileData.tile)}" x="${x}" y="${y}" rotation="${tileData.rotation}"${extraAttrs}/>\n`;
+            xml += `  <tile type="${escapeXmlAttr(tileData.tile)}" x="${x}" y="${y}" rotation="${tileData.rotation}"${extraAttrs}/>\n`;
             tileCount++;
         }
     }
