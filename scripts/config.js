@@ -8,6 +8,7 @@ const schematics = {
 
 const version="0.2.0-beta";
 const production = true;
+const seedRoof = 1000000;
 window.dev = production;
 
 ///// Utilities
