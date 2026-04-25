@@ -21,9 +21,6 @@
                 display: inline-block;
                 white-space: nowrap;
             }
-            #solutionContents {
-                /*word-break: normal;
-                overflow-wrap: normal;*/
             #solutionContents .katex-display > .katex {
                 overflow-x: scroll !important;
                 overflow-y: clip !important;
@@ -65,7 +62,8 @@
                     <span id="dialogtitle" class="dialog_print">Tisk dokumentu</span>
                     <span id="dialogtitle" class="dialog_view">Zobrazit schéma</span>
                     <span id="dialogtitle" class="dialog_error">⚠CHYBA⚠</span>
-                    <span id="dialogtitle" class="dialog_status">Stav projektu</span>
+                    <span id="dialogtitle" class="dialog_status">CHYBA - VERZE NENALEZENA</span>
+                    <span id="dialogtitle" class="dialog_share">Sdílet</span>
                     <span id="dialogclose" onclick="dialogClose();">✕</span>
                 </div>
                 <div id="dialogcontent">
@@ -117,6 +115,20 @@
                             <input type="submit" id="dialogbutton" onclick="alert('Error reporting ještě není implementovaný.');" value="Nahlásit" />
                         </div>
                     </span>
+                    <span class="dialog_share">
+                        <label for="shareLink">Sdílecí odkaz</label><br>
+                        <input
+                            type="text"
+                            id="shareLink"
+                            readonly
+                            value=""
+                            onclick="this.select(); navigator.clipboard.writeText(this.value);"
+                            style="cursor: pointer;"
+                        ><br>
+                        <note>Klikněte na pole pro zkopírování odkazu na příklad.</note>
+                        <br>
+                        <input type="submit" id="dialogbutton" onclick="dialogClose();" value="OK" />
+                    </span>
                     <span class="dialog_status">
                         Tento projekt je v ranném stavu.
                         <br>Očekávejte funkční a faktické chyby a špatný výkon.
@@ -129,10 +141,11 @@
                             <ul>
                                 <li>Zveřejnění více schémat</li>
                                 <li>Jádrový přepis kódu (na pozadí)</li>
-                                <li>Schémata pro řešení</li>
-                                <li>Zlepšení tisku schémata</li>
+                                <li>&checkmark; Optimalizace</li>
+                                <li>Schémata pro metody řešení</li>
+                                <li>&checkmark; Zlepšení tisku schémata</li>
                                 <li>&checkmark; Tisk řešení</li>
-                                <li>Sdílení odkazem</li>
+                                <li>&checkmark; Sdílení odkazem</li>
                             </ul>
                         </note>
                         <input type="submit" id="dialogbutton" onclick="dialogClose(); dialogOpen('view', true)" value="OK" />
@@ -150,11 +163,15 @@
                 <span>
                     <clickable onclick="queryPrint();">Tisk 🖶</clickable>
                     &emsp14;
+                </span>
+                <span>
+                    <clickable onclick="dialogOpen('share');">Sdílet ⌯⌲</clickable>
+                    &emsp14;
                     &emsp14;
                 </span>
             </noprint>
             <span>
-                <clickable onclick='dialogOpen("view");''>
+                <clickable onclick="dialogOpen('view');">
                     <u id="presetName"><span style="color: red;">Nevybráno</span></u>
                     <span id="presetVariantContainer">varianta <span id="presetVariant"><span style="color: red;">NaN</span></span></span>
                     #<b id="presetSeed"><span style="color: red;">NaN</span></b>
@@ -227,7 +244,7 @@
         <div id="infobar">
             <h3>Informace</h3>
             <separator></separator><br>
-            <b>Kliknutím na jméno schémata vpravo nahoře načtete jiné schéma, variantu nebo číselný kořen.</b><br><br>
+            <b>Kliknutím na jméno schémata vlevo nahoře načtete jiné schéma, variantu nebo číselný kořen.</b><br><br>
             Klávesou <code>Home</code> nebo dvojitým kliknutím myši ve schématu přejdete do úvodní pozice.
             <br><br>
             <note>
@@ -236,7 +253,7 @@
             nebo vytisknout.
             </note>
             <br><br>
-            Vpravo nahoře lze vybrat téma vzhledu. Téma nemá dopad na výsledný černobílý výtisk.
+            Vpravo nahoře lze vybrat téma vzhledu. Téma nemá dopad na výsledné černobílé výtisky.
         </div>
         <div id="solvingbarResizer" class="panel-resizer"></div>
         <div id="infobarResizer" class="panel-resizer"></div>
@@ -290,9 +307,29 @@
     </script>
     <script src="scripts/dialog.js"></script>
     <script>
+        window.skipIntroduction = false;
+
+        const url = new URL(window.location.href);
+        const searchParams = new URLSearchParams(url.search);
+
+        const urlSeed = searchParams.get('f') || "";
+        const urlVariant = searchParams.get('v') || "";
+        const urlSchematic = searchParams.get('s') || "";
+        
+        console.log(`Retrieved schematic: '${urlSchematic}', variant: '${urlVariant}', seed: '${urlSeed}' from URL`);
+        if (urlSchematic) {
+            dialogFuncView(urlSchematic, urlVariant, urlSeed);
+            window.skipIntroduction = true;
+        }
+    </script>
+    <script>
         /* USER BEGIN Debug */
         if (!window.dev) dialogFuncView("thevenin-1", "1", "");
         /* USER END Debug */
+
+        document.querySelector("#dialogtopbar .dialog_status").innerText = `ZAETrainer v${version}`;
+
+
         const root = document.documentElement;
         const themeStorageKey = "zae-theme";
         const themes = [
@@ -526,6 +563,6 @@
         })();
 
         // STATUS DIALOG
-        if (window.dev) dialogOpen("status", true);
+        if (window.dev && !window.skipIntroduction) dialogOpen("status", true);
     </script>
 </html>

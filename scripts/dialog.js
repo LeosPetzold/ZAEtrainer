@@ -21,6 +21,9 @@ function dialogOpen(title, force=false) {
         case "view":
             if (force) $("#dialogclose").hide();
             break;
+        case "share":
+            $("#shareLink")[0].value = `${window.location.origin}${window.location.pathname}?s=${window.schematic}&v=${window.variant}&f=${window.seed}`;
+            break;
     }
 
     $("#dialog").show();
@@ -105,6 +108,10 @@ function dialogFuncView(schematic, variant, seed) {
     if (invalid) return;
     
     console.log(`Drawing "${schematic}" variant ${variant} with seed ${seed}`);
+
+    window.schematic = schematic;
+    window.variant = variant;
+    window.seed = seed;
 
     schematicLoader.clear();
     schematicLoader.loadXML(`schematics/${schematic}.xml`, variant, seed).then(() => {
