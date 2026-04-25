@@ -1,0 +1,101 @@
+:root {
+    --font-tech: "JetBrains Mono", ui-monospace, monospace;
+
+    --topbar-height: 45px;
+    --tile-size: 80px;
+}
+
+body {
+    color: black;
+    font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+#topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--topbar-height);
+    box-sizing: border-box;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+
+    padding-left: 16px;
+    padding-right: 16px;
+
+    font-family: var(--font-tech);
+    border-bottom: solid 1px black;
+}
+
+#content {
+    position: absolute;
+    top: var(--topbar-height);
+    left: 0;
+    width: 100%;
+    height: calc(100% - var(--topbar-height));
+
+    box-sizing: border-box;
+}
+
+#schematic {
+    --menu-height: 80px;
+}
+#schematic #menu {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--menu-height);
+    box-sizing: border-box;
+
+    background-color: black;
+    border-top: solid 1px white;
+}
+#schematic #menu img {
+    aspect-ratio: 1;
+    margin: 5px;
+    
+    cursor: pointer;
+}
+#schematic viewport img {
+    cursor: pointer;
+}
+#schematic #viewport {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100% - var(--menu-height));
+
+    background-color: black;
+    background-image:
+        linear-gradient(#222 1px, transparent 1px),
+        linear-gradient(90deg, #222 1px, transparent 1px);
+    background-size: var(--tile-size) var(--tile-size);
+    background-position:
+        calc(50% - (var(--tile-size)))
+        calc(50% - (var(--tile-size)));
+    background-blend-mode: normal;
+
+    background-color: black;
+}
+#schematic #indicator {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+
+    padding: 15px 25px;
+
+    font-family: var(--font-tech);
+    color: white;
+    border: solid 1px white;
+    border-radius: 999px;
+}
+#schematic #viewport .tile {
+    position: absolute;
+    width: var(--tile-size);
+    height: var(--tile-size);
+}
