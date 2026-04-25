@@ -7,7 +7,7 @@ const schematics = {
     "testing": "Testovací schéma"
 }
 
-const version="0.2.0-beta";
+const version="0.3.0-beta";
 const production = true;
 const schematicOverride = "transfigurace";
 const seedRoof = 1000000;
