@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="KaTeX/katex.css">
         <style>
             .katex-display {
-                margin: 0.5em 0 0.5em 0;
+                margin: 0.65em 0 0.65em 0;
                 line-height: 1.5;
             }
             .katex {
@@ -24,11 +24,6 @@
             #solutionContents {
                 /*word-break: normal;
                 overflow-wrap: normal;*/
-            }
-            #solutionContents .katex-display {
-                padding-top: 0.15em;
-                padding-bottom: 0.15em;
-            }
             #solutionContents .katex-display > .katex {
                 overflow-x: scroll !important;
                 overflow-y: clip !important;
@@ -48,8 +43,15 @@
             #solutionContents .katex-display > .katex * {
                 white-space: nowrap !important;
             }
+            final {
+                display: block;
+                margin-top: 1em;
+                padding: 0.5em;
+                background-color: none;
+                border: double var(--border-color) 3px;
+            }
         </style>
-        <script src="KaTeX/katex.js"></script>
+        <script src="KaTeX/katex.min.js"></script>
         <script src="KaTeX/auto-render.js"></script>
         <script src="KaTeX/fraction.js"></script>
         <script>
@@ -130,6 +132,7 @@
                                 <li>Schémata pro řešení</li>
                                 <li>Zlepšení tisku schémata</li>
                                 <li>&checkmark; Tisk řešení</li>
+                                <li>Sdílení odkazem</li>
                             </ul>
                         </note>
                         <input type="submit" id="dialogbutton" onclick="dialogClose(); dialogOpen('view', true)" value="OK" />
@@ -288,7 +291,7 @@
     <script src="scripts/dialog.js"></script>
     <script>
         /* USER BEGIN Debug */
-        if (!window.dev) dialogFuncView("metoda-linearni-superpozice", "1", "");
+        if (!window.dev) dialogFuncView("thevenin-1", "1", "");
         /* USER END Debug */
         const root = document.documentElement;
         const themeStorageKey = "zae-theme";

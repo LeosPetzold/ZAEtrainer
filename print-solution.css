@@ -72,9 +72,17 @@
         padding: 0 !important;
     }
 
+    body.print-solution-mode #solutionContents > :first-child {
+        margin-top: 0 !important;
+    }
+
     body.print-solution-mode #solutionContents .katex-display,
     body.print-solution-mode #solutionContents .katex-display > .katex {
         overflow: visible !important;
+    }
+
+    final {
+        border: double 1mm #000 !important;
     }
 
     @page {

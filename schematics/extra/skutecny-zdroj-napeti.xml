@@ -1,0 +1,25 @@
+<schematic>
+    <tiles>
+        <tile type="half-wire" x="-1" y="-1" rotation="0" />
+        <tile type="half-wire" x="-1" y="-1" rotation="90" />
+
+        <tile type="resistor" x="0" y="-1" id="R i" />
+
+        <tile type="terminal-half-wire-corner" x="1" y="-1" rotation="180" />
+        <tile type="terminal-half-wire-corner" x="1" y="-1" rotation="90" id="A" />
+
+
+        <tile type="voltage-source" x="-1" y="0" rotation="0" id="U 0" />
+
+        <tile type="resistor" x="1" y="0" rotation="90" id="R Z" />
+
+
+        <tile type="half-wire" x="-1" y="1" rotation="0" />
+        <tile type="half-wire" x="-1" y="1" rotation="270" />
+
+        <tile type="wire" x="0" y="1" />
+
+        <tile type="terminal-half-wire-corner" x="1" y="1" rotation="180" />
+        <tile type="terminal-half-wire-corner" x="1" y="1" rotation="270" id="B" />
+    </tiles>
+</schematic>

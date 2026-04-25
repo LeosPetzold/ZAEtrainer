@@ -3,7 +3,7 @@
   <task>
     <variant id="1">Určete napětí U<sub>Z</sub> na resistoru R<sub>Z</sub>.</variant>
   </task>
-  <tiles offX="-0.5" offY="0.5">
+  <tiles offX="0" offY="0.5">
     <tile type="half-wire" x="-2" y="-2" rotation="0" />
     <tile type="half-wire" x="-2" y="-2" rotation="90" />
     
@@ -62,28 +62,6 @@
     <tile type="half-wire" x="2" y="1" rotation="270" />
 
     <!--Reálný zdroj napětí-->
-
-    <tile type="half-wire" x="3" y="-2" rotation="0" />
-    <tile type="half-wire" x="3" y="-2" rotation="90" />
-
-    <tile type="resistor" x="4" y="-2" id="R i" />
-
-    <tile type="terminal-half-wire-corner" x="5" y="-2" rotation="180" />
-    <tile type="terminal-half-wire-corner" x="5" y="-2" rotation="90" id="A" />
-
-
-    <tile type="voltage-source" x="3" y="-1" rotation="0" id="U 0" />
-
-    <tile type="resistor" x="5" y="-1" rotation="90" id="R Z" />
-
-
-    <tile type="half-wire" x="3" y="0" rotation="0" />
-    <tile type="half-wire" x="3" y="0" rotation="270" />
-
-    <tile type="wire" x="4" y="0" />
-
-    <tile type="terminal-half-wire-corner" x="5" y="0" rotation="180" />
-    <tile type="terminal-half-wire-corner" x="5" y="0" rotation="270" id="B" />
     <extra>
 
     </extra>
@@ -119,7 +97,7 @@
         const UZ = AI * RZ;
 
         return `Théveninův theorém udává, že každý lineární obvod lze nahradit svorkami obvodu ekvivalentními.
-        To je provedeno nahrazením původního obvodu ideálním zdrojem napětí $U_0$ s vnitřním odporem $R_i$.
+        To je provedeno nahrazením původního obvodu skutečným zdrojem napětí $U_0$ s vnitřním odporem $R_i$.
         
         <h3>Výpočet $U_0$</h3>
         Pro výpočet napětí $U_0$ mezi svorkami zátěže <b>A</b> a <b>B</b> je třeba nejdříve zátěž (resistor $R_Z$) odstranit a poté spočítat napětí mezi těmito svorkami.
@@ -154,11 +132,12 @@
         $$R_{1+2} = \\frac{R_1 \\cdot R_2}{R_1 + R_2} = ${R12}&ohm;$$$$R_{3+4} = \\frac{R_3 \\cdot R_4}{R_3 + R_4} = ${R34}&ohm;$$$$R_i = R_{1+2} + R_{3+4} = ${Ri}&ohm;$$
 
         <h3>Finále</h3>
-        Dosaďme hodnoty $U_0$, $R_i$ a $R_Z$ (v zadání) do ideálního zdroje napětí.
+        Dosaďme hodnoty $U_0$, $R_i$ a $R_Z$ (v zadání) do skutečného zdroje napětí.
+        <inline-schematic schematic="extra/skutecny-zdroj-napeti" title="Odvozený skutečný zdroj napětí"></inline-schematic>
         Naše požadované napětí mezi svorkami, $U_Z$ na resistoru $R_Z$, lze triviálně spočítat s pomocí Ohmova zákona:
         $$I = \\frac{U}{R} \\rightarrow I = \\frac{U_0}{R_i + R_Z} = \\frac{${U0}}{${Ri + RZ}} = ${AI}A$$$$U = R \\cdot I \\rightarrow U_Z = I \\cdot R_Z = ${AI}\\cdot${RZ} = ${UZ}V$$<note>${UZ>=0 ? "Napětí nevyšlo záporně, vyšší potenciál je tedy na horní svorce." : "Napětí vyšlo záporně, vyšší potenciál je tedy na spodní svorce."}</note>
         
-        $$U_z = ${UZ}V$$
+        <final>$$U_z = ${UZ}V$$</final>
       `;})()
       ]]></data>
     </method>

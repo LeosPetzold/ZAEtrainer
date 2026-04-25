@@ -10,7 +10,7 @@
     const metrics = window.schematicViewportMetrics || {
         tileSize: 20 * (96 / 25.4),
         globalTileOffsetX: 0,
-        globalTileOffsetY: 0.7
+        globalTileOffsetY: 0
     };
 
     const state = {
