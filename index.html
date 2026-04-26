@@ -122,6 +122,7 @@
                                 <li>&checkmark; Sdílení odkazem</li>
                                 <li>Generace přijatelých výsledků</li>
                                 <li>&checkmark; Podpora mobilních telefonů</li>
+                                <li>Opravy na mobilních telefonech</li>
                                 <li>Korekce tisku na mobilních zařízeních</li>
                             </ul>
                         </note>
@@ -230,13 +231,15 @@
         <div id="infobar">
             <h3><pconly>Informace</pconly><mobile>Nástroje</mobile></h3>
             <separator></separator><br>
-            <label for="themeSelectInfobar">Téma vzhledu</label>
-            <select id="themeSelectInfobar" aria-label="Theme" style="width: 100%;"></select>
-            <br>
-            <input type="submit" onclick="queryPrint()" value="Tisk 🖶"></input>
-            <input type="submit" onclick="dialogOpen('share');" value="Sdílet ⌯⌲"></input>
-            <br>
-            <separator></separator><br>
+            <mobile>
+                <label for="themeSelectInfobar">Téma vzhledu</label>
+                <select id="themeSelectInfobar" aria-label="Theme" style="width: 100%;"></select>
+                <br>
+                <input type="submit" onclick="queryPrint()" value="Tisk 🖶"></input>
+                <input type="submit" onclick="dialogOpen('share');" value="Sdílet ⌯⌲"></input>
+                <br>
+                <separator></separator><br>
+            </mobile>
             <b><pconly>Kliknutím</pconly><mobile>Klepnutím</mobile> na jméno schémata vlevo nahoře načtete jiné schéma, variantu nebo číselný kořen.</b><br><br>
             <pconly>Klávesou <code>Home</code> nebo dvojitým kliknutím myši</pconly><mobile>Dvojitým klepnutím</mobile> ve schématu přejdete do úvodní pozice.
             <br><br>

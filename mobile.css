@@ -2,7 +2,7 @@
     pconly {
         display: none;
     }
-    mobileonly {
+    mobile, mobileonly {
         display: initial;
     }
 

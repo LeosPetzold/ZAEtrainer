@@ -329,6 +329,6 @@ note {
     cursor: pointer;
 }
 
-mobileonly {
+mobile, mobileonly {
     display: none;
 }
