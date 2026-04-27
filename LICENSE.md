@@ -4,7 +4,7 @@ Copyright 2026 Leoš Petzold
 _"This wall of text essentially boils down to four things:_
 - _This code contains third-party components, such as jQuery or KaTeX, which are subject to their own license and terms._
 - _You are forbitten from using this code for commercial purposes. See definition below._
-- _Give attribution from deriving from my code._
+- _Give proper attribution when deriving from my code._
 - _If you \*somehow\* screw something up with this (a literal webpage), it's a skill issue, which means not my fault._
 
 _You are of course expected to read the full thing. Now, I'm no lawyer and this 'license' was written in its entirety by ChatGPT, I just had to tweak a few things, so let me know if this whole thing is invalid or I accidentaly signed off my soul to every single person viewing this project._
