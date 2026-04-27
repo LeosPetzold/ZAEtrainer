@@ -5,15 +5,15 @@
   </task>
   <tiles offX="0" offY="0">
     <tile type="half-wire" x="-1" y="-2" />
-    <tile type="half-wire" x="-1" y="-2" rotation = "90" />
+    <tile type="half-wire" x="-1" y="-2" rotation="90" />
 
     <tile type="half-wire" x="0" y="-2" />
-    <tile type="half-wire" x="0" y="-2" rotation = "90" />
-    <tile type="half-wire" x="0" y="-2" rotation = "180" />
-    <tile type="dot" x="0" y="-2" />
+    <tile type="half-wire" x="0" y="-2" rotation="90" />
+    <tile type="half-wire" x="0" y="-2" rotation="180" />
+    <tile type="dot" id="A" x="0" y="-2" rotation="270" />
 
-    <tile type="half-wire" x="1" y="-2" rotation = "90" />
-    <tile type="half-wire" x="1" y="-2" rotation = "180" />
+    <tile type="half-wire" x="1" y="-2" rotation="90" />
+    <tile type="half-wire" x="1" y="-2" rotation="180" />
 
 
     <tile type="resistor" id="R 1" x="-1" y="-1" rotation="90" resistance="rand;1;5;0" />
@@ -32,18 +32,26 @@
 
     <tile type="voltage-source" id="U 2" x="1" y="0" rotation="0" voltage="rand;5;10;0" />
 
+
     <tile type="half-wire" x="-1" y="1" />
-    <tile type="half-wire" x="-1" y="1" rotation = "270" />
+    <tile type="half-wire" x="-1" y="1" rotation="270" />
 
     <tile type="half-wire" x="0" y="1" />
-    <tile type="wire" x="0" y="0.5" rotation = "90" />
-    <tile type="half-wire" x="0" y="1" rotation = "180" />
-    <tile type="dot" x="0" y="1" />
+    <tile type="wire" x="0" y="0.5" rotation="90" />
+    <tile type="half-wire" x="0" y="1" rotation="180" />
+    <tile type="dot" id="D ref" x="0" y="1" rotation="90" />
 
-    <tile type="half-wire" x="1" y="1" rotation = "270" />
-    <tile type="half-wire" x="1" y="1" rotation = "180" />"
+    <tile type="half-wire" x="1" y="1" rotation="270" />
+    <tile type="half-wire" x="1" y="1" rotation="180" />"
   </tiles>
   <methods>
+    <method name="Metoda uzlových napětí">
+      <data><![CDATA[
+      (() => {
+      
+      })();]]>
+      </data>
+    </method>
     <method name="Metoda lineární superpozice">
       <data><![CDATA[
       (() => {

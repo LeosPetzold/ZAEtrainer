@@ -1,15 +1,18 @@
 //const seed = 1081;
 const schematics = {
-    "metoda-linearni-superpozice": "Metoda lineární superpozice",
+    "jednoduchy-vicezdrojovy-obvod": "Obvod s více zdroji o dvou smyčkách",
     "transfigurace": "Transfigurace",
     "thevenin-1": "Théveninův teorém I.",
     "zatizeny-delic-napeti": "Zatížený napěťový dělič",
     "testing": "Testovací schéma"
 }
+const schematicOverrides = {
+    "metoda-linearni-superpozice": "jednoduchy-vicezdrojovy-obvod"
+}
 
 const version="0.3.0-beta";
-const production = true;
-const schematicOverride = "transfigurace";
+const production = false;
+const schematicOverride = "testing";
 const seedRoof = 1000000;
 window.dev = production;
 window.schematicOverride = schematicOverride;

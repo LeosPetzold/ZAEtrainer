@@ -131,6 +131,9 @@ function dialogFuncView(schematic, variant, seed) {
     variant = 1;
     // DEBUG END DEBUG END DEBUG END
 
+    // Schematic override parsing
+    schematic = schematicOverrides[schematic] || schematic;
+
     if (seed == "") seed = Math.floor(Math.random()*seedRoof);
     else seed = seed % seedRoof;
     if (variant == "") variant = -1;

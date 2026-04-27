@@ -162,15 +162,18 @@ class SchematicTile {
 
             const normalizedRotation = this.rotation % 360;
             let doLines = normalizedRotation % 180 === 0;
+            let allowExtendedLabelRotation = true; // Labels on top and left of components
 
             label.setAttribute("x", 0);
 
             switch (this.type) {
                 case "voltage-source":
+                    allowExtendedLabelRotation = false;
                     closeupOffset = 14;
                     break;
                 case "amperage-source":
                     closeupOffset = 16;
+                    allowExtendedLabelRotation = false;
                     break;
                 case "resistor":
                     doLines = normalizedRotation % 180 !== 0; // ! Fix .svg!
@@ -180,6 +183,7 @@ class SchematicTile {
                     doLines = normalizedRotation % 180 !== 0; // ! Fix .svg!
                     closeupOffset = 12;
                     break;
+                case "dot":
                 case "terminal":
                     closeupOffset = 30;
                     break;
@@ -197,8 +201,15 @@ class SchematicTile {
                     closeupOffset = 30;
                     break;
             }
+            const inverse = (normalizedRotation>=180 && normalizedRotation<360) && allowExtendedLabelRotation; // Text on top/left (non-standard)
+            const inverseUnit = inverse ? -1 : 1;
 
-            label.setAttribute("y", doLines ? size / 2 : size / 2 + 14);
+            if (inverse) {
+                label.setAttribute("y", doLines ? size / 2 : -(size / 2 + 2)) ;
+            }
+            else {
+                label.setAttribute("y", doLines ? size / 2 : size / 2 + 14);
+            }
 
             const textRotation = -normalizedRotation;
 
@@ -221,15 +232,22 @@ class SchematicTile {
                     sub.setAttribute("dy", "0.35em");
                     sub.setAttribute("dx", "0.04em");
                     sub.textContent = subText;
+                    
+                    const restore = document.createElementNS(SVG_NS, "tspan"); // Restore from subscript dy shift
+                    restore.setAttribute("dy", "-0.35em");
+                    restore.textContent = "\u200B"; // Zero-width space to force rendering
+                    sub.appendChild(restore);
+                    
                     t.appendChild(sub);
                 }
 
                 label.appendChild(t);
                 lineIndex += 1;
-
+                
+                const bbox = label.getBBox();
                 let transformAttr = "";
                 if (textRotation % 360 !== 0) {
-                    const bbox = label.getBBox();
+                    
                     const cx = bbox.x + bbox.width / 2;
                     const cy = bbox.y + bbox.height / 2;
                     transformAttr += `rotate(${textRotation} ${cx} ${cy})`;
@@ -237,15 +255,15 @@ class SchematicTile {
                 if (newLine) {
                     const halfTileSize = 0.5 * tileSize;
                     const safariLabelYOffset = isSafariEngine ? 4 : 0;
-                    transformAttr += ` translate(${textOffsetX + halfTileSize - closeupOffset} ${textOffsetY - halfTileSize + 1.5 + safariLabelYOffset})`;
+                    transformAttr += ` translate(${(textOffsetX + halfTileSize - closeupOffset)*inverseUnit} ${textOffsetY - halfTileSize + 1.5 + safariLabelYOffset})`;
                     label.setAttribute("dominant-baseline", "middle");
 
                 } else {
-                    transformAttr += ` translate(${textOffsetX} ${textOffsetY - closeupOffset})`;
+                    transformAttr += ` translate(${textOffsetX} ${(textOffsetY - closeupOffset) * inverseUnit})`;
                 }
                 label.setAttribute("transform", transformAttr);
 
-                label.setAttribute("text-anchor", newLine ? "start" : "middle");
+                t.setAttribute("text-anchor", newLine ? (inverse ? "end" : "start") : "middle");
             };
 
             if (this.data.id) {
