@@ -48,7 +48,78 @@
     <method name="Metoda uzlových napětí">
       <data><![CDATA[
       (() => {
-      
+        const U1 = window.circuit.U1;
+        const U2 = window.circuit.U2;
+        const R1 = window.circuit.R1;
+        const R2 = window.circuit.R2;
+        const R3 = window.circuit.R3;
+
+        const AR = R1 + parallel(R2, R3);
+        const BR = R2 + parallel(R1, R3);
+
+        const AI = U1 / AR;
+        const BI = U2 / BR;
+
+        const AI1 = AI; const AUR1 = AI1 * R1;
+        const AI3 = (U1-AUR1)/R3;
+
+        const BI2 = BI; const BUR2 = BI2 * R2;
+        const BI3 = (U2-BUR2)/R3;
+
+        const I3 = AI3 + BI3;
+        
+        const UA = R3*I3;
+
+        const I1 = (U1 - UA) / R1;
+        const I2 = (U2 - UA) / R2;
+
+        return `Metoda uzlových napětí využívá potenciálů jednotlivých uzlů obvodu vztažně k uzlu referenčnímu.
+
+        Definujme si <b>referenční uzel</b> <b>D</b>.
+        Referenční uzel je nejlepší zvolit v místě, kde je nejnižší potenciál obvodu, tedy kde se pravděpodobně stýká nejvíce mínusových svorek zdrojů.
+
+        Tento uzel zvolme právě v takovém místě; jeho poloha je vyznačea na schématu.
+
+        <h3>Stanovení proudů na rezistorech</h3>Využijme Ohmova zákona, který říká, že:
+        $$I = \\frac{U}{R}$$To můžeme využít pro definici jednotlivých proudů. Jednotlivé odpory $R$ známe ze zadání, zbývá pro každý resistor definovat úbytek napětí a tím i proud.
+
+        Na schématu jsou záměrně znázorněny směry proudů šipkami v resistorech. Ty nám pomohou definovat úbytky napětí na resistorech.
+        <note>Projdeme si metodu odvození, která lze následovat slepě, je však doporučeno si projít i logickou stránku, zde též popsanou.</note>
+
+        Úbytek napětí na resistoru lze definovat jako rozdíl potenciálů mezi jeho konci, zde jmenovitě $U_x - U_y$, kde $U_x$ je uzel na počátku šipky v resistoru a $U_y$ na špičatém konci.
+
+
+        Stanovme si napětí ve všech uzlech kromě referenčního $D_{ref}$, nyní pouze na uzlu <b>A</b>:
+        - Uzel <b>A</b>: napětí $U_A$
+
+        <u>Definujme úbytky napětí na jednotlivých resistorech:</u>
+
+        $R_3$ je nejjednodušším příkladem, jeho úbytek napětí je dán jako $U_A - U_D$, přičemž $U_D$ je napětí referenčního uzlu, které je nulové. Úbytek napětí na $R_3$ je tedy roven potenciálu uzlu $A$:
+        $$U_{R_3} = U_A$$
+
+        $R_1$ by bez zdroje bylo dáno jako $U_D - U_A$, k nulovému $U_D$ však přispívá napěťový zdroj $U_1$, který na počáteční straně resistoru zvyšuje potenciál o své $U_1$.
+        $$U_{R_1} = U_1 - U_A$$
+
+        $R_2$ nápodobně, dáno jako $U_D - $U_A$, kde k nulovému $U_D$ tedy přispívá zdroj $U_2$:
+        $$U_{R_2} = U_2 - U_A$$
+
+        <u>Z těchto výroků lze odvodit rovnice pro proudy:</u>
+        $$I_1 = \\frac{U_1 - U_A}{R_1}; \\quad I_2 = \\frac{U_2 -U_A}{R_2}; \\quad I_3 = \\frac{U_A}{R_3}$$
+
+        <u>Nyní definujme rovnice I. Kirchhoffova zákona</u>, zákona o proudech na uzlech, pro každý nereferenční uzel:
+        $$\\text{proudy do uzlu přicházející} = \\text{proudy z uzlu odcházející}$$$$\\frac{U_1 - U_A}{R_1} + \\frac{U_2 - U_A}{R_2} = \\frac{U_A}{R_3}$$
+        Dosaďme hodnoty známé ze zadání:
+        $$\\frac{${U1} - U_A}{${R1}} + \\frac{${U2} - U_A}{${R2}} = \\frac{U_A}{${R3}}$$
+        Vzniká lineární rovnice o jedné neznámé. Jejím řešením je potenciál uzlu $U_A$ vůči $U_D$:
+        $$U_A = ${UA}$$
+
+        To dosaďme do jednotlivých definicí proudů:
+        $$I_1 = \\frac{${U1} - ${UA}}{${R1}}; \\quad I_2 = \\frac{${U2} - ${UA}}{${R2}}; \\quad I_3 = \\frac{${UA}}{${R3}}$$ Vypočtěme.
+
+        <final>
+        $$I_1 = ${I1}A; \\quad I_2 = ${I2}A; \\quad I_3 = ${I3}A$$
+        </final>
+        `;
       })();]]>
       </data>
     </method>
