@@ -6,6 +6,19 @@
 
         <!--Styling-->
         <link href="styling/basic.css" rel="stylesheet">
+        <link id="responsive-style" href="styling/pc.css" rel="stylesheet">
+        <script>
+            function loadResponsiveStyle() {
+                const link = document.getElementById('responsive-style');
+                if (!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    link.href = 'styling/pc.css';
+                } else {
+                    link.href = 'styling/mobile.css';
+                }
+            }
+            loadResponsiveStyle();
+            window.addEventListener('resize', loadResponsiveStyle);
+        </script>
 
         <!--Pre-build Scripts-->
         <script src="scripts/jQuery.js"></script>

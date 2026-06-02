@@ -1,16 +1,40 @@
 :root {
-    color-scheme: light;
-    --theme-color: #3b2f28;
-    --muted-color: #7a6a5e;
-    --highlight-color: #b36b2c;
-    --border-color: #d8cbbb;
-
-    --background-color: #f8f1e7;
-    --contrast-color: #fffaf2;
-    --contrast-color-subtle: #efe3d2;
-    --surface-color: #fffaf2;
+    --background: linear-gradient(135deg, #242424 0%, #353535 50%, #2c2c2c 100%);
 }
 
 html, body {
-    background: var(--background-color);
+    background-color: #0f0f0f;
+    background-image: 
+        radial-gradient(
+            circle,
+            rgba(100, 100, 100, 0.15) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            transparent 24%,
+            rgba(60, 60, 60, 0.05) 25%,
+            rgba(60, 60, 60, 0.05) 26%,
+            transparent 27%,
+            transparent 74%,
+            rgba(60, 60, 60, 0.05) 75%,
+            rgba(60, 60, 60, 0.05) 76%,
+            transparent 77%,
+            transparent 100%
+        ),
+        linear-gradient(
+            180deg,
+            transparent 24%,
+            rgba(60, 60, 60, 0.05) 25%,
+            rgba(60, 60, 60, 0.05) 26%,
+            transparent 27%,
+            transparent 74%,
+            rgba(60, 60, 60, 0.05) 75%,
+            rgba(60, 60, 60, 0.05) 76%,
+            transparent 77%,
+            transparent 100%
+        );
+    background-size: 60px 60px, 60px 60px, 60px 60px;
+    background-position: 0 0, 0 0, 0 0;
+    color: #d0d0d0;
 }
