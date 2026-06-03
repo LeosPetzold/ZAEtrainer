@@ -1,0 +1,21 @@
+Jelikož se jedná o velmi komplexní celistvý projekt,
+musí se rozdělit do několika fází, které budou zveřejněny jedna po jedné.
+
+Hlavní To-Do list, chronologicky (nejdříve=>naposled):
+- Tělo stránky
+ - Základní vzhled, tab systém (po celou dobu myslet na responzivitu!)
+- Běžná schémata
+ - Navrhnutí layoutu
+ - Přehledný systém pro tvoření
+ - Podpora běžných schémat procedurálně vyhodnocovanými metodami řešení
+ - Ustálená funkcionalita jednotek
+- Lekce
+ - Vlastní view, navrhnutí layoutu
+ - Step-by-step řešení včetně médií
+ - Příklady na témata lekcí
+- Vlastní schémata
+ - Navrhnutí layoutu
+ - Tvoření vlastních schémat (pouze pro počítač)
+  - Editor tělo
+ - Podpora vlastních schémat procedurálně vyhodnocovanými metodami řešení
+ - Psaní procedurálních řešení pro vlastní schémata
