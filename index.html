@@ -3,6 +3,7 @@
     <head>
         <title>ZAETrainer</title>
         <meta charset="UTF-8">
+        <link href="favicon.ico" rel="icon">
 
         <!--Styling-->
         <link href="styling/basic.css" rel="stylesheet">
@@ -19,7 +20,7 @@
             window.addEventListener('resize', loadResponsiveStyle);
         </script>
 
-        <!--Pre-build Scripts-->
+        <!--Pre-build scripts-->
         <script src="scripts/thirdparty/jQuery.js"></script>
         <script src="scripts/thirdparty/rng.js"></script>
     </head>
@@ -29,19 +30,42 @@
             <span id="tabs">
                 <span class="tabb" active="false" value="tab-knihovna">Knihovna 🕮</span>&emsp;
                 <span class="tabb" active="false" value="tab-lekce">Lekce 🖉</span>&emsp;
-                <span class="tabb" active="true"  value="tab-editor">Editor ⸎</span>&emsp;
+                <span class="tabb" active="true"  value="tab-editor">Editor ⸎</span>
             </span>
+            <separator />
         </div>
         <div id="content">
-            <div class="tab" id="tab-knihovna" style="display:none;">
+            <span class="tab" id="tab-knihovna" style="display:none;">
                 Knihovna stuff here
-            </div>
-            <div class="tab" id="tab-lekce" style="display:none;">
+            </span>
+            <span class="tab" id="tab-lekce" style="display:none;">
                 Lekce stuff here
-            </div>
-            <div class="tab" id="tab-editor" style="display:unset;">
-                Editor stuff here
-            </div>
+            </span>
+            <span class="tab" id="tab-editor" style="display:unset;">
+                <link href="styling/tab-editor.css" rel="stylesheet">
+            
+                <div id="editor-selector">
+                    <span id="editor-selector-container">
+                        NAČÍTÁM DLAŽDICE ZE SERVERU...
+                    </span>
+                </div>
+                <div id="editor-tiledetails">
+                    <!--Tile image wrapper, force 128x128px viewport--><div id="editor-tiledetails-image"></div>
+                    <span>
+                        <b id="editor-tiledetails-name">?</b>
+                        <br><br>
+                        Velikost <b id="editor-tiledetails-sizeX">?</b>x<b id="editor-tiledetails-sizeY">?</b>
+                        <br>
+                        Varianta <b id="editor-tiledetails-variantN">?</b>. z <b id="editor-tiledetails-variantT">?</b>
+                        <br>
+                        Natočení <b><span id="editor-tiledetails-rotation">?</span>&deg;</b>
+                        <br><br>
+                        <note><i><b>E</b> mění varianty.
+                            <br>
+                            <b>R</b> a <b>T</b> natáčí.</i></note>
+                    </span>
+                </div>
+            </span>
         </div>
         <div id="bbot">
             <span>
@@ -62,7 +86,10 @@
         </div>
     </body>
 
-    <!--Post-build Scripts-->
+    <!--Post-build scripts-->
     <script src="scripts/ui.js"></script>
     <script src="scripts/build.js"></script>
+    
+    <!--Tab scripts-->
+    <script src="scripts/tab-editor.js"></script>
 </html>

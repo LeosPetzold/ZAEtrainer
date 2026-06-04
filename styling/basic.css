@@ -1,6 +1,7 @@
 :root {
-    --topbar-height: 40px;
-    --bottombar-height: 40px;
+    --topbar-height-c: 40px;
+    --bottombar-height-c: 40px;
+    --content-height: calc(100vh - var(--topbar-height) - var(--bottombar-height));
 
     --font-smooth: "IBM Plex Sans", "Segoe UI", sans-serif;
     --font-tech: "JetBrains Mono", ui-monospace, monospace;
@@ -9,6 +10,8 @@
     --font-size-tech: 12px;
     --font-size-panel: 13px;
     --font-size-instructions: 0.96rem;
+
+    --background-color-subtle: color-mix(in srgb, var(--background-color) 50%, var(--unit-color));
 
     /* Proprietary theme */
     color-scheme: light;
@@ -46,3 +49,26 @@ html {
 }
 
 /* CONTENT */
+#content {
+    box-sizing: border-box;
+    position: absolute;
+    top: var(--topbar-height);
+    left: 0;
+    width: 100vw;
+    height: var(--content-height);
+
+    padding: 15px;
+}
+
+/* TEXT */
+note {
+    color: var(--muted-color);
+}
+
+/* SVGs */
+.setstroke {
+    stroke: var(--theme-color);
+}
+.setfill {
+    fill: var(--theme-color);
+}
