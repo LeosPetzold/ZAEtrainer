@@ -1,0 +1,35 @@
+#btop, #bbot {
+    position: absolute;
+    left: 0;
+    width: 100vw;
+
+    box-sizing: border-box;
+    display: flex;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    background-color: var(--background-color);
+    font-family: var(--font-tech);
+}
+
+#btop {
+    top: 0;
+    height: var(--topbar-height);
+
+    border-bottom: solid 1px var(--border-color);
+}
+#btop > * {
+    margin-top: auto;
+    margin-bottom: auto;;
+}
+
+#bbot {
+    bottom: 0;
+    height: var(--bottombar-height);
+
+    border-top: solid 1px var(--border-color);
+}
+#bbot > * {
+    margin-top: auto;
+    margin-bottom: auto;;
+}

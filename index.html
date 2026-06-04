@@ -6,17 +6,16 @@
 
         <!--Styling-->
         <link href="styling/basic.css" rel="stylesheet">
-        <link id="responsive-style" href="styling/pc.css" rel="stylesheet">
+        <link href="styling/bars.css" rel="stylesheet">
+        <link id="responsive" href="styling/pc.css" rel="stylesheet">
         <script>
             function loadResponsiveStyle() {
-                const link = document.getElementById('responsive-style');
-                if (!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                    link.href = 'styling/pc.css';
-                } else {
-                    link.href = 'styling/mobile.css';
-                }
-            }
-            loadResponsiveStyle();
+                window.pc = !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                window.mobile = !window.pc;
+
+                const link = document.getElementById('responsive');
+                link.href = window.pc ? 'styling/pc.css' : 'styling/mobile.css'
+            } loadResponsiveStyle();
             window.addEventListener('resize', loadResponsiveStyle);
         </script>
 
@@ -24,10 +23,32 @@
         <script src="scripts/jQuery.js"></script>
         <script src="scripts/rng.js"></script>
     </head>
+
     <body>
-        a
+        <div id="btop">
+            <div id="tabs">
+                <span class="tabb" value="tab-knihovna">Knihovna</span>
+                <span class="tabb" value="tab-lekce">Lekce</span>
+                <span class="tabb" value="tab-editor">Editor</span>
+            </div>
+        </div>
+        <div id="content">
+            <div class="tab" id="tab-knihovna" style="display:none;">
+                Knihovna stuff here
+            </div>
+            <div class="tab" id="tab-lekce" style="display:none;">
+                Lekce stuff here
+            </div>
+            <div class="tab" id="tab-editor" style="display:unset;">
+                Editor stuff here
+            </div>
+        </div>
+        <div id="bbot">
+            <span>Bottom bar stuff here! :D</span>
+        </div>
     </body>
 
     <!--Post-build Scripts-->
+    <script src="scripts/ui.js"></script>
     <script src="scripts/build.js"></script>
 </html>

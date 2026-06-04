@@ -1,40 +1,47 @@
 :root {
-    --background: linear-gradient(135deg, #242424 0%, #353535 50%, #2c2c2c 100%);
+    --topbar-height: 40px;
+    --bottombar-height: 40px;
+
+    --font-smooth: "IBM Plex Sans", "Segoe UI", sans-serif;
+    --font-tech: "JetBrains Mono", ui-monospace, monospace;
+
+    --font-size-base: 14px;
+    --font-size-tech: 12px;
+    --font-size-panel: 13px;
+    --font-size-instructions: 0.96rem;
+
+    /* Proprietary theme */
+    color-scheme: light;
+    --theme-color: #1f2a36;
+    --muted-color: #66788f;
+    --highlight-color: #0f8f7e;
+    --border-color: #cfd8e3;
+    --background-color: #f3f6fb;
+    --contrast-color: #ffffff;
+    --contrast-color-subtle: #e9eef5;
+    --surface-color: #ffffff;
 }
 
 html, body {
-    background-color: #0f0f0f;
-    background-image: 
-        radial-gradient(
-            circle,
-            rgba(100, 100, 100, 0.15) 1px,
-            transparent 1px
-        ),
-        linear-gradient(
-            90deg,
-            transparent 24%,
-            rgba(60, 60, 60, 0.05) 25%,
-            rgba(60, 60, 60, 0.05) 26%,
-            transparent 27%,
-            transparent 74%,
-            rgba(60, 60, 60, 0.05) 75%,
-            rgba(60, 60, 60, 0.05) 76%,
-            transparent 77%,
-            transparent 100%
-        ),
-        linear-gradient(
-            180deg,
-            transparent 24%,
-            rgba(60, 60, 60, 0.05) 25%,
-            rgba(60, 60, 60, 0.05) 26%,
-            transparent 27%,
-            transparent 74%,
-            rgba(60, 60, 60, 0.05) 75%,
-            rgba(60, 60, 60, 0.05) 76%,
-            transparent 77%,
-            transparent 100%
-        );
-    background-size: 60px 60px, 60px 60px, 60px 60px;
-    background-position: 0 0, 0 0, 0 0;
-    color: #d0d0d0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: hidden;
+}
+html {
+    background: var(--surface-color);
+
+    color: var(--theme-color);
+    font-family: var(--font-smooth);
+    font-size: var(--font-size-base);
+}
+
+.tabb {
+    cursor: pointer;
 }
