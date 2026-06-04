@@ -20,17 +20,17 @@
         </script>
 
         <!--Pre-build Scripts-->
-        <script src="scripts/jQuery.js"></script>
-        <script src="scripts/rng.js"></script>
+        <script src="scripts/thirdparty/jQuery.js"></script>
+        <script src="scripts/thirdparty/rng.js"></script>
     </head>
 
     <body>
         <div id="btop">
-            <div id="tabs">
-                <span class="tabb" value="tab-knihovna">Knihovna</span>
-                <span class="tabb" value="tab-lekce">Lekce</span>
-                <span class="tabb" value="tab-editor">Editor</span>
-            </div>
+            <span id="tabs">
+                <span class="tabb" active="false" value="tab-knihovna">Knihovna 🕮</span>&emsp;
+                <span class="tabb" active="false" value="tab-lekce">Lekce 🖉</span>&emsp;
+                <span class="tabb" active="true"  value="tab-editor">Editor ⸎</span>&emsp;
+            </span>
         </div>
         <div id="content">
             <div class="tab" id="tab-knihovna" style="display:none;">
@@ -44,7 +44,21 @@
             </div>
         </div>
         <div id="bbot">
-            <span>Bottom bar stuff here! :D</span>
+            <span>
+                <a <!--href="https://zae.leonetwork.eu">
+                    zae.leonetwork.eu</a>
+                --
+                nástroj pro generaci a řešení příkladů ze základů elektrotechniky
+                &emsp14;&emsp14;&emsp14;
+            </span>
+            <span>
+                <b>© Leoš Petzold 2026</b>, <a target="_blank" rel="noopener noreferrer" href="https://voskh.cz/">student</a>
+            </span>
+            <!--<span style="display: inline-flex; align-items: center; gap: 8px; margin-left: auto;">
+                <noprint>
+                    <a href="terms.html">Podmínky užití, autorská práva</a>
+                </noprint>
+            </span>-->
         </div>
     </body>
 
