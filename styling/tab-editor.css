@@ -56,6 +56,8 @@
     display: inline-flex;
     padding: 15px;
 
+    opacity: 0.5;
+
     background-color: var(--background-color-subtle);
     border: solid 1px var(--border-color);
     border-radius: 15px;
@@ -88,12 +90,21 @@
     /*background-color: var(--background-color-subtle);
     border: solid 1px var(--background-color);*/
  
-    transform: translate(-50%, -50%);
-
+    /*transform: translate(-50%, -50%);*/
+    
     z-index: 1;
 }
-#editor-tiledetails-imageWrapper, #editor-tiledetails-cursorWrapper {
+#editor-tiledetails-cursorWrapper {
+    box-sizing: content-box;
+
+    transform-origin: calc(var(--tile-size) / 2) calc(var(--tile-size) / 2);
+
+    border: solid 2px var(--background-color);
+    background-color: color-mix(in srgb, var(--background-color-subtle) 50%, transparent 50%);
+}
+#editor-tiledetails-imageWrapper, #editor-tiledetails-cursorWrapper, #editor-viewport-underneath {
     transition: transform 0.3s;
+    line-height: 0;
 }
 #editor-tiledetails-cursorWrapper .setstroke { stroke: var(--theme-color); }
 #editor-tiledetails-cursorWrapper .setfill   { fill:   var(--theme-color); }
@@ -110,18 +121,22 @@
 
     --tile-size: 64px;
     --border-width: 1px;
-    --bwh: calc(var(--border-width) / 2);
-    --mod: mod(100%, var(--tile-size));
-    --modh: calc(var(--mod) / 2);
+    /*--bwh: calc(var(--border-width) / 2);*/
+    --mod: mod(calc(100% - var(--tile-size)), calc(var(--tile-size) * 2));
+    --modh: calc(var(--mod) / 4);
     --grid-color: var(--background-color);
 }
 #editor-viewport-canvas {
     box-sizing: content-box;
     position: absolute;
-    top:  var(--modh);
-    left: var(--modh);
+    top:  50%;
+    left: 50%;
     width:  calc(100% - var(--mod));
     height: calc(100% - var(--mod));
+
+    transform: translate(-50%, -50%);
+
+    overflow: hidden;
 
     background:
         repeating-linear-gradient(90deg, var(--grid-color) 0px, var(--grid-color) 1px,
@@ -130,16 +145,6 @@
         repeating-linear-gradient(var(--grid-color) 0px, var(--grid-color) 1px,
             transparent 1px, transparent 63px,
             var(--grid-color) 63px, var(--grid-color) 64px);
-    /*border: solid 1px var(--grid-color);*/
-}
-#editor-viewport-canvasWrapper {
-    box-sizing: content-box;
-    position: absolute;
-    top:  var(--modh);
-    left: var(--modh);
-    width:  calc(100% - var(--mod));
-    height: calc(100% - var(--mod));
-
     border: solid 1px var(--grid-color);
 }
 #editor-viewport-center {
@@ -158,6 +163,7 @@
     height: unset;
 
     display: unset;
+    transform-origin: calc(var(--tile-size) / 2) calc(var(--tile-size) / 2);
 
     background-color: var(--background-color);
 }

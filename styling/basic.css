@@ -13,12 +13,16 @@
 
     --background-color-subtle: color-mix(in srgb, var(--background-color) 50%, var(--unit-color));
 
+    /* Editor tab */
+    --tile-size: 64px;
+
     /* Proprietary theme */
     color-scheme: light;
     --unit-color: white;
     --theme-color: #1f2a36;
     --muted-color: #66788f;
     --highlight-color: #0f8f7e;
+    /*--warning-color: #8f0f0f;*/
     --border-color: #cfd8e3;
     --background-color: #f3f6fb;
     --contrast-color: #ffffff;

@@ -46,10 +46,10 @@
             
                 <div id="editor-viewport">
                     <div id="editor-viewport-canvasWrapper">
-                        <div id="editor-viewport-center">x</div>
+                        <div id="editor-viewport-center">&Cross;</div>
                         <div id="editor-viewport-canvas">
+                            <div id="editor-viewport-underneath"></div>
                         </div>
-                        <div id="editor-viewport-underneath"></div>
                     </div>
                 </div>
 
@@ -59,11 +59,12 @@
                     </span>
                 </div>
                 
-                 <div id="editor-tiledetails-cursor">
-                        <div id="editor-tiledetails-cursorWrapper"></div>
-                    </div>
+                <div id="editor-tiledetails-cursor">
+                    <div id="editor-tiledetails-cursorWrapper"></div>
+                </div>
                 <div id="editor-tiledetails">
-                    <!--Tile image wrapper, force 128x128px viewport--><div id="editor-tiledetails-image">
+                    <!--Tile image wrapper, force 128x128px viewport, forced in script too.-->
+                    <div id="editor-tiledetails-image">
                         <div id="editor-tiledetails-imageWrapper"></div>
                     </div>
                     <span>

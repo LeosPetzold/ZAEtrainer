@@ -22,19 +22,25 @@ variants.set("source-voltage", [ "source-voltage" ])
 variants.set("terminal-wire-X", [ "terminal-wire-I", "terminal-wire-L", "terminal-wire-T", "terminal-wire-X" ]);
 // Wire
 variants.set("wire-X", [ "wire-I", "wire-L", "wire-T", "wire-X" ]);
+
+const canvasBorderWidth = 1; // One edge, in px
 /* Config END */
 
 /* Runtime variables */
 let canvasBox;
+let canvasSizeTiles = { x: 0, y: 0 };
 let launched = false;
 let ID = "resistor"; // Fallback name
 let rotation = 0; // 0, 1, 2, 3
 let imageRotation = 0; // step=1, range +-360deg., that is mod 4
 let totalVariants = 1;
-let variant  = 0; // code-wise zero-based, UI-wise one-based
-let sizeX = 1;
-let sizeY = 1;
-const tileSize = 64;
+let variant  = 0; // Code-wise zero-based, UI-wise one-based
+let sizeX = 1; // Current selected tile size
+let sizeY = 1; // Current selected tile size
+let cursorTilePosition         = { x: 0, y: 0 };
+let cursorTilePositionAbsolute = { x: 0, y: 0 };
+let cursorCanvasPosition       = { x: 0, y: 0 }; // Does **NOT** include borders
+const tileSize = 64; // Not dynamic with CSS. Not dynamic in CSS.
 /* Runtime variables END */
 
 /* Setup */
@@ -81,16 +87,34 @@ addEventListener("keypress", (event) => {
 });
 
 const editorViewport = $("#editor-viewport")[0];
-addEventListener("mousemove", (event) => {
+const editorCanvas   = $("#editor-viewport-canvas")[0];
+const underneath     = $("#editor-viewport-underneath")[0];
+addEventListener("mousemove", (event) => { 
+    const ctp = getCursorPosition(event, editorCanvas); // Current tile position input = ctp
+    cursorCanvasPosition.x = ctp.x - canvasBorderWidth;
+    cursorCanvasPosition.y = ctp.y - canvasBorderWidth;
+    cursorTilePositionAbsolute.x = Math.floor(cursorCanvasPosition.x / 64);
+    cursorTilePositionAbsolute.y = Math.floor(cursorCanvasPosition.y / 64);
+    cursorTilePosition.x = cursorTilePositionAbsolute.x - Math.floor(canvasSizeTiles.x/2);
+    cursorTilePosition.y = cursorTilePositionAbsolute.y - Math.floor(canvasSizeTiles.y/2);
+
     if (launched) {
         const position = getCursorPosition(event, editorViewport);
-        $("#editor-tiledetails-cursor")[0].style.left = `${position.x}px`;
-        $("#editor-tiledetails-cursor")[0].style.top  = `${position.y}px`;
+        $("#editor-tiledetails-cursor")[0].style.left = `${position.x-(tileSize/2)}px`;
+        $("#editor-tiledetails-cursor")[0].style.top  = `${position.y-(tileSize/2)}px`;
+
+        // Underneath
+        underneath.style.left = `${cursorTilePositionAbsolute.x * tileSize}px`;
+        underneath.style.top  = `${cursorTilePositionAbsolute.y * tileSize}px`;
     }
 });
 
-const editorCanvas = $("#editor-viewport-canvas")[0];
-function updateCanvasBox() { canvasBox = editorCanvas.getBoundingClientRect(); }
+// const editorCanvas = $("#editor-viewport-canvas")[0];
+function updateCanvasBox() {
+    canvasBox = editorCanvas.getBoundingClientRect();
+    canvasSizeTiles.x = (canvasBox.width  - (2*canvasBorderWidth))/64;
+    canvasSizeTiles.y = (canvasBox.height - (2*canvasBorderWidth))/64;
+}
 addEventListener("resize", () => {
     updateCanvasBox();
 });
@@ -101,6 +125,9 @@ updateCanvasBox();
 async function editorSelect(name) {
     launched = true;
 
+    // Window opacity unsetting
+    $("#editor-tiledetails")[0].style.opacity = "unset";
+
     // ID, Name
     ID = name;
     $("#editor-tiledetails-name")[0].innerText = componentNames.get(name);
@@ -110,7 +137,7 @@ async function editorSelect(name) {
     // Variate before rotation as rotation needs image.
 
     // Rotation reset
-    rotate(rotation-4); // Resets to 0 (degrees)
+    if (rotation != 0) rotate(4-rotation); // Resets to 0 (degrees)
 
     // Total variant amount
     totalVariants = variants.get(name).length;
@@ -123,9 +150,11 @@ function rotate(steps) {
     rotation = mod((rotation + steps), 4);
     imageRotation += steps;
 
+    const angle = imageRotation * 90;
     $("#editor-tiledetails-rotation")[0].innerText = rotation * 90;
-    $("#editor-tiledetails-imageWrapper")[0].style.transform  = `rotate(${imageRotation * 90}deg`;
-    $("#editor-tiledetails-cursorWrapper")[0].style.transform = `rotate(${imageRotation * 90}deg`;
+    $("#editor-viewport-underneath")[0].style.transform       = `rotate(${angle}deg)`;
+    $("#editor-tiledetails-imageWrapper")[0].style.transform  = `rotate(${angle}deg)`;
+    $("#editor-tiledetails-cursorWrapper")[0].style.transform = `rotate(${angle}deg)`;
 }
 function variate(steps) {
     variant = mod((variant + steps), totalVariants);
@@ -134,6 +163,8 @@ function variate(steps) {
     // Image is updated here, as late as possible as to not wait for the server.
     variate2(steps);
 }
+const cursorContainer = $("#editor-tiledetails-cursorWrapper")[0];
+const imageContainer  = $("#editor-tiledetails-imageWrapper")[0];
 async function variate2(steps) {
     // Image is updated here, as late as possible as to not wait for the server.
     try {
@@ -144,9 +175,8 @@ async function variate2(steps) {
         const result = await response.text();
 
         // Image
-        const container = $("#editor-tiledetails-imageWrapper")[0];
-        container.innerHTML = result;
-        const imageElement = container.firstElementChild;
+        imageContainer.innerHTML = result;
+        const imageElement = imageContainer.firstElementChild;
 
         imageElement.setAttribute("width",  "128px");
         imageElement.setAttribute("height", "128px");
@@ -160,12 +190,15 @@ async function variate2(steps) {
         $("#editor-tiledetails-sizeY")[0].innerText = sizeY;
 
         // Cursor image
-        const cursorContainer = $("#editor-tiledetails-cursorWrapper")[0];
         cursorContainer.innerHTML = result;
         const cursorImageElement = cursorContainer.firstElementChild;
         cursorImageElement.setAttribute("width",  `${viewport[2]}px`);
         cursorImageElement.setAttribute("height", `${viewport[3]}px`);
         colorSVG(cursorImageElement);
+
+        // Underneath
+        underneath.style.width  = `${viewport[2]}px`;
+        underneath.style.height = `${viewport[3]}px`;
 
         // Give the image its rotation
         rotate(0);
