@@ -30,7 +30,8 @@ const canvasBorderWidth = 1; // One edge, in px
 let canvasBox;
 let canvasSizeTiles = { x: 0, y: 0 };
 let launched = false;
-let ID = "resistor"; // Fallback name
+let ID = "resistor"; // Internal non-varianting ID, fallback ID set
+let trueID = ID; // Actual ID, takes care of variant
 let rotation = 0; // 0, 1, 2, 3
 let imageRotation = 0; // step=1, range +-360deg., that is mod 4
 let totalVariants = 1;
@@ -40,7 +41,10 @@ let sizeY = 1; // Current selected tile size
 let cursorTilePosition         = { x: 0, y: 0 };
 let cursorTilePositionAbsolute = { x: 0, y: 0 };
 let cursorCanvasPosition       = { x: 0, y: 0 }; // Does **NOT** include borders
+let loaded = false;
 const tileSize = 64; // Not dynamic with CSS. Not dynamic in CSS.
+
+let cells = new Map() // Map-of-Maps;
 /* Runtime variables END */
 
 /* Setup */
@@ -90,6 +94,8 @@ const editorViewport = $("#editor-viewport")[0];
 const editorCanvas   = $("#editor-viewport-canvas")[0];
 const underneath     = $("#editor-viewport-underneath")[0];
 addEventListener("mousemove", (event) => { 
+    mouseMove(event); });
+function mouseMove(event) {
     const ctp = getCursorPosition(event, editorCanvas); // Current tile position input = ctp
     cursorCanvasPosition.x = ctp.x - canvasBorderWidth;
     cursorCanvasPosition.y = ctp.y - canvasBorderWidth;
@@ -107,22 +113,27 @@ addEventListener("mousemove", (event) => {
         underneath.style.left = `${cursorTilePositionAbsolute.x * tileSize}px`;
         underneath.style.top  = `${cursorTilePositionAbsolute.y * tileSize}px`;
     }
-});
+}
 
 // const editorCanvas = $("#editor-viewport-canvas")[0];
 function updateCanvasBox() {
     canvasBox = editorCanvas.getBoundingClientRect();
-    canvasSizeTiles.x = (canvasBox.width  - (2*canvasBorderWidth))/64;
-    canvasSizeTiles.y = (canvasBox.height - (2*canvasBorderWidth))/64;
+    canvasSizeTiles.x = Math.floor((canvasBox.width  - (2*canvasBorderWidth))/64);
+    canvasSizeTiles.y = Math.floor((canvasBox.height - (2*canvasBorderWidth))/64);
 }
 addEventListener("resize", () => {
     updateCanvasBox();
 });
 updateCanvasBox();
 
+editorCanvas.addEventListener("pointerdown", (event) => {
+    canvasClick(event);
+});
+
 /* Setup END */
 
 async function editorSelect(name) {
+    loaded = false;
     launched = true;
 
     // Window opacity unsetting
@@ -146,29 +157,32 @@ async function editorSelect(name) {
     // Image is updated by variate(...).
 }
 
+const cursorContainer = $("#editor-tiledetails-cursorWrapper")[0];
+const imageContainer  = $("#editor-tiledetails-imageWrapper")[0];
 function rotate(steps) {
     rotation = mod((rotation + steps), 4);
     imageRotation += steps;
 
     const angle = imageRotation * 90;
-    $("#editor-tiledetails-rotation")[0].innerText = rotation * 90;
-    $("#editor-viewport-underneath")[0].style.transform       = `rotate(${angle}deg)`;
-    $("#editor-tiledetails-imageWrapper")[0].style.transform  = `rotate(${angle}deg)`;
-    $("#editor-tiledetails-cursorWrapper")[0].style.transform = `rotate(${angle}deg)`;
+    $("#editor-tiledetails-rotation")[0].innerText       = rotation * 90;
+    $("#editor-viewport-underneath")[0].style.transform  = `rotate(${angle}deg)`;
+    imageContainer.style.transform                       = `rotate(${angle}deg)`;
+    cursorContainer.style.transform                      = `rotate(${angle}deg)`;
 }
 function variate(steps) {
     variant = mod((variant + steps), totalVariants);
     $("#editor-tiledetails-variantN")[0].innerText = variant + 1;
 
     // Image is updated here, as late as possible as to not wait for the server.
+    trueID = variants.get(ID)[variant]
     variate2(steps);
 }
-const cursorContainer = $("#editor-tiledetails-cursorWrapper")[0];
-const imageContainer  = $("#editor-tiledetails-imageWrapper")[0];
+/*const cursorContainer = $("#editor-tiledetails-cursorWrapper")[0];
+const imageContainer  = $("#editor-tiledetails-imageWrapper")[0];*/
 async function variate2(steps) {
     // Image is updated here, as late as possible as to not wait for the server.
     try {
-        const response = await fetch(`media/tiles/${variants.get(ID)[variant]}.svg`);
+        const response = await fetch(`media/tiles/${trueID}.svg`);
         if (!response.ok) {
             throw new Error(`Response error status: ${response.status}`);
         }
@@ -185,7 +199,7 @@ async function variate2(steps) {
         // SizeX & SizeY
         const viewport = imageElement.getAttribute("viewBox").split(" ");
         sizeX = viewport[2]/tileSize;
-        SizeY = viewport[3]/tileSize;
+        sizeY = viewport[3]/tileSize;
         $("#editor-tiledetails-sizeX")[0].innerText = sizeX;
         $("#editor-tiledetails-sizeY")[0].innerText = sizeY;
 
@@ -202,9 +216,95 @@ async function variate2(steps) {
 
         // Give the image its rotation
         rotate(0);
+
+        loaded = true;
     }
     catch (error) {
         console.error(error.message);
+    }
+}
+
+// Editor placing functionality
+function canvasClick(event) {
+    /* Checks */
+    if (!launched) return;
+    if (!loaded) return;
+    // Bounding checks done in the tile loop below.
+
+    let cellsBuffer = cells;
+
+    /* Data architecture and definitions */
+    const rootPoint = cursorTilePosition;
+    let reserveCoords = [];
+    for (let sx = 0; sx < sizeX; ++sx) {
+        for (let sy = 0; sy < sizeY; ++sy) {
+            const values = rotateAroundOrigin(sx, sy, rotation*90);
+            const point = { x: sx + rootPoint.x, y: sy + rootPoint.y };
+
+            console.log(point);
+
+            if (cellsBuffer.has2D(point.x, point.y)) return; // Would conflict.
+
+            if (sy != 0 || sx != 0) {
+                cellsBuffer.set2D(point.x, point.y, new Reserve(rootPoint.x, rootPoint.y));
+                reserveCoords.push(new Vector2(point.x, point.y));
+            }
+        }
+    }
+    // Write Tile to rootPoint
+    cellsBuffer.set2D(rootPoint.x, rootPoint.y, new Tile(trueID, rotation, reserveCoords));
+    
+    // Flush buffer
+    cells = cellsBuffer;
+    console.log(cells);
+    
+    canvasPlaceSVG(trueID, cursorTilePositionAbsolute, rotation);
+}
+const editorCanvasCellWrapper = $("#editor-canvas-cellsWrapper")[0]
+/*async */function canvasPlaceSVG(trueID, absoluteRootPoint, rotation) {
+    /* SVG placement */
+    const tile = document.createElement("span");
+
+    /*try {
+        const response = await fetch(`media/tiles/${trueID}.svg`);
+        if (!response.ok) {
+            throw new Error(`Response error status: ${response.status}`);
+        }
+        const result = await response.text();
+
+        tile.innerHTML = result;
+    } catch (error) {
+        console.error(error);
+    }*/
+    tile.innerHTML = imageContainer.innerHTML;
+
+    const SVG = tile.firstElementChild;
+    // SizeX & SizeY
+    SVG.setAttribute("width",  `${sizeX*tileSize}px`);
+    SVG.setAttribute("height", `${sizeY*tileSize}px`);
+
+    tile.style.left      = `${absoluteRootPoint.x * 64}px`;
+    tile.style.top       = `${absoluteRootPoint.y * 64}px`;
+    tile.style.transform = `rotate(${rotation*90}deg)`;
+
+    editorCanvasCellWrapper.appendChild(tile);
+}
+
+class Tile {
+    ID;
+    rotation;
+    reserves = [];
+
+    constructor(ID, rotation, reserves) {
+        this.ID = ID;
+        this.rotation = rotation;
+        this.reserves = reserves;
+    }
+}
+class Reserve {
+    pointer;
+    constructor(tileX, tileY) {
+        this.pointer = new Vector2(tileX, tileY);
     }
 }
 
@@ -226,20 +326,66 @@ function mod(n, m) {
   return ((n % m) + m) % m;
 }
 
-/* Source: https://dev.to/codepo8/quick-solution-getting-the-mouse-position-on-an-element-regardless-of-positioning-1pa2 */
+/* Source: https://dev.to/codepo8/quick-solution-getting-the-mouse-position-on-an-element-regardless-of-positioning-1pa2, modified*/
 function getCursorPosition(event, element) {
-  // get the current mouse position in the browser
+  // Get the current mouse position in the browser
   let x = event.clientX;
   let y = event.clientY;
-  // get the position of the element you applied the handler to
+  // Get the position of the element the handler was applied to
   let pos = element.getBoundingClientRect();
-  // subtract the position of the element (rounded up to the next
-  // integer) from the mouse position and return it.
+  /* Subtract the position of the element
+   * (rounded up to the next integer)
+   * from the mouse position and return it. */
   return {
     x: x - pos.x|1,
     y: y - pos.y|1
   };
 }
+/* End of Source*/
 
+function rotateAroundOrigin(x, y, angle) { // Origin is always (0;0).
+    // Accounting for clockwise nature of the canvas's web-coordinate system
+    const radians = (angle / 180) * Math.PI; /// Ordering to minimise imprecisions
+
+    const sin = Math.sin(radians);
+    const cos = Math.cos(radians);
+
+    // Apply rotation matrix formulas
+    // (See: https://en.wikipedia.org/wiki/Rotation_matrix)
+    const X = (x*cos)-(y*sin);
+    const Y = (x*sin)+(y*cos);
+
+    // Rounding to *6 DECIMAL DIGITS*!
+    return { x: parseFloat(X.toFixed(6)), y: parseFloat(Y.toFixed(6)) };
+}
+
+// cell Map-of-Maps; Source: web boilerplate, modified
+Map.prototype.set2D = function setCell(x, y, value) {
+    let col = this.get(x);
+    if (!col) {
+        col = new Map();
+        this.set(x, col);
+    }
+    col.set(y, value);
+}
+Map.prototype.get2D = function getCell(x, y) {
+    const col = this.get(x);
+    return col ? (col.get(y) ?? null) : null;
+}
+Map.prototype.has2D = function hasCell(x, y) {
+    const col = this.get(x);
+    return !!col && col.has(y);
+}
+Map.prototype.del2D = function delCell(x, y) {
+    const col = this.get(x);
+    if (!col) return;
+    col.delete(y);
+    if (col.size === 0) this.delete(x);
+}
+
+class Vector2 {
+    x; y;
+    constructor(x, y) { this.x = x; this.y = y; }
+}
 
 /* Utilities END */

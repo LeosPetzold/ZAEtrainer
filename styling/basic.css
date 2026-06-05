@@ -11,23 +11,39 @@
     --font-size-panel: 13px;
     --font-size-instructions: 0.96rem;
 
-    --background-color-subtle: color-mix(in srgb, var(--background-color) 50%, var(--unit-color));
+    --background-color-subtle: color-mix(in srgb, var(--background-color) 50%, var(--mixing-color));
 
     /* Editor tab */
     --tile-size: 64px;
 
-    /* Proprietary theme */
-    color-scheme: light;
+    /* Proprietary themes */
+    /*color-scheme: light;
     --unit-color: white;
+    --mixing-color: #fff;
     --theme-color: #1f2a36;
     --muted-color: #66788f;
     --highlight-color: #0f8f7e;
-    /*--warning-color: #8f0f0f;*/
     --border-color: #cfd8e3;
+    --grid-color: var(--background-color);
+
     --background-color: #f3f6fb;
     --contrast-color: #ffffff;
     --contrast-color-subtle: #e9eef5;
-    --surface-color: #ffffff;
+    --surface-color: #ffffff;*/
+
+    color-scheme: dark;
+    --unit-color: black;
+    --mixing-color: #100;
+    --theme-color: #f4d4d4;
+    --muted-color: #e0abab;
+    --highlight-color: #ff6b6b;
+    --border-color: #7f2f2f;
+    --grid-color: #291010;
+
+    --background-color: #1d0f0f;
+    --contrast-color: #140909;
+    --contrast-color-subtle: #2c1515;
+    --surface-color: #180c0c;
 }
 
 html, body {

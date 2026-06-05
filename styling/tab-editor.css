@@ -34,6 +34,8 @@
     border: dotted 1px transparent;
     cursor: pointer;
 
+    line-height: 0;
+
     transition: ease-out 0.5s;
 }
 .editor-item-wrapper:hover {
@@ -99,12 +101,17 @@
 
     transform-origin: calc(var(--tile-size) / 2) calc(var(--tile-size) / 2);
 
+    opacity: 0.5;
+
     border: solid 2px var(--background-color);
     background-color: color-mix(in srgb, var(--background-color-subtle) 50%, transparent 50%);
 }
 #editor-tiledetails-imageWrapper, #editor-tiledetails-cursorWrapper, #editor-viewport-underneath {
     transition: transform 0.3s;
     line-height: 0;
+}
+#editor-viewport-center, #editor-tiledetails-cursor, #editor-tiledetails-cursor *, #editor-viewport-underneath {
+    pointer-events: none;
 }
 #editor-tiledetails-cursorWrapper .setstroke { stroke: var(--theme-color); }
 #editor-tiledetails-cursorWrapper .setfill   { fill:   var(--theme-color); }
@@ -124,7 +131,7 @@
     /*--bwh: calc(var(--border-width) / 2);*/
     --mod: mod(calc(100% - var(--tile-size)), calc(var(--tile-size) * 2));
     --modh: calc(var(--mod) / 4);
-    --grid-color: var(--background-color);
+    /*--grid-color: var(--background-color);*/
 }
 #editor-viewport-canvas {
     box-sizing: content-box;
@@ -153,12 +160,14 @@
     left: 50%;
     transform: translate(-50%, -50%);
 
+    z-index: 2;
+
     color: var(--muted-color);
 }
 #editor-viewport-underneath {
     position: absolute;
-    top: unset;
-    left: unset;
+    top: -100%;
+    left: -100%;
     width: unset;
     height: unset;
 
@@ -166,4 +175,13 @@
     transform-origin: calc(var(--tile-size) / 2) calc(var(--tile-size) / 2);
 
     background-color: var(--background-color);
+}
+#editor-canvas-cellsWrapper > span {
+    position: absolute;
+    top: unset;
+    left: unset;
+    width: auto;
+    height: auto;
+
+    transform-origin: calc(var(--tile-size) / 2) calc(var(--tile-size) / 2);
 }
