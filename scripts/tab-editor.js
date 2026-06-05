@@ -239,7 +239,7 @@ function canvasClick(event) {
     for (let sx = 0; sx < sizeX; ++sx) {
         for (let sy = 0; sy < sizeY; ++sy) {
             const values = rotateAroundOrigin(sx, sy, rotation*90);
-            const point = { x: sx + rootPoint.x, y: sy + rootPoint.y };
+            const point = { x: values.x + rootPoint.x, y: values.y + rootPoint.y };
 
             console.log(point);
 
