@@ -111,7 +111,7 @@
     --tile-size: 64px;
     --border-width: 1px;
     --bwh: calc(var(--border-width) / 2);
-    --mod: calc(mod(100%, calc(var(--tile-size) * 2)) - var(--tile-size));
+    --mod: mod(100%, var(--tile-size));
     --modh: calc(var(--mod) / 2);
     --grid-color: var(--background-color);
 }
@@ -149,4 +149,15 @@
     transform: translate(-50%, -50%);
 
     color: var(--muted-color);
+}
+#editor-viewport-underneath {
+    position: absolute;
+    top: unset;
+    left: unset;
+    width: unset;
+    height: unset;
+
+    display: unset;
+
+    background-color: var(--background-color);
 }

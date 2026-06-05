@@ -24,6 +24,19 @@ variants.set("terminal-wire-X", [ "terminal-wire-I", "terminal-wire-L", "termina
 variants.set("wire-X", [ "wire-I", "wire-L", "wire-T", "wire-X" ]);
 /* Config END */
 
+/* Runtime variables */
+let canvasBox;
+let launched = false;
+let ID = "resistor"; // Fallback name
+let rotation = 0; // 0, 1, 2, 3
+let imageRotation = 0; // step=1, range +-360deg., that is mod 4
+let totalVariants = 1;
+let variant  = 0; // code-wise zero-based, UI-wise one-based
+let sizeX = 1;
+let sizeY = 1;
+const tileSize = 64;
+/* Runtime variables END */
+
 /* Setup */
 
 const tileContainer = $("#editor-selector-container")[0];
@@ -76,16 +89,14 @@ addEventListener("mousemove", (event) => {
     }
 });
 
-/* Setup END */
+const editorCanvas = $("#editor-viewport-canvas")[0];
+function updateCanvasBox() { canvasBox = editorCanvas.getBoundingClientRect(); }
+addEventListener("resize", () => {
+    updateCanvasBox();
+});
+updateCanvasBox();
 
-/* Runtime variables */
-let launched = false;
-let ID = "resistor"; // Fallback name
-let rotation = 0; // 0, 1, 2, 3
-let imageRotation = 0; // step=1, range +-360deg., that is mod 4
-let totalVariants = 1;
-let variant  = 0; // code-wise zero-based, UI-wise one-based
-/* Runtime variables END */
+/* Setup END */
 
 async function editorSelect(name) {
     launched = true;
@@ -143,8 +154,10 @@ async function variate2(steps) {
 
         // SizeX & SizeY
         const viewport = imageElement.getAttribute("viewBox").split(" ");
-        $("#editor-tiledetails-sizeX")[0].innerText = viewport[2]/64;
-        $("#editor-tiledetails-sizeY")[0].innerText = viewport[3]/64;
+        sizeX = viewport[2]/tileSize;
+        SizeY = viewport[3]/tileSize;
+        $("#editor-tiledetails-sizeX")[0].innerText = sizeX;
+        $("#editor-tiledetails-sizeY")[0].innerText = sizeY;
 
         // Cursor image
         const cursorContainer = $("#editor-tiledetails-cursorWrapper")[0];
