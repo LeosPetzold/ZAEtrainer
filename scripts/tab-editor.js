@@ -67,12 +67,22 @@ addEventListener("keypress", (event) => {
     }
 });
 
+const editorViewport = $("#editor-viewport")[0];
+addEventListener("mousemove", (event) => {
+    if (launched) {
+        const position = getCursorPosition(event, editorViewport);
+        $("#editor-tiledetails-cursor")[0].style.left = `${position.x}px`;
+        $("#editor-tiledetails-cursor")[0].style.top  = `${position.y}px`;
+    }
+});
+
 /* Setup END */
 
 /* Runtime variables */
 let launched = false;
 let ID = "resistor"; // Fallback name
 let rotation = 0; // 0, 1, 2, 3
+let imageRotation = 0; // step=1, range +-360deg., that is mod 4
 let totalVariants = 1;
 let variant  = 0; // code-wise zero-based, UI-wise one-based
 /* Runtime variables END */
@@ -89,7 +99,7 @@ async function editorSelect(name) {
     // Variate before rotation as rotation needs image.
 
     // Rotation reset
-    rotate(4-rotation); // Resets to 0 (degrees)
+    rotate(rotation-4); // Resets to 0 (degrees)
 
     // Total variant amount
     totalVariants = variants.get(name).length;
@@ -100,11 +110,11 @@ async function editorSelect(name) {
 
 function rotate(steps) {
     rotation = mod((rotation + steps), 4);
+    imageRotation += steps;
+
     $("#editor-tiledetails-rotation")[0].innerText = rotation * 90;
-    // Here, firstElementChild as to not rotate the background too!.
-    // This will be the main SVG tag pair.
-    console.log($("#editor-tiledetails-image")[0]);
-    $("#editor-tiledetails-image")[0].firstElementChild.setAttribute("transform", `rotate(${rotation*90})`);
+    $("#editor-tiledetails-imageWrapper")[0].style.transform  = `rotate(${imageRotation * 90}deg`;
+    $("#editor-tiledetails-cursorWrapper")[0].style.transform = `rotate(${imageRotation * 90}deg`;
 }
 function variate(steps) {
     variant = mod((variant + steps), totalVariants);
@@ -123,7 +133,7 @@ async function variate2(steps) {
         const result = await response.text();
 
         // Image
-        const container = $("#editor-tiledetails-image")[0];
+        const container = $("#editor-tiledetails-imageWrapper")[0];
         container.innerHTML = result;
         const imageElement = container.firstElementChild;
 
@@ -135,6 +145,17 @@ async function variate2(steps) {
         const viewport = imageElement.getAttribute("viewBox").split(" ");
         $("#editor-tiledetails-sizeX")[0].innerText = viewport[2]/64;
         $("#editor-tiledetails-sizeY")[0].innerText = viewport[3]/64;
+
+        // Cursor image
+        const cursorContainer = $("#editor-tiledetails-cursorWrapper")[0];
+        cursorContainer.innerHTML = result;
+        const cursorImageElement = cursorContainer.firstElementChild;
+        cursorImageElement.setAttribute("width",  `${viewport[2]}px`);
+        cursorImageElement.setAttribute("height", `${viewport[3]}px`);
+        colorSVG(cursorImageElement);
+
+        // Give the image its rotation
+        rotate(0);
     }
     catch (error) {
         console.error(error.message);
@@ -147,7 +168,7 @@ function colorSVG(elem) {
     const stroke = elem.getAttribute("stroke");
     const fill   = elem.getAttribute("fill");
     if (stroke != null && stroke != "none") elem.classList.add("setstroke");
-    if (fill   != null && fill   != "none")   elem.classList.add("setfill");
+    if (fill   != null && fill   != "none") elem.classList.add("setfill");
     
     // Recursively process child elements
     Array.from(elem.children).forEach(child => {
@@ -158,5 +179,21 @@ function colorSVG(elem) {
 function mod(n, m) {
   return ((n % m) + m) % m;
 }
+
+/* Source: https://dev.to/codepo8/quick-solution-getting-the-mouse-position-on-an-element-regardless-of-positioning-1pa2 */
+function getCursorPosition(event, element) {
+  // get the current mouse position in the browser
+  let x = event.clientX;
+  let y = event.clientY;
+  // get the position of the element you applied the handler to
+  let pos = element.getBoundingClientRect();
+  // subtract the position of the element (rounded up to the next
+  // integer) from the mouse position and return it.
+  return {
+    x: x - pos.x|1,
+    y: y - pos.y|1
+  };
+}
+
 
 /* Utilities END */
