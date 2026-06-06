@@ -11,26 +11,27 @@ componentNames.set("wire-X", "Vodič");
 
 const variants = new Map();
 // Capacitor
-variants.set("capacitor", [ "capacitor" ]);
+variants.set("capacitor", [ "capacitor", "capacitor-short" ]);
 // Resistor
-variants.set("resistor-base", [ "resistor-base", "resistor-arrow" ]);
+variants.set("resistor-base", [ "resistor-base", "resistor-arrow", "resistor-base-small" ]);
 // Current source
 variants.set("source-current", [ "source-current" ])
 // Voltage source
-variants.set("source-voltage", [ "source-voltage" ])
+variants.set("source-voltage", [ "source-voltage", "source-voltage-short" ])
 // Terminal wire
 variants.set("terminal-wire-X", [ "terminal-wire-I", "terminal-wire-L", "terminal-wire-T", "terminal-wire-X" ]);
 // Wire
 variants.set("wire-X", [ "wire-I", "wire-L", "wire-T", "wire-X" ]);
 
 const canvasBorderWidth = 1; // One edge, in px
+const cursorBorderWidth = 2; // One edge, in px
 /* Config END */
 
 /* Runtime variables */
 let canvasBox;
 let canvasSizeTiles = { x: 0, y: 0 };
 let launched = false;
-let ID = "resistor"; // Internal non-varianting ID, fallback ID set
+let ID = ""; // Internal non-varianting ID, do not set fallback ID
 let trueID = ID; // Actual ID, takes care of variant
 let rotation = 0; // 0, 1, 2, 3
 let imageRotation = 0; // step=1, range +-360deg., that is mod 4
@@ -43,6 +44,7 @@ let cursorTilePositionAbsolute = { x: 0, y: 0 };
 let cursorCanvasPosition       = { x: 0, y: 0 }; // Does **NOT** include borders
 let loaded = false;
 const tileSize = 64; // Not dynamic with CSS. Not dynamic in CSS.
+let latestVariants = new Map();
 
 let cells = new Map() // Map-of-Maps;
 /* Runtime variables END */
@@ -72,11 +74,12 @@ Promise.all(selection.map(item =>
 });
 
 addEventListener("keypress", (event) => {
-    if (launched) {
+    if (launched && loaded) {
         switch(event.key) {
             case 'e':
             case 'E':
-                variate(event.shiftKey ? -1 : +1);
+                variate(variant+(event.shiftKey ? -1 : +1));
+                latestVariants.set(ID, variant);
                 break;
             case 'r':
             case 'R':
@@ -132,7 +135,10 @@ editorCanvas.addEventListener("pointerdown", (event) => {
 
 /* Setup END */
 
-async function editorSelect(name) {
+const variantMenu      = $("#editor-tileVariants")[0];
+const variantContainer = $("#editor-tileVariants-container")[0]; // Not needed by editorSelect(...)!
+const parser = new DOMParser();                                  // Not needed by editorSelect(...)!
+function editorSelect(name) {
     loaded = false;
     launched = true;
 
@@ -143,18 +149,75 @@ async function editorSelect(name) {
     ID = name;
     $("#editor-tiledetails-name")[0].innerText = componentNames.get(name);
 
-    // Current variant
-    variate(4-variant); // Resets to 0 (degrees)
-    // Variate before rotation as rotation needs image.
+    // Total variant amount
+    totalVariants = variants.get(ID).length;
+    $("#editor-tiledetails-variantT")[0].innerText = totalVariants;
 
     // Rotation reset
     if (rotation != 0) rotate(4-rotation); // Resets to 0 (degrees)
 
-    // Total variant amount
-    totalVariants = variants.get(name).length;
-    $("#editor-tiledetails-variantT")[0].innerText = totalVariants;
+    // Tile variants menu
+    updateVariants(variants.get(ID));
 
+    // Current variant, global variable `variant` set by function.
+    // Done in updateVariants(...)!
+    //variate(latestVariants.has(ID) ? latestVariants.get(ID) : 0); // Session-persistent
+
+    // Image
     // Image is updated by variate(...).
+}
+function updateVariants(variantArray) {
+    // Tile variants menu
+
+    variantMenu.style.display = totalVariants > 1 ? "initial" : "none";
+
+    Promise.all(variantArray.map(entry =>
+        fetch(`media/tiles/${entry}.svg`)
+            .then((res) => res.text())
+            .then((text) => ({entry, text}))
+        )).then((results) => {
+            variantContainer.innerHTML = "";
+
+            // Sort and store
+            const sortedResults = variantArray.map(item => 
+                results.find(r => r.entry === item)
+            );
+            
+            let counter = 0;
+            sortedResults.forEach((item) => {
+                const string = `<span value="${counter}" onclick="UIvariantSelect(${counter});">${item.text}</span>`;
+                const element = parser.parseFromString(string, "text/html").body.firstChild;
+
+                // The SVG element
+                const SVG = element.firstElementChild;
+                const viewport = SVG.getAttribute("viewBox").split(" ");
+
+                SVG.setAttribute("width",  `${viewport[2]}px`);
+                SVG.setAttribute("height", `${viewport[3]}px`);
+                element.style.gridRow    = `span ${viewport[3]/tileSize}`;
+                element.style.gridColumn = `span ${viewport[2]/tileSize}`;
+                colorSVG(SVG);
+
+                // The label
+                const labelString = `<span class="editor-tileVariants-label">${counter}</span>`;
+                const label = parser.parseFromString(labelString, "text/html").body.firstChild;
+                SVG.appendChild(label);
+
+                variantContainer.appendChild(element);
+                counter++;
+            });
+
+            // Current variant, global variable `variant` set by function.
+            variate(latestVariants.has(ID) ? latestVariants.get(ID) : 0); // Session-persistent
+    });
+}
+function UIvariantSelect(number) { variate(number); variantSelect(variant); }
+function variantSelect(number) {
+    const children = Array.from(variantContainer.children);
+    children.forEach((element) => {
+        element.style.backgroundColor = "unset";
+    });
+    children[number].style.backgroundColor = "var(--background-color)";
 }
 
 const cursorContainer = $("#editor-tiledetails-cursorWrapper")[0];
@@ -169,13 +232,15 @@ function rotate(steps) {
     imageContainer.style.transform                       = `rotate(${angle}deg)`;
     cursorContainer.style.transform                      = `rotate(${angle}deg)`;
 }
-function variate(steps) {
-    variant = mod((variant + steps), totalVariants);
+function variate(concrete) {
+    variant = mod((concrete), totalVariants);
     $("#editor-tiledetails-variantN")[0].innerText = variant + 1;
 
-    // Image is updated here, as late as possible as to not wait for the server.
     trueID = variants.get(ID)[variant]
-    variate2(steps);
+    // Image is updated here, as late as possible as to not wait for the server.
+    variate2(variant);
+
+    variantSelect(variant);
 }
 /*const cursorContainer = $("#editor-tiledetails-cursorWrapper")[0];
 const imageContainer  = $("#editor-tiledetails-imageWrapper")[0];*/
@@ -241,8 +306,6 @@ function canvasClick(event) {
             const values = rotateAroundOrigin(sx, sy, rotation*90);
             const point = { x: values.x + rootPoint.x, y: values.y + rootPoint.y };
 
-            console.log(point);
-
             if (cellsBuffer.has2D(point.x, point.y)) return; // Would conflict.
 
             if (sy != 0 || sx != 0) {
@@ -256,7 +319,7 @@ function canvasClick(event) {
     
     // Flush buffer
     cells = cellsBuffer;
-    console.log(cells);
+    //console.log(cells);
     
     canvasPlaceSVG(trueID, cursorTilePositionAbsolute, rotation);
 }
