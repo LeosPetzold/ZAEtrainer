@@ -47,6 +47,10 @@ const tileSize = 64; // Not dynamic with CSS. Not dynamic in CSS.
 let latestVariants = new Map();
 
 let cells = new Map() // Map-of-Maps;
+
+// Needed globalization
+// . . .
+
 /* Runtime variables END */
 
 /* Setup */
@@ -142,8 +146,9 @@ function editorSelect(name) {
     loaded = false;
     launched = true;
 
-    // Window opacity unsetting
+    // Window opacity unsetting & button activation
     $("#editor-tiledetails")[0].style.opacity = "unset";
+    $("#editor-tiledetails-buttons")[0].style.pointerEvents = "all";
 
     // ID, Name
     ID = name;
