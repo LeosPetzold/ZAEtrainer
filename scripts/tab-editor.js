@@ -15,9 +15,9 @@ variants.set("capacitor", [ "capacitor", "capacitor-short" ]);
 // Resistor
 variants.set("resistor-base", [ "resistor-base", "resistor-arrow", "resistor-base-small" ]);
 // Current source
-variants.set("source-current", [ "source-current" ])
+variants.set("source-current", [ "source-current" ]);
 // Voltage source
-variants.set("source-voltage", [ "source-voltage", "source-voltage-short" ])
+variants.set("source-voltage", [ "source-voltage", "source-voltage-short" ]);
 // Terminal wire
 variants.set("terminal-wire-X", [ "terminal-wire-I", "terminal-wire-L", "terminal-wire-T", "terminal-wire-X" ]);
 // Wire
@@ -25,12 +25,18 @@ variants.set("wire-X", [ "wire-I", "wire-L", "wire-T", "wire-X" ]);
 
 const canvasBorderWidth = 1; // One edge, in px
 const cursorBorderWidth = 2; // One edge, in px
+
+const Modes = {
+    "None": -1,
+    "Place": 0,
+    "Select": 1,
+    "Delete": 2
+};
 /* Config END */
 
 /* Runtime variables */
 let canvasBox;
 let canvasSizeTiles = { x: 0, y: 0 };
-let launched = false;
 let ID = ""; // Internal non-varianting ID, do not set fallback ID
 let trueID = ID; // Actual ID, takes care of variant
 let rotation = 0; // 0, 1, 2, 3
@@ -45,6 +51,8 @@ let cursorCanvasPosition       = { x: 0, y: 0 }; // Does **NOT** include borders
 let loaded = false;
 const tileSize = 64; // Not dynamic with CSS. Not dynamic in CSS.
 let latestVariants = new Map();
+let SVGregister = new Map();
+let mode = Modes.None;
 
 let cells = new Map() // Map-of-Maps;
 
@@ -78,7 +86,7 @@ Promise.all(selection.map(item =>
 });
 
 addEventListener("keypress", (event) => {
-    if (launched && loaded) {
+    if (loaded  && mode == Modes.Place) {
         switch(event.key) {
             case 'e':
             case 'E':
@@ -111,7 +119,7 @@ function mouseMove(event) {
     cursorTilePosition.x = cursorTilePositionAbsolute.x - Math.floor(canvasSizeTiles.x/2);
     cursorTilePosition.y = cursorTilePositionAbsolute.y - Math.floor(canvasSizeTiles.y/2);
 
-    if (launched) {
+    if (mode == Modes.Place) {
         const position = getCursorPosition(event, editorViewport);
         $("#editor-tiledetails-cursor")[0].style.left = `${position.x-(tileSize/2)}px`;
         $("#editor-tiledetails-cursor")[0].style.top  = `${position.y-(tileSize/2)}px`;
@@ -125,8 +133,8 @@ function mouseMove(event) {
 // const editorCanvas = $("#editor-viewport-canvas")[0];
 function updateCanvasBox() {
     canvasBox = editorCanvas.getBoundingClientRect();
-    canvasSizeTiles.x = Math.floor((canvasBox.width  - (2*canvasBorderWidth))/64);
-    canvasSizeTiles.y = Math.floor((canvasBox.height - (2*canvasBorderWidth))/64);
+    canvasSizeTiles.x = Math.floor((canvasBox.width  - (2*canvasBorderWidth))/tileSize);
+    canvasSizeTiles.y = Math.floor((canvasBox.height - (2*canvasBorderWidth))/tileSize);
 }
 addEventListener("resize", () => {
     updateCanvasBox();
@@ -137,6 +145,12 @@ editorCanvas.addEventListener("pointerdown", (event) => {
     canvasClick(event);
 });
 
+const editorRemoveButton = $("#editor-selector-remove")[0];
+async function updateEditorRemoveButton() {
+    editorRemoveButton.innerHTML = await SVG("media/icons/DELETE.svg");
+    colorSVG(editorRemoveButton, "setstrokeH", "setfillH");
+}
+updateEditorRemoveButton();
 /* Setup END */
 
 const variantMenu      = $("#editor-tileVariants")[0];
@@ -144,11 +158,8 @@ const variantContainer = $("#editor-tileVariants-container")[0]; // Not needed b
 const parser = new DOMParser();                                  // Not needed by editorSelect(...)!
 function editorSelect(name) {
     loaded = false;
-    launched = true;
 
-    // Window opacity unsetting & button activation
-    $("#editor-tiledetails")[0].style.opacity = "unset";
-    $("#editor-tiledetails-buttons")[0].style.pointerEvents = "all";
+    modeSelect(Modes.Place);
 
     // ID, Name
     ID = name;
@@ -232,10 +243,10 @@ function rotate(steps) {
     imageRotation += steps;
 
     const angle = imageRotation * 90;
-    $("#editor-tiledetails-rotation")[0].innerText       = rotation * 90;
-    $("#editor-viewport-underneath")[0].style.transform  = `rotate(${angle}deg)`;
-    imageContainer.style.transform                       = `rotate(${angle}deg)`;
-    cursorContainer.style.transform                      = `rotate(${angle}deg)`;
+    $("#editor-tiledetails-rotation")[0].innerText      = rotation * 90;
+    $("#editor-viewport-underneath")[0].style.transform = `rotate(${angle}deg)`;
+    imageContainer.style.transform                      = `rotate(${angle}deg)`;
+    cursorContainer.style.transform                     = `rotate(${angle}deg)`;
 }
 function variate(concrete) {
     variant = mod((concrete), totalVariants);
@@ -297,39 +308,66 @@ async function variate2(steps) {
 // Editor placing functionality
 function canvasClick(event) {
     /* Checks */
-    if (!launched) return;
     if (!loaded) return;
     // Bounding checks done in the tile loop below.
 
     let cellsBuffer = cells;
 
-    /* Data architecture and definitions */
-    const rootPoint = cursorTilePosition;
-    let reserveCoords = [];
-    for (let sx = 0; sx < sizeX; ++sx) {
-        for (let sy = 0; sy < sizeY; ++sy) {
-            const values = rotateAroundOrigin(sx, sy, rotation*90);
-            const point = { x: values.x + rootPoint.x, y: values.y + rootPoint.y };
+    /* :OR Deletion */
+    if (mode == Modes.Delete) {
+        if (cellsBuffer.has2Dv(cursorTilePosition)) {
+            let tile = cellsBuffer.get2Dv(cursorTilePosition);
+            let rootPosition = cursorTilePosition;
 
-            if (cellsBuffer.has2D(point.x, point.y)) return; // Would conflict.
+            if (tile instanceof Reserve) {
+                rootPosition = tile.pointer; // BEFORE TILE ASSIGNMENT!
+                tile = cellsBuffer.get2Dv(tile.pointer);
+            } // tile is now guaranteed to be the header tile
 
-            if (sy != 0 || sx != 0) {
-                cellsBuffer.set2D(point.x, point.y, new Reserve(rootPoint.x, rootPoint.y));
-                reserveCoords.push(new Vector2(point.x, point.y));
+            tile.reserves.forEach((reserve) => {
+                cellsBuffer.del2Dv(reserve);
+            });
+            cellsBuffer.del2Dv(tile);
+
+            SVGregister.get2Dv(rootPosition).remove();
+
+            // Flush buffer
+            cells = cellsBuffer;
+        }
+
+        return;
+    }
+
+    /* :OR Data architecture and definitions */
+    else if (mode == Modes.Place) {
+        const rootPoint = cursorTilePosition;
+        let reserveCoords = [];
+        for (let sx = 0; sx < sizeX; sx++) {
+            for (let sy = 0; sy < sizeY; sy++) {
+                const values = rotateAroundOrigin(sx, sy, rotation*90);
+                const point = { x: values.x + rootPoint.x, y: values.y + rootPoint.y };
+
+                if (cellsBuffer.has2D(point.x, point.y)) return; // Would conflict.
+
+                if (sy != 0 || sx != 0) {
+                    cellsBuffer.set2Dv(point, new Reserve(rootPoint.x, rootPoint.y));
+                    reserveCoords.push(new Vector2(point.x, point.y));
+                }
             }
         }
+        // Write Tile to rootPoint
+        cellsBuffer.set2Dv(rootPoint, new Tile(trueID, rotation, reserveCoords));
+
+        // Flush buffer
+        cells = cellsBuffer;
+
+        canvasPlaceSVG(trueID, cursorTilePositionAbsolute, rotation);
     }
-    // Write Tile to rootPoint
-    cellsBuffer.set2D(rootPoint.x, rootPoint.y, new Tile(trueID, rotation, reserveCoords));
     
-    // Flush buffer
-    cells = cellsBuffer;
     //console.log(cells);
-    
-    canvasPlaceSVG(trueID, cursorTilePositionAbsolute, rotation);
 }
 const editorCanvasCellWrapper = $("#editor-canvas-cellsWrapper")[0]
-/*async */function canvasPlaceSVG(trueID, absoluteRootPoint, rotation) {
+function canvasPlaceSVG(trueID, absoluteRootPoint, rotation) {
     /* SVG placement */
     const tile = document.createElement("span");
 
@@ -356,6 +394,9 @@ const editorCanvasCellWrapper = $("#editor-canvas-cellsWrapper")[0]
     tile.style.transform = `rotate(${rotation*90}deg)`;
 
     editorCanvasCellWrapper.appendChild(tile);
+
+    // Register the tile
+    SVGregister.set2Dv(toRelativeTileCoordinates(absoluteRootPoint), tile);
 }
 
 class Tile {
@@ -376,17 +417,55 @@ class Reserve {
     }
 }
 
+function modeSelect(_mode) {
+    mode = _mode;
+    switch (_mode) {
+        case Modes.None:
+            $("#editor-tiledetails")[0].style.display = "inline-flex";
+            $("#editor-tiledetails")[0].style.opacity = "0.5";
+            $("#editor-tiledetails-textinfo")[0].style.display = "unset";
+            $("#editor-tilevardetWrapper")[0].style.display = "inline-flex";
+            $("#editor-tiledetails-buttons")[0].style.pointerEvents = "none";
+            $("#editor-tiledetails-cursor")[0].style.display = "none";
+            break;
+        case Modes.Place:
+            $("#editor-tiledetails")[0].style.display = "inline-flex";
+            $("#editor-tiledetails")[0].style.opacity = "unset";
+            $("#editor-tiledetails-textinfo")[0].style.display = "unset";
+            $("#editor-tilevardetWrapper")[0].style.display = "inline-flex";
+            $("#editor-tiledetails-buttons")[0].style.pointerEvents = "all";
+            $("#editor-tiledetails-cursor")[0].style.display = "unset";
+            break;
+        case Modes.Select:
+            $("#editor-tiledetails")[0].style.display = "inline-flex";
+            $("#editor-tiledetails")[0].style.opacity = "unset";
+            $("#editor-tiledetails-textinfo")[0].style.display = "unset";
+            $("#editor-tilevardetWrapper")[0].style.display = "none";
+            $("#editor-tiledetails-buttons")[0].style.pointerEvents = "none";
+            $("#editor-tiledetails-cursor")[0].style.display = "none";
+            break;
+        case Modes.Delete:
+            $("#editor-tiledetails")[0].style.display = "none";
+            $("#editor-tiledetails")[0].style.opacity = "unset";
+            $("#editor-tiledetails-textinfo")[0].style.display = "unset";
+            $("#editor-tilevardetWrapper")[0].style.display = "none";
+            $("#editor-tiledetails-buttons")[0].style.pointerEvents = "none";
+            $("#editor-tiledetails-cursor")[0].style.display = "none";
+            break;
+    }
+}
+
 /* Utilities */
 
-function colorSVG(elem) {
+function colorSVG(elem, strokeclass="setstroke", fillclass="setfill") {
     const stroke = elem.getAttribute("stroke");
     const fill   = elem.getAttribute("fill");
-    if (stroke != null && stroke != "none") elem.classList.add("setstroke");
-    if (fill   != null && fill   != "none") elem.classList.add("setfill");
+    if (stroke != null && stroke != "none") elem.classList.add(strokeclass);
+    if (fill   != null && fill   != "none") elem.classList.add(fillclass);
     
     // Recursively process child elements
     Array.from(elem.children).forEach(child => {
-        colorSVG(child);
+        colorSVG(child, strokeclass, fillclass);
     });
 }
 
@@ -450,10 +529,41 @@ Map.prototype.del2D = function delCell(x, y) {
     col.delete(y);
     if (col.size === 0) this.delete(x);
 }
+Map.prototype.set2Dv = function setCellV(vector, value) { return this.set2D(vector.x, vector.y, value); }
+Map.prototype.get2Dv = function getCellV(vector       ) { return this.get2D(vector.x, vector.y       ); }
+Map.prototype.has2Dv = function hasCellV(vector       ) { return this.has2D(vector.x, vector.y       ); }
+Map.prototype.del2Dv = function delCellV(vector       ) { return this.del2D(vector.x, vector.y       ); }
 
 class Vector2 {
     x; y;
     constructor(x, y) { this.x = x; this.y = y; }
 }
+
+async function SVG(path) {
+    try {
+        const response = await fetch(path);
+        if (!response.ok) {
+            throw new Error(`Response error status: ${response.status}`); return null;
+        }
+        return await response.text();
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+/*function toAbsoluteTileCoordinates(vector) {
+    return {
+        x: vector.x + Math.floor(canvasSizeTiles.x/2),
+        y: vector.y + Math.floor(canvasSizeTiles.y/2)
+    };
+}*/
+function toRelativeTileCoordinates(vector) {
+    return {
+        x: vector.x - Math.floor(canvasSizeTiles.x/2),
+        y: vector.y - Math.floor(canvasSizeTiles.y/2)
+    };
+}
+
 
 /* Utilities END */

@@ -23,6 +23,39 @@
     grid-auto-flow: row;
     gap: 5px;
 }
+#editor-selector-remove {
+    box-sizing: border-box;
+
+    width: auto;
+    height: 50px;
+
+    margin-top: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: auto;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border: solid 1px var(--border-color);
+    --gradient-color: color-mix(in srgb, 40% var(--highlight-color), transparent);
+    background: repeating-linear-gradient(
+        135deg,
+        var(--gradient-color),
+        var(--gradient-color) 1px,
+        transparent 1px,
+        transparent 5px
+    );
+
+    cursor: pointer;
+}
+#editor-selector-remove > svg {
+    aspect-ratio: 1/1;
+    height: 45px;
+    transform: translateY(-2px);
+}
+
 /*#editor-selector-container .setstroke {
     stroke: var(--theme-color);
 }
@@ -163,8 +196,10 @@
 #editor-viewport-center, #editor-tiledetails-cursor, #editor-tiledetails-cursor *, #editor-viewport-underneath {
     pointer-events: none;
 }
-#editor-tiledetails-cursorWrapper .setstroke { stroke: var(--theme-color); }
-#editor-tiledetails-cursorWrapper .setfill   { fill:   var(--theme-color); }
+.setstroke  { stroke: var(--theme-color)     !important; }
+.setfill    { fill:   var(--theme-color)     !important; }
+.setstrokeH { stroke: var(--highlight-color) !important; }
+.setfillH   { fill:   var(--highlight-color) !important; }
 #editor-tiledetails-name { font-size: var(--font-size-base); }
 #editor-tileVariants {
     box-sizing: border-box;
