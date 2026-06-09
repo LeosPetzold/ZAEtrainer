@@ -1,5 +1,19 @@
 /* Config*/
-const selection = ["capacitor", "resistor-base", "source-current", "source-voltage", "terminal-wire-X", "wire-X"]; // In order
+
+// Tile metadata
+var metadata;
+try {
+    const metadataJSON = await fetch(`media/metadata/tiles.json`);
+    if (!metadataJSON.ok) {
+        throw new Error(`Response error status: ${metadataJSON.status}`);
+    }
+    const result = await metadataJSON.text(); ///
+
+    metadata = JSON.parse(result);
+} catch (error) {
+    console.error(`Error parsing tile metadata: ${error}`); }metadata.main
+
+const selection = Object.keys(metadata.main); // In order
 
 const componentNames = new Map();
 componentNames.set("capacitor", "Kondenzátor");
@@ -9,19 +23,9 @@ componentNames.set("source-voltage", "Napěťový zdroj");
 componentNames.set("terminal-wire-X", "Vodič se svorkou");
 componentNames.set("wire-X", "Vodič");
 
-const variants = new Map();
-// Capacitor
-variants.set("capacitor", [ "capacitor", "capacitor-short" ]);
-// Resistor
-variants.set("resistor-base", [ "resistor-base", "resistor-arrow", "resistor-base-small" ]);
-// Current source
-variants.set("source-current", [ "source-current" ]);
-// Voltage source
-variants.set("source-voltage", [ "source-voltage", "source-voltage-short" ]);
-// Terminal wire
-variants.set("terminal-wire-X", [ "terminal-wire-I", "terminal-wire-L", "terminal-wire-T", "terminal-wire-X" ]);
-// Wire
-variants.set("wire-X", [ "wire-I", "wire-L", "wire-T", "wire-X" ]);
+function variants(ID) {
+    return metadata.main[ID].variants ?? [ ID ];
+}
 
 const canvasBorderWidth = 1; // One edge, in px
 const cursorBorderWidth = 2; // One edge, in px
@@ -53,8 +57,9 @@ const tileSize = 64; // Not dynamic with CSS. Not dynamic in CSS.
 let latestVariants = new Map();
 let SVGregister = new Map();
 let mode = Modes.None;
+let tilemeta = null;
 
-let cells = new Map() // Map-of-Maps;
+let cells = new Map(); // Map-of-Maps
 
 // Needed globalization
 // . . .
@@ -79,7 +84,7 @@ Promise.all(selection.map(item =>
         // Build
         tileContainer.innerHTML = "";
         sortedResults.forEach(result => {
-            tileContainer.innerHTML += `<span class="editor-item-wrapper" onclick="editorSelect('${result.item}');">${result.text}</span>`;
+            tileContainer.innerHTML += `<span class="editor-item-wrapper" onclick="window.editorEditorSelect('${result.item}');">${result.text}</span>`;
         });
 
         colorSVG(tileContainer);
@@ -166,14 +171,14 @@ function editorSelect(name) {
     $("#editor-tiledetails-name")[0].innerText = componentNames.get(name);
 
     // Total variant amount
-    totalVariants = variants.get(ID).length;
+    totalVariants = variants(ID).length;
     $("#editor-tiledetails-variantT")[0].innerText = totalVariants;
 
     // Rotation reset
     if (rotation != 0) rotate(4-rotation); // Resets to 0 (degrees)
 
     // Tile variants menu
-    updateVariants(variants.get(ID));
+    updateVariants(variants(ID));
 
     // Current variant, global variable `variant` set by function.
     // Done in updateVariants(...)!
@@ -201,7 +206,7 @@ function updateVariants(variantArray) {
             
             let counter = 0;
             sortedResults.forEach((item) => {
-                const string = `<span value="${counter}" onclick="UIvariantSelect(${counter});">${item.text}</span>`;
+                const string = `<span value="${counter}" onclick="window.editorUIvariantSelect(${counter});">${item.text}</span>`;
                 const element = parser.parseFromString(string, "text/html").body.firstChild;
 
                 // The SVG element
@@ -252,7 +257,7 @@ function variate(concrete) {
     variant = mod((concrete), totalVariants);
     $("#editor-tiledetails-variantN")[0].innerText = variant + 1;
 
-    trueID = variants.get(ID)[variant]
+    trueID = variants(ID)[variant]
     // Image is updated here, as late as possible as to not wait for the server.
     variate2(variant);
 
@@ -454,6 +459,13 @@ function modeSelect(_mode) {
             break;
     }
 }
+
+/* Function+ globalization */
+window.editorEditorSelect    = editorSelect;
+window.editorUIvariantSelect = UIvariantSelect;
+window.editorModeSelect      = modeSelect;
+window.editorModes           = Modes;
+/* Function+ globalization END */
 
 /* Utilities */
 

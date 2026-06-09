@@ -59,7 +59,7 @@
                     <span id="editor-selector-container">
                         NAČÍTÁM DLAŽDICE ZE SERVERU...
                     </span>
-                    <span id="editor-selector-remove" onclick="modeSelect(Modes.Delete);"></span>
+                    <span id="editor-selector-remove" onclick="window.editorModeSelect(window.editorModes.Delete);"></span>
                 </div>
                 
                 <div id="editor-tiledetails-cursor">
@@ -124,5 +124,5 @@
     <script src="scripts/build.js"></script>
     
     <!--Tab scripts-->
-    <script src="scripts/tab-editor.js"></script>
+    <script type="module" src="scripts/tab-editor.js"></script>
 </html>

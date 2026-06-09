@@ -1,0 +1,56 @@
+{
+    "main": {
+        "capacitor": {
+            "display": "Kondenzátor",
+            "variants": [ "capacitor", "capacitor-short" ],
+            "size": [1,2]
+        },
+        "resistor-base": {
+            "display": "Rezistor",
+            "variants": [ "resistor-base", "resistor-arrow", "resistor-base-small" ],
+            "size": [1,2]
+        },
+        "source-current": {
+            "display": "Proudový zdroj",
+            "size": [1,2]
+        },
+        "source-voltage": {
+            "display": "Napěťový zdroj",
+            "variants": [ "source-voltage", "source-voltage-short" ],
+            "size": [1,2]
+        },
+        "terminal-wire-X": {
+            "display": "Vodič se svorkou",
+            "variants": [ "terminal-wire-H", "terminal-wire-I", "terminal-wire-L", "terminal-wire-T", "terminal-wire-X" ],
+            "size": [1,1]
+        },
+        "wire-X": {
+            "display": "Vodič",
+            "variants": [ "wire-I", "wire-L", "wire-T", "wire-X" ],
+            "size": [1,1]
+        }
+    },
+    "aux": {
+        "capacitor-short": {
+            "size": [1,1]
+        },
+
+        "resistor-arrow": {},
+        "resistor-base-small": {
+            "size": [1,1]
+        },
+
+        "source-voltage-short": {
+            "size": [1,1]
+        },
+
+        "terminal-wire-H": {},
+        "terminal-wire-I": {},
+        "terminal-wire-L": {},
+        "terminal-wire-T": {},
+
+        "wire-I": {},
+        "wire-L": {},
+        "wire-T": {}
+    }
+}
