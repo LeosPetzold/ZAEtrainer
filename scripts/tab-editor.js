@@ -13,15 +13,10 @@ try {
 } catch (error) {
     console.error(`Error parsing tile metadata: ${error}`); }metadata.main
 
-const selection = Object.keys(metadata.main); // In order
+const keysmain = Object.keys(metadata.main);
+const keysaux  = Object.keys(metadata.aux);
 
-const componentNames = new Map();
-componentNames.set("capacitor", "Kondenzátor");
-componentNames.set("resistor-base", "Rezistor");
-componentNames.set("source-current", "Proudový zdroj");
-componentNames.set("source-voltage", "Napěťový zdroj");
-componentNames.set("terminal-wire-X", "Vodič se svorkou");
-componentNames.set("wire-X", "Vodič");
+const selection = keysmain; // In order
 
 function variants(ID) {
     return metadata.main[ID].variants ?? [ ID ];
@@ -57,12 +52,14 @@ const tileSize = 64; // Not dynamic with CSS. Not dynamic in CSS.
 let latestVariants = new Map();
 let SVGregister = new Map();
 let mode = Modes.None;
-let tilemeta = null;
+
+let tilehead = null;
+let tiletrue  = null;
 
 let cells = new Map(); // Map-of-Maps
 
 // Needed globalization
-// . . .
+window.editorCells = cells;
 
 /* Runtime variables END */
 
@@ -166,9 +163,12 @@ function editorSelect(name) {
 
     modeSelect(Modes.Place);
 
+    // Assignment
+    tilehead = metadata.main[name];
+
     // ID, Name
     ID = name;
-    $("#editor-tiledetails-name")[0].innerText = componentNames.get(name);
+    $("#editor-tiledetails-name")[0].innerText = tilehead.display;
 
     // Total variant amount
     totalVariants = variants(ID).length;
@@ -227,7 +227,7 @@ function updateVariants(variantArray) {
                 variantContainer.appendChild(element);
                 counter++;
             });
-
+            
             // Current variant, global variable `variant` set by function.
             variate(latestVariants.has(ID) ? latestVariants.get(ID) : 0); // Session-persistent
     });
@@ -257,7 +257,13 @@ function variate(concrete) {
     variant = mod((concrete), totalVariants);
     $("#editor-tiledetails-variantN")[0].innerText = variant + 1;
 
-    trueID = variants(ID)[variant]
+    trueID = variants(ID)[variant];
+    tiletrue = metadata.main[trueID] ?? metadata.aux[trueID];
+
+    const size = tiletrue.size ?? tilehead.size;
+    sizeX = size[0];
+    sizeY = size[1];
+
     // Image is updated here, as late as possible as to not wait for the server.
     variate2(variant);
 
@@ -283,22 +289,19 @@ async function variate2(steps) {
         colorSVG(imageElement);
 
         // SizeX & SizeY
-        const viewport = imageElement.getAttribute("viewBox").split(" ");
-        sizeX = viewport[2]/tileSize;
-        sizeY = viewport[3]/tileSize;
         $("#editor-tiledetails-sizeX")[0].innerText = sizeX;
         $("#editor-tiledetails-sizeY")[0].innerText = sizeY;
 
         // Cursor image
         cursorContainer.innerHTML = result;
         const cursorImageElement = cursorContainer.firstElementChild;
-        cursorImageElement.setAttribute("width",  `${viewport[2]}px`);
-        cursorImageElement.setAttribute("height", `${viewport[3]}px`);
+        cursorImageElement.setAttribute("width",  `${sizeX*tileSize}px`);
+        cursorImageElement.setAttribute("height", `${sizeY*tileSize}px`);
         colorSVG(cursorImageElement);
 
         // Underneath
-        underneath.style.width  = `${viewport[2]}px`;
-        underneath.style.height = `${viewport[3]}px`;
+        underneath.style.width  = `${sizeX*tileSize}px`;
+        underneath.style.height = `${sizeY*tileSize}px`;
 
         // Give the image its rotation
         rotate(0);
@@ -330,9 +333,9 @@ function canvasClick(event) {
             } // tile is now guaranteed to be the header tile
 
             tile.reserves.forEach((reserve) => {
-                cellsBuffer.del2Dv(reserve);
+                cellsBuffer.del2Dv(reserve); // Delete all reserve tiles
             });
-            cellsBuffer.del2Dv(tile);
+            cellsBuffer.del2Dv(rootPosition); // Delete the header tile
 
             SVGregister.get2Dv(rootPosition).remove();
 
@@ -340,7 +343,7 @@ function canvasClick(event) {
             cells = cellsBuffer;
         }
 
-        return;
+        //return;
     }
 
     /* :OR Data architecture and definitions */
@@ -424,40 +427,24 @@ class Reserve {
 
 function modeSelect(_mode) {
     mode = _mode;
-    switch (_mode) {
-        case Modes.None:
-            $("#editor-tiledetails")[0].style.display = "inline-flex";
-            $("#editor-tiledetails")[0].style.opacity = "0.5";
-            $("#editor-tiledetails-textinfo")[0].style.display = "unset";
-            $("#editor-tilevardetWrapper")[0].style.display = "inline-flex";
-            $("#editor-tiledetails-buttons")[0].style.pointerEvents = "none";
-            $("#editor-tiledetails-cursor")[0].style.display = "none";
-            break;
-        case Modes.Place:
-            $("#editor-tiledetails")[0].style.display = "inline-flex";
-            $("#editor-tiledetails")[0].style.opacity = "unset";
-            $("#editor-tiledetails-textinfo")[0].style.display = "unset";
-            $("#editor-tilevardetWrapper")[0].style.display = "inline-flex";
-            $("#editor-tiledetails-buttons")[0].style.pointerEvents = "all";
-            $("#editor-tiledetails-cursor")[0].style.display = "unset";
-            break;
-        case Modes.Select:
-            $("#editor-tiledetails")[0].style.display = "inline-flex";
-            $("#editor-tiledetails")[0].style.opacity = "unset";
-            $("#editor-tiledetails-textinfo")[0].style.display = "unset";
-            $("#editor-tilevardetWrapper")[0].style.display = "none";
-            $("#editor-tiledetails-buttons")[0].style.pointerEvents = "none";
-            $("#editor-tiledetails-cursor")[0].style.display = "none";
-            break;
-        case Modes.Delete:
-            $("#editor-tiledetails")[0].style.display = "none";
-            $("#editor-tiledetails")[0].style.opacity = "unset";
-            $("#editor-tiledetails-textinfo")[0].style.display = "unset";
-            $("#editor-tilevardetWrapper")[0].style.display = "none";
-            $("#editor-tiledetails-buttons")[0].style.pointerEvents = "none";
-            $("#editor-tiledetails-cursor")[0].style.display = "none";
-            break;
-    }
+    //                                        None           Place          Select         Delete         Processing
+    const tiledetailsDisplay              = [ "inline-flex", "inline-flex", "inline-flex", "none",        "none"  ];
+    const tiledetailsOpacity              = [ 0.5,           "unset",       "unset",       "unset",       "unset" ];
+    const tiledetailsTextinfoDisplay      = [ "unset",       "unset",       "unset",       "unset",       "unset" ];
+    const tilevardetWrapperDisplay        = [ "inline-flex", "inline-flex", "none",        "none",        "none"  ];
+    const tiledetailsButtonsPointerEvents = [ "none",        "all",         "none",        "none",        "unset" ];
+    const tiledetailsCursorDisplay        = [ "none",        "unset",       "none",        "none",        "none"  ];
+    const tiledetailsSelectorDisplay      = [ "unset",       "unset",       "unset",       "unset",       "none"  ];
+
+    const n = _mode + 1; // If begins with None, _mode is [-1]-based.
+
+    $("#editor-tiledetails"          )[0].style.display        = tiledetailsDisplay[n];
+    $("#editor-tiledetails"          )[0].style.opacity        = tiledetailsOpacity[n];
+    $("#editor-tiledetails-textinfo" )[0].style.display        = tiledetailsTextinfoDisplay[n];
+    $("#editor-tilevardetWrapper"    )[0].style.display        = tilevardetWrapperDisplay[n];
+    $("#editor-tiledetails-buttons"  )[0].style.pointerEvents  = tiledetailsButtonsPointerEvents[n];
+    $("#editor-tiledetails-cursor"   )[0].style.display        = tiledetailsCursorDisplay[n];
+    $("#editor-selector"             )[0].style.display        = tiledetailsSelectorDisplay[n];
 }
 
 /* Function+ globalization */
@@ -539,7 +526,7 @@ Map.prototype.del2D = function delCell(x, y) {
     const col = this.get(x);
     if (!col) return;
     col.delete(y);
-    if (col.size === 0) this.delete(x);
+    if (col.size == 0) this.delete(x);
 }
 Map.prototype.set2Dv = function setCellV(vector, value) { return this.set2D(vector.x, vector.y, value); }
 Map.prototype.get2Dv = function getCellV(vector       ) { return this.get2D(vector.x, vector.y       ); }
