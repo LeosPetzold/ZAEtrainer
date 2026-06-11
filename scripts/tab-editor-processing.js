@@ -16,12 +16,20 @@ function topologyAssemble(cells) {
     cells.forEach((column, columni) => {
         column.forEach((cell, celli) => {
             const homePosition = new Vector2(columni, celli);
-            if (cell instanceof Reserve) const homePositionHead = cell.pointer;
-            else                         const homePositionHead = homePosition;
+            let homePositionHead;
+            if (cell instanceof Reserve) homePositionHead = cell.pointer;
+            else                         homePositionHead = homePosition;
+
+            const homeHead = cells.get2Dv(homePositionHead);
+            
+            const homePositionRelative = new Vector2(
+                    homePosition.x - homePositionHead.x,
+                    homePosition.y - homePositionHead.y);
 
             // Configure home topology data basis
-            if (!topology.has2Dv(homePosition))
-                topology.set2Dv(homePosition, new TopologyVertex(cell.ID, [], cell.attributes));
+            if (!topology.has2Dv(homePositionHead))
+                topology.set2Dv(homePositionHead, new TopologyVertex(homeHead.ID, new Map(), cell.attributes));
+            const topocell = topology.get2Dv(homePositionHead);
 
             // This runs for all (both normal and reserve) tile classes.
             (cell.connections ?? []).forEach((connection) => {
@@ -36,14 +44,19 @@ function topologyAssemble(cells) {
                     Error(`Could not assemble the topology layer at cell ${columni},${celli}:
                         Open connection detected at ${columni+sideVector.x},${celli+sideVector.y}.`);
 
+                let neighborPositionHead;
                 if (neighbor instanceof Reserve) {
-                    const neighborPositionHead = neighbor.pointer;
+                    neighborPositionHead = neighbor.pointer;
                     neighborHead = cells.get2Dv(neighborPositionHead);
                     if (!neighbor) throw new 
                         Error(`Could not assemble the topology layer at cell ${columni},${celli}:
                             No header tile of reserve tile at ${columni+sideVector.x},${celli+sideVector.y}. found.
                             This is a bug.`);
-                } else { const neighborPositionHead = neighborPosition; }
+                } else { neighborPositionHead = neighborPosition; }
+
+                const neighborPositionRelative = new Vector2(
+                    neighborPosition.x - neighborPositionHead.x,
+                    neighborPosition.y - neighborPositionHead.y);
 
                 // There is no support for multiple connections on one side at the moment.
                 // ....find() returns the first found object.
@@ -56,8 +69,16 @@ function topologyAssemble(cells) {
                 
                 // We now have our connection and the neighbor's connection.
 
+                console.log(topocell.connectors);
+
+                const homeLinkKey     = `${homePositionRelative.x},${homePositionRelative.y}:${facing}`;
+                const neighborLinkKey = `${neighborPositionRelative.x},${neighborPositionRelative.y}:${neighborFacing}`;
+                
+                if (topocell.connectors.get(homeLinkKey)) return; // Not `continue` as we are inside ....forEach(...)
+                ///// RETURNING IF CONNECTION ALREADY EXISTS ON THE HOME SIDE! (if is connector is linked already);
+
                 if (!topology.has2Dv(neighborPositionHead))
-                    topology.set2Dv(neighborPositionHead, new TopologyVertex(neighbor.ID, [], neighbor.attributes));
+                    topology.set2Dv(neighborPositionHead, new TopologyVertex(neighbor.ID, new Map(), neighbor.attributes));
 
                 const homeConnector     = new TopologyConnector(cell.ID,     facing,         linkIDcounter);
                 const neighborConnector = new TopologyConnector(neighbor.ID, neighborFacing, linkIDcounter);
@@ -67,12 +88,15 @@ function topologyAssemble(cells) {
                 linkIDcounter++;
 
                 // Setting all only to head cells!
-                topology.get2Dv(homePositionHead    ).links.set(facing,         homeConnector);
-                topology.get2Dv(neighborPositionHead).links.set(neighborFacing, neighborConnector);
-                    
+                topology.get2Dv(homePositionHead    ).connectors.set(
+                    homeLinkKey,     homeConnector    );
+                topology.get2Dv(neighborPositionHead).connectors.set(
+                    neighborLinkKey, neighborConnector);
             });
         });
     });
+
+    console.log("Link register flush:", linkRegister);
 
     console.log("Topology map:", topology);
     
@@ -80,7 +104,7 @@ function topologyAssemble(cells) {
 }
 class TopologyVertex {
     name = "vertex";
-    connectors = [];
+    connectors = new Map();
     attributes = [];
 
     constructor (name, connectors, attributes) {
