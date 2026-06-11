@@ -5,14 +5,12 @@
             "variants": [ "capacitor", "capacitor-short" ],
             "size": [1,2],
             "connections": {
-                "Ctop": {
-                    "position": [0,0],
-                    "facing": "top"
-                },
-                "Cbottom": {
-                    "position": [0,1],
-                    "facing": "bottom"
-                }
+                "0,0": [
+                    { "name": "1", "facing": "top" }
+                ],
+                "0,1": [
+                    { "name": "2", "facing": "bottom" }
+                ]
             }
         },
         "resistor-base": {
@@ -20,28 +18,24 @@
             "variants": [ "resistor-base", "resistor-arrow", "resistor-base-small" ],
             "size": [1,2],
             "connections": {
-                "Rtop": {
-                    "position": [0,0],
-                    "facing": "top"
-                },
-                "Rbottom": {
-                    "position": [0,1],
-                    "facing": "bottom"
-                }
+                "0,0": [
+                    { "name": "1", "facing": "top" }
+                ],
+                "0,1": [
+                    { "name": "2", "facing": "bottom" }
+                ]
             }
         },
         "source-current": {
             "display": "Proudový zdroj",
             "size": [1,2],
             "connections": {
-                "Stop": {
-                    "position": [0,0],
-                    "facing": "top"
-                },
-                "Sbottom": {
-                    "position": [0,1],
-                    "facing": "bottom"
-                }
+                "0,0": [
+                    { "name": "+", "facing": "top" }
+                ],
+                "0,1": [
+                    { "name": "-", "facing": "bottom" }
+                ]
             }
         },
         "source-voltage": {
@@ -49,14 +43,12 @@
             "variants": [ "source-voltage", "source-voltage-short" ],
             "size": [1,2],
             "connections": {
-                "Stop": {
-                    "position": [0,0],
-                    "facing": "top"
-                },
-                "Sbottom": {
-                    "position": [0,1],
-                    "facing": "bottom"
-                }
+                "0,0": [
+                    { "name": "+", "facing": "top" }
+                ],
+                "0,1": [
+                    { "name": "-", "facing": "bottom" }
+                ]
             }
         },
         "terminal-wire-X": {
@@ -64,177 +56,121 @@
             "variants": [ "terminal-wire-H", "terminal-wire-I", "terminal-wire-L", "terminal-wire-T", "terminal-wire-X" ],
             "size": [1,1],
             "connections": {
-                "Ttop": {
-                    "position": [0,0],
-                    "facing": "top"
-                },
-                "Tbottom": {
-                    "position": [0,0],
-                    "facing": "bottom"
-                },
-                "Tleft": {
-                    "position": [0,0],
-                    "facing": "left"
-                },
-                "Tright": {
-                    "position": [0,0],
-                    "facing": "right"
-                }
-            }
+                "0,0": [
+                    { "name": "Top",    "facing": "top"    },
+                    { "name": "Right",  "facing": "right"  },
+                    { "name": "Bottom", "facing": "bottom" },
+                    { "name": "Left",   "facing": "left"   }
+                ]
+            },
+            "attributes": [ "linker" ]
+            
         },
         "wire-X": {
             "display": "Vodič",
             "variants": [ "wire-I", "wire-L", "wire-T", "wire-X" ],
             "size": [1,1],
             "connections": {
-                "Wtop": {
-                    "position": [0,0],
-                    "facing": "top"
-                },
-                "Wbottom": {
-                    "position": [0,0],
-                    "facing": "bottom"
-                },
-                "Wleft": {
-                    "position": [0,0],
-                    "facing": "left"
-                },
-                "Wright": {
-                    "position": [0,0],
-                    "facing": "right"
-                }
-            }
+                "0,0": [
+                    { "name": "Top",    "facing": "top"    },
+                    { "name": "Right",  "facing": "right"  },
+                    { "name": "Bottom", "facing": "bottom" },
+                    { "name": "Left",   "facing": "left"   }
+                ]
+            },
+            "attributes": [ "linker" ]
         }
     },
     "aux": {
         "capacitor-short": {
             "size": [1,1],
             "connections": {
-                "Ctop": {
-                    "position": [0,0],
-                    "facing": "top"
-                },
-                "Cbottom": {
-                    "position": [0,0],
-                    "facing": "bottom"
-                }
+                "0,0": [
+                    { "name": "1", "facing": "top" },
+                    { "name": "2", "facing": "bottom" }
+                ]
             }
         },
 
-        "resistor-arrow": {
-            "connections": {
-                "Rtop": {
-                    "position": [0,0],
-                    "facing": "top"
-                },
-                "Rbottom": {
-                    "position": [0,1],
-                    "facing": "bottom"
-                }
-            }
-        },
+        "resistor-arrow": {},
         "resistor-base-small": {
             "size": [1,1],
             "connections": {
-                "Rtop": {
-                    "position": [0,0],
-                    "facing": "top"
-                },
-                "Rbottom": {
-                    "position": [0,0],
-                    "facing": "bottom"
-                }
+                "0,0": [
+                    { "name": "1", "facing": "top" },
+                    { "name": "2", "facing": "bottom" }
+                ]
             }
         },
 
         "source-voltage-short": {
             "size": [1,1],
             "connections": {
-                "Stop": {
-                    "position": [0,0],
-                    "facing": "top"
-                },
-                "Sbottom": {
-                    "position": [0,0],
-                    "facing": "bottom"
-                }
+                "0,0": [
+                    { "name": "+", "facing": "top" },
+                    { "name": "-", "facing": "bottom" }
+                ]
             }
         },
 
-        "terminal-wire-H": { "connections": {
-            "Tbottom": {
-                "position": [0,0],
-                "facing": "bottom"
-            }
-        }},
-        "terminal-wire-I": { "connections": {
-            "Tleft": {
-                "position": [0,0],
-                "facing": "left"
+        "terminal-wire-H": {
+            "connections": {
+                "0,0": [
+                    { "name": "Bottom", "facing": "bottom" }
+                ]
             },
-            "Tright": {
-                "position": [0,0],
-                "facing": "right"
+            "attributes": []
+        },
+        "terminal-wire-I": {
+            "connections": {
+                "0,0": [
+                    { "name": "Right",  "facing": "right"  },
+                    { "name": "Left",   "facing": "left"   }
+                ]
             }
-        }},
-        "terminal-wire-L": { "connections": {
-            "Tbottom": {
-                "position": [0,0],
-                "facing": "bottom"
-            },
-            "Tleft": {
-                "position": [0,0],
-                "facing": "left"
+        },
+        "terminal-wire-L": {
+            "connections": {
+                "0,0": [
+                    { "name": "Right", "facing": "right"   },
+                    { "name": "Bottom", "facing": "bottom" }
+                ]
             }
-        }},
-        "terminal-wire-T": { "connections": {
-            "Tbottom": {
-                "position": [0,0],
-                "facing": "bottom"
-            },
-            "Tleft": {
-                "position": [0,0],
-                "facing": "left"
-            },
-            "Tright": {
-                "position": [0,0],
-                "facing": "right"
+        },
+        "terminal-wire-T": {
+            "connections": {
+                "0,0": [
+                    { "name": "Right",  "facing": "right"  },
+                    { "name": "Bottom", "facing": "bottom" },
+                    { "name": "Left",   "facing": "left"   }
+                ]
             }
-        }},
+        },
 
-        "wire-I": { "connections": {
-            "Wleft": {
-                "position": [0,0],
-                "facing": "left"
-            },
-            "Wright": {
-                "position": [0,0],
-                "facing": "right"
+        "wire-I": {
+            "connections": {
+                "0,0": [
+                    { "name": "Right",  "facing": "right"  },
+                    { "name": "Left",   "facing": "left"   }
+                ]
             }
-        }},
-        "wire-L": { "connections": {
-            "Wbottom": {
-                "position": [0,0],
-                "facing": "bottom"
-            },
-            "Wleft": {
-                "position": [0,0],
-                "facing": "left"
+        },
+        "wire-L": {
+            "connections": {
+                "0,0": [
+                    { "name": "Right",  "facing": "right"  },
+                    { "name": "Bottom", "facing": "bottom" }
+                ]
             }
-        }},
-        "wire-T": { "connections": {
-            "Wbottom": {
-                "position": [0,0],
-                "facing": "bottom"
-            },
-            "Wleft": {
-                "position": [0,0],
-                "facing": "left"
-            },
-            "Wright": {
-                "position": [0,0],
-                "facing": "right"
+        },
+        "wire-T": {
+            "connections": {
+                "0,0": [
+                    { "name": "Right",  "facing": "right"  },
+                    { "name": "Bottom", "facing": "bottom" },
+                    { "name": "Left",   "facing": "left"   }
+                ]
             }
-        }}
+        }
     }
 }

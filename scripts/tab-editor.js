@@ -11,7 +11,9 @@ try {
 
     metadata = JSON.parse(result);
 } catch (error) {
-    console.error(`Error parsing tile metadata: ${error}`); }metadata.main
+    console.error(`Error parsing tile metadata: ${error}`); }
+/* All supported & available metadata cell attributes
+ * linker: does topology compress links? (is a pure conductor?) */
 
 const keysmain = Object.keys(metadata.main);
 const keysaux  = Object.keys(metadata.aux);
@@ -88,19 +90,31 @@ Promise.all(selection.map(item =>
 });
 
 addEventListener("keypress", (event) => {
-    if (loaded  && mode == Modes.Place) {
+    if (loaded) {
         switch(event.key) {
+            case 'd':
+            case 'D':
+                canvasClick(event, Modes.Delete);
+                break;
             case 'e':
             case 'E':
+                if (mode != Modes.Place) break;
+                canvasClick(event, Modes.Place);
+                break;
+            case 'w':
+            case 'W':
+                if (mode != Modes.Place) break;
                 variate(variant+(event.shiftKey ? -1 : +1));
                 latestVariants.set(ID, variant);
                 break;
             case 'r':
             case 'R':
+                if (mode != Modes.Place) break;
                 rotate(event.shiftKey ? -1 : +1);
                 break;
             case 't':
             case 'T':
+                if (mode != Modes.Place)
                 rotate(event.shiftKey ? +1 : -1);
                 break;
         }
@@ -166,9 +180,8 @@ function editorSelect(name) {
     // Assignment
     tilehead = metadata.main[name];
 
-    // ID, Name
+    // ID
     ID = name;
-    $("#editor-tiledetails-name")[0].innerText = tilehead.display;
 
     // Total variant amount
     totalVariants = variants(ID).length;
@@ -183,6 +196,9 @@ function editorSelect(name) {
     // Current variant, global variable `variant` set by function.
     // Done in updateVariants(...)!
     //variate(latestVariants.has(ID) ? latestVariants.get(ID) : 0); // Session-persistent
+
+    // Name, after set variant
+    $("#editor-tiledetails-name")[0].innerText = tilehead.display;
 
     // Image
     // Image is updated by variate(...).
@@ -268,7 +284,7 @@ function variate(concrete) {
     variate2(variant);
 
     variantSelect(variant);
-}
+} function variateStep(step) { variate(variant + step); }
 /*const cursorContainer = $("#editor-tiledetails-cursorWrapper")[0];
 const imageContainer  = $("#editor-tiledetails-imageWrapper")[0];*/
 async function variate2(steps) {
@@ -314,7 +330,7 @@ async function variate2(steps) {
 }
 
 // Editor placing functionality
-function canvasClick(event) {
+function canvasClick(event, _mode=mode) {
     /* Checks */
     if (!loaded) return;
     // Bounding checks done in the tile loop below.
@@ -322,7 +338,7 @@ function canvasClick(event) {
     let cellsBuffer = cells;
 
     /* :OR Deletion */
-    if (mode == Modes.Delete) {
+    if (_mode == Modes.Delete) {
         if (cellsBuffer.has2Dv(cursorTilePosition)) {
             let tile = cellsBuffer.get2Dv(cursorTilePosition);
             let rootPosition = cursorTilePosition;
@@ -347,7 +363,7 @@ function canvasClick(event) {
     }
 
     /* :OR Data architecture and definitions */
-    else if (mode == Modes.Place) {
+    else if (_mode == Modes.Place) {
         const rootPoint = cursorTilePosition;
         let reserveCoords = [];
         for (let sx = 0; sx < sizeX; sx++) {
@@ -357,14 +373,27 @@ function canvasClick(event) {
 
                 if (cellsBuffer.has2D(point.x, point.y)) return; // Would conflict.
 
+                const connections = (tiletrue.connections ?? tilehead.connections ?? [])
+                    [toTextVector(sx, sy)].map(connection => ({
+                        ...connection,
+                        facing: Sides[(Sides[connection.facing] + rotation) % 4]
+                }));
+                const attributes = tiletrue.attributes ?? tilehead.attributes ?? [];
+
                 if (sy != 0 || sx != 0) {
-                    cellsBuffer.set2Dv(point, new Reserve(rootPoint.x, rootPoint.y));
+                    // `connections` DOES incorporate cell rotation
+                    cellsBuffer.set2Dv(point, new Reserve(rootPoint.x, rootPoint.y,
+                        connections, attributes)); //
+                    
                     reserveCoords.push(new Vector2(point.x, point.y));
+                } else {
+                    // Write Tile to rootPoint
+                    // `connections` DOES incorporate cell rotation
+                    cellsBuffer.set2Dv(rootPoint, new Tile(trueID, rotation, reserveCoords,
+                        connections, attributes)); //
                 }
             }
         }
-        // Write Tile to rootPoint
-        cellsBuffer.set2Dv(rootPoint, new Tile(trueID, rotation, reserveCoords));
 
         // Flush buffer
         cells = cellsBuffer;
@@ -407,23 +436,7 @@ function canvasPlaceSVG(trueID, absoluteRootPoint, rotation) {
     SVGregister.set2Dv(toRelativeTileCoordinates(absoluteRootPoint), tile);
 }
 
-class Tile {
-    ID;
-    rotation;
-    reserves = [];
-
-    constructor(ID, rotation, reserves) {
-        this.ID = ID;
-        this.rotation = rotation;
-        this.reserves = reserves;
-    }
-}
-class Reserve {
-    pointer;
-    constructor(tileX, tileY) {
-        this.pointer = new Vector2(tileX, tileY);
-    }
-}
+// class Tile & class Reserve can be found in the editor utilities script.
 
 function modeSelect(_mode) {
     mode = _mode;
@@ -448,6 +461,8 @@ function modeSelect(_mode) {
 }
 
 /* Function+ globalization */
+window.editorRotate          = rotate;
+window.editorVariateStep     = variateStep;
 window.editorEditorSelect    = editorSelect;
 window.editorUIvariantSelect = UIvariantSelect;
 window.editorModeSelect      = modeSelect;
@@ -489,54 +504,7 @@ function getCursorPosition(event, element) {
 }
 /* End of Source*/
 
-function rotateAroundOrigin(x, y, angle) { // Origin is always (0;0).
-    // Accounting for clockwise nature of the canvas's web-coordinate system
-    const radians = (angle / 180) * Math.PI; /// Ordering to minimise imprecisions
-
-    const sin = Math.sin(radians);
-    const cos = Math.cos(radians);
-
-    // Apply rotation matrix formulas
-    // (See: https://en.wikipedia.org/wiki/Rotation_matrix)
-    const X = (x*cos)-(y*sin);
-    const Y = (x*sin)+(y*cos);
-
-    // Rounding to *6 DECIMAL DIGITS*!
-    return { x: parseFloat(X.toFixed(6)), y: parseFloat(Y.toFixed(6)) };
-}
-
-// cell Map-of-Maps; Source: web boilerplate, modified
-Map.prototype.set2D = function setCell(x, y, value) {
-    let col = this.get(x);
-    if (!col) {
-        col = new Map();
-        this.set(x, col);
-    }
-    col.set(y, value);
-}
-Map.prototype.get2D = function getCell(x, y) {
-    const col = this.get(x);
-    return col ? (col.get(y) ?? null) : null;
-}
-Map.prototype.has2D = function hasCell(x, y) {
-    const col = this.get(x);
-    return !!col && col.has(y);
-}
-Map.prototype.del2D = function delCell(x, y) {
-    const col = this.get(x);
-    if (!col) return;
-    col.delete(y);
-    if (col.size == 0) this.delete(x);
-}
-Map.prototype.set2Dv = function setCellV(vector, value) { return this.set2D(vector.x, vector.y, value); }
-Map.prototype.get2Dv = function getCellV(vector       ) { return this.get2D(vector.x, vector.y       ); }
-Map.prototype.has2Dv = function hasCellV(vector       ) { return this.has2D(vector.x, vector.y       ); }
-Map.prototype.del2Dv = function delCellV(vector       ) { return this.del2D(vector.x, vector.y       ); }
-
-class Vector2 {
-    x; y;
-    constructor(x, y) { this.x = x; this.y = y; }
-}
+// + scripts/tab-editor-utilities.js
 
 async function SVG(path) {
     try {
