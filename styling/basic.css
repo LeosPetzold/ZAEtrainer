@@ -93,3 +93,27 @@ note {
 .setfill {
     fill: var(--theme-color);
 }
+
+/* UI */
+button, input[type="text"], textarea {
+    all: none;
+
+    width: fit-content;
+    height: fit-content;
+
+    margin-bottom: 4px;
+    padding: 10px;
+    font-size: large;
+
+    background-color: var(--background-color-subtle);
+    border: solid 1px var(--border-color);
+    border-radius: 4px;
+    color: var(--highlight-color);
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+button {
+    text-align: center;
+}

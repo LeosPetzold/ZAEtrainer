@@ -485,6 +485,10 @@ window.editorModes           = Modes;
 //window.editorCanvasBox     = canvasBox;
 /* Function+ globalization END */
 
+/* Persistence */
+
+/* Persistence END */
+
 /* Utilities */
 
 function colorSVG(elem, strokeclass="setstroke", fillclass="setfill") {

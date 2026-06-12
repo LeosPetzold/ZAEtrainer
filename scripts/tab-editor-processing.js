@@ -106,7 +106,7 @@ function topologyError(posX, posY, facing) {
     const x = (posX + (0.5 * sideVector.x)) * tileSize + (window.editorCanvasBox.width  / 2);
     const y = (posY + (0.5 * sideVector.y)) * tileSize + (window.editorCanvasBox.height / 2);
     console.warn("Contracted user topology building error at:", posX, posY, Sides[facing],
-        "- placing arrow at:", x, y);
+        "- placing arrow at:", x, y, "in canvas");
     window.editorAppendError(x, y);
 }
 class TopologyVertex {
