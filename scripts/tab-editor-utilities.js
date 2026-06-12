@@ -1,3 +1,6 @@
+/// CONFIG
+const tileSize = 64;
+
 /// VECTORS
 class Vector2 {
     x; y;

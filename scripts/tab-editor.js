@@ -50,7 +50,7 @@ let cursorTilePosition         = { x: 0, y: 0 };
 let cursorTilePositionAbsolute = { x: 0, y: 0 };
 let cursorCanvasPosition       = { x: 0, y: 0 }; // Does **NOT** include borders
 let loaded = false;
-const tileSize = 64; // Not dynamic with CSS. Not dynamic in CSS.
+//const tileSize = 64; // Not dynamic with CSS. Not dynamic in CSS.
 let latestVariants = new Map();
 let SVGregister = new Map();
 let mode = Modes.None;
@@ -149,6 +149,7 @@ function mouseMove(event) {
 // const editorCanvas = $("#editor-viewport-canvas")[0];
 function updateCanvasBox() {
     canvasBox = editorCanvas.getBoundingClientRect();
+    window.editorCanvasBox = canvasBox;
     canvasSizeTiles.x = Math.floor((canvasBox.width  - (2*canvasBorderWidth))/tileSize);
     canvasSizeTiles.y = Math.floor((canvasBox.height - (2*canvasBorderWidth))/tileSize);
 }
@@ -460,13 +461,28 @@ function modeSelect(_mode) {
     $("#editor-selector"             )[0].style.display        = tiledetailsSelectorDisplay[n];
 }
 
+const errorSVGs = $("#editor-viewport-errorWrapper")[0];
+function clearErrors() { errorSVGs.innerHTML = ""; }
+function appendError(coordsX, coordsY) {
+    const element = document.createElement("div");
+    element.classList.add("editor-viewport-error");
+    element.innerHTML = "&nwarr;";
+    element.style.left = `${coordsX}px`;
+    element.style.top  = `${coordsY}px`;
+    errorSVGs.appendChild(element);
+}
+
 /* Function+ globalization */
 window.editorRotate          = rotate;
 window.editorVariateStep     = variateStep;
 window.editorEditorSelect    = editorSelect;
 window.editorUIvariantSelect = UIvariantSelect;
 window.editorModeSelect      = modeSelect;
+window.editorAppendError     = appendError;
+window.editorClearErrors     = clearErrors;
 window.editorModes           = Modes;
+//window.editorTilesize      = tileSize;
+//window.editorCanvasBox     = canvasBox;
 /* Function+ globalization END */
 
 /* Utilities */

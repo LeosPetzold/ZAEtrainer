@@ -7,6 +7,7 @@ window.editorTopologyAssemble = topologyAssemble;
 
 function topologyAssemble(cells) {
     console.log("Assembling topology:", cells);
+    window.editorClearErrors;
 
     let topology = new Map(); // Map-of-maps
 
@@ -40,16 +41,16 @@ function topologyAssemble(cells) {
                 const neighborFacing = (facing + 2) % 4;
                 let neighbor = cells.get2Dv(neighborPosition);
                 let neighborHead = neighbor;
-                if (!neighbor) throw new 
-                    Error(`Could not assemble the topology layer at cell ${columni},${celli}:
-                        Open connection detected at ${columni+sideVector.x},${celli+sideVector.y}.`);
+                if (!neighbor) { topologyError(columni, celli, facing); return; }
+                    /*throw new Error(`Could not assemble the topology layer at cell ${columni},${celli}:
+                        Open connection detected at ${columni+sideVector.x},${celli+sideVector.y}.`);*/
 
                 let neighborPositionHead;
                 if (neighbor instanceof Reserve) {
                     neighborPositionHead = neighbor.pointer;
                     neighborHead = cells.get2Dv(neighborPositionHead);
-                    if (!neighbor) throw new 
-                        Error(`Could not assemble the topology layer at cell ${columni},${celli}:
+                    if (!neighbor)
+                        throw new Error(`Could not assemble the topology layer at cell ${columni},${celli}:
                             No header tile of reserve tile at ${columni+sideVector.x},${celli+sideVector.y}. found.
                             This is a bug.`);
                 } else { neighborPositionHead = neighborPosition; }
@@ -61,15 +62,13 @@ function topologyAssemble(cells) {
                 // There is no support for multiple connections on one side at the moment.
                 // ....find() returns the first found object.
                 const neighborConnection = neighbor.connections.find(conn => conn.facing == Sides[neighborFacing]);
-                if (!neighborConnection) throw new
-                    Error(`Could not assemble the topology layer at cell ${columni},${celli}:
+                if (!neighborConnection) { topologyError(columni, celli, facing); return; }
+                    /*throw new Error(`Could not assemble the topology layer at cell ${columni},${celli}:
                         No neighboring connection found.
                         Firing from ${columni},${celli}:${connection.facing}
-                        at target ${columni+sideVector.x},${celli+sideVector.y}:${Sides[neighborFacing]}`);
+                        at target ${columni+sideVector.x},${celli+sideVector.y}:${Sides[neighborFacing]}`);*/
                 
                 // We now have our connection and the neighbor's connection.
-
-                console.log(topocell.connectors);
 
                 const homeLinkKey     = `${homePositionRelative.x},${homePositionRelative.y}:${facing}`;
                 const neighborLinkKey = `${neighborPositionRelative.x},${neighborPositionRelative.y}:${neighborFacing}`;
@@ -101,6 +100,14 @@ function topologyAssemble(cells) {
     console.log("Topology map:", topology);
     
     return null;
+}
+function topologyError(posX, posY, facing) {
+    const sideVector = SideVectors[facing];
+    const x = (posX + (0.5 * sideVector.x)) * tileSize + (window.editorCanvasBox.width  / 2);
+    const y = (posY + (0.5 * sideVector.y)) * tileSize + (window.editorCanvasBox.height / 2);
+    console.warn("Contracted user topology building error at:", posX, posY, Sides[facing],
+        "- placing arrow at:", x, y);
+    window.editorAppendError(x, y);
 }
 class TopologyVertex {
     name = "vertex";

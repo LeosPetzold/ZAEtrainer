@@ -282,6 +282,20 @@
 
     color: var(--muted-color);
 }
+.editor-viewport-error {
+    position: absolute;
+    top: unset;
+    left: unset;
+
+    width: auto;
+    height: auto;
+
+    transform: translate(-4px, -8px);
+
+    color: var(--highlight-color);
+    font-weight: bold;
+    font-size: 22px;
+}
 #editor-viewport-underneath {
     position: absolute;
     top: -100%;
