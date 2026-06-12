@@ -7,7 +7,7 @@ window.editorTopologyAssemble = topologyAssemble;
 
 function topologyAssemble(cells) {
     console.log("Assembling topology:", cells);
-    window.editorClearErrors;
+    window.editorClearErrors();
 
     let topology = new Map(); // Map-of-maps
 
