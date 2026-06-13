@@ -31,7 +31,9 @@ function topologyAssemble(cells) {
             if (!topology.has2Dv(homePositionHead))
                 topology.set2Dv(homePositionHead, new TopologyVertex(homeHead.ID, new Map(), cell.attributes));
             const topocell = topology.get2Dv(homePositionHead);
+            const topocellIsLinker = topocell.attributes.includes("linker");
 
+            let localLinks = [];
             // This runs for all (both normal and reserve) tile classes.
             (cell.connections ?? []).forEach((connection) => {
                 const facing = Sides[connection.facing];
@@ -54,7 +56,7 @@ function topologyAssemble(cells) {
                             No header tile of reserve tile at ${columni+sideVector.x},${celli+sideVector.y}. found.
                             This is a bug.`);
                 } else { neighborPositionHead = neighborPosition; }
-
+                
                 const neighborPositionRelative = new Vector2(
                     neighborPosition.x - neighborPositionHead.x,
                     neighborPosition.y - neighborPositionHead.y);
@@ -70,7 +72,7 @@ function topologyAssemble(cells) {
                 
                 // We now have our connection and the neighbor's connection.
 
-                const homeLinkKey     = `${homePositionRelative.x},${homePositionRelative.y}:${facing}`;
+                const homeLinkKey     = `${    homePositionRelative.x},${    homePositionRelative.y}:${        facing}`;
                 const neighborLinkKey = `${neighborPositionRelative.x},${neighborPositionRelative.y}:${neighborFacing}`;
                 
                 if (topocell.connectors.get(homeLinkKey)) return; // Not `continue` as we are inside ....forEach(...)
@@ -78,13 +80,18 @@ function topologyAssemble(cells) {
 
                 if (!topology.has2Dv(neighborPositionHead))
                     topology.set2Dv(neighborPositionHead, new TopologyVertex(neighbor.ID, new Map(), neighbor.attributes));
+                const neighborTopocell = topology.get2Dv(neighborPositionHead);
 
-                const homeConnector     = new TopologyConnector(cell.ID,     facing,         linkIDcounter);
-                const neighborConnector = new TopologyConnector(neighbor.ID, neighborFacing, linkIDcounter);
-
-                const link = new TopologyLink(linkIDcounter, [ homeConnector, neighborConnector ]);
-                linkRegister.set(linkIDcounter, link);
-                linkIDcounter++;
+                // Define the new connectors
+                const homeConnector     = new TopologyConnector(    cell.ID, facing,        
+                    linkIDcounter);
+                const neighborConnector = new TopologyConnector(neighbor.ID, neighborFacing,
+                    linkIDcounter);
+                
+                // Define link
+                const link = new TopologyLink([ homeConnector, neighborConnector ]); // Neighbor shall always be second in the array!
+                if (topocellIsLinker) linkRegister.set(linkIDcounter, link); // and //linkIDcounter++;
+                else                  localLinks.push(link);
 
                 // Setting all only to head cells!
                 topology.get2Dv(homePositionHead    ).connectors.set(
@@ -92,6 +99,13 @@ function topologyAssemble(cells) {
                 topology.get2Dv(neighborPositionHead).connectors.set(
                     neighborLinkKey, neighborConnector);
             });
+
+            // If is linker, simplify all links into one
+            if (topocellIsLinker) {
+
+                // Self-destruct linker
+                topology.del2Dv(homePositionHead);
+            }
         });
     });
 
@@ -126,14 +140,15 @@ class TopologyConnector {
     linkID = null;
     // linked = false; // If exists, is already ALWAYS linked
 
-    constructor (name, facing, linkID) {
+    constructor (name, facing, linkID
+    ) {
         this.name   = name;
         this.facing = facing;
         this.linkID = linkID;
     }
 }
 class TopologyLink {
-    id = null; // May not be needed?
+    //id = null; // May not be needed?
     name = null;
     connectors = [];
 

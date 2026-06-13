@@ -137,12 +137,13 @@
     width: 25px;
     height: 25px;
 
-    padding: auto;
-    line-height: -2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
-#editor-tiledetails-buttons > button:nth-child(1) { padding-left: 1.5px; }
-#editor-tiledetails-buttons > button:nth-child(3) { padding-left: 4px; }
-#editor-tiledetails-buttons > button:nth-child(5) { padding-left: 2px; }
+#editor-tiledetails-buttons > button:nth-child(1) { padding-left: 06.5px; }
+#editor-tiledetails-buttons > button:nth-child(3) { padding-left: 10.0px; }
+#editor-tiledetails-buttons > button:nth-child(5) { padding-left: 08.0px; }
 #editor-tiledetails-buttons > button:hover {
     cursor: pointer;
 
