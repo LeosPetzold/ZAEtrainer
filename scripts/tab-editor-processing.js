@@ -104,7 +104,7 @@ function topologyAssemble(cells) {
             if (topocellIsLinker) {
 
                 // Self-destruct linker
-                topology.del2Dv(homePositionHead);
+                //topology.del2Dv(homePositionHead);
             }
         });
     });

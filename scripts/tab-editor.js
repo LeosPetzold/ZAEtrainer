@@ -114,7 +114,7 @@ addEventListener("keypress", (event) => {
                 break;
             case 't':
             case 'T':
-                if (mode != Modes.Place)
+                if (mode != Modes.Place) break;
                 rotate(event.shiftKey ? +1 : -1);
                 break;
         }
