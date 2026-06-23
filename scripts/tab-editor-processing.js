@@ -11,25 +11,20 @@ function topologyAssemble(cells) {
 
     let topology = new Map(); // Map-of-maps
 
-    let linkRegister = new Map();
-    let linkIDcounter = 0;
-
     cells.forEach((column, columni) => {
         column.forEach((cell, celli) => {
             const homePosition = new Vector2(columni, celli);
-            let homePositionHead;
-            if (cell instanceof Reserve) homePositionHead = cell.pointer;
-            else                         homePositionHead = homePosition;
+            const homePositionHead = cell.pointer ?? homePosition;
 
-            const homeHead = cells.get2Dv(homePositionHead);
-            
             const homePositionRelative = new Vector2(
                     homePosition.x - homePositionHead.x,
                     homePosition.y - homePositionHead.y);
 
+            const homeHead = cells.get2Dv(homePositionHead);
+
             // Configure home topology data basis
             if (!topology.has2Dv(homePositionHead))
-                topology.set2Dv(homePositionHead, new TopologyVertex(homeHead.ID, new Map(), cell.attributes));
+                topology.set2Dv(homePositionHead, new TopologyVertex(homeHead, new Map()));
             const topocell = topology.get2Dv(homePositionHead);
             const topocellIsLinker = topocell.attributes.includes("linker");
 
@@ -54,7 +49,7 @@ function topologyAssemble(cells) {
                     if (!neighbor)
                         throw new Error(`Could not assemble the topology layer at cell ${columni},${celli}:
                             No header tile of reserve tile at ${columni+sideVector.x},${celli+sideVector.y}. found.
-                            This is a bug.`);
+                            This is a bug.`); // ?
                 } else { neighborPositionHead = neighborPosition; }
                 
                 const neighborPositionRelative = new Vector2(
@@ -71,33 +66,20 @@ function topologyAssemble(cells) {
                         at target ${columni+sideVector.x},${celli+sideVector.y}:${Sides[neighborFacing]}`);*/
                 
                 // We now have our connection and the neighbor's connection.
-
-                const homeLinkKey     = `${    homePositionRelative.x},${    homePositionRelative.y}:${        facing}`;
-                const neighborLinkKey = `${neighborPositionRelative.x},${neighborPositionRelative.y}:${neighborFacing}`;
                 
-                if (topocell.connectors.get(homeLinkKey)) return; // Not `continue` as we are inside ....forEach(...)
-                ///// RETURNING IF CONNECTION ALREADY EXISTS ON THE HOME SIDE! (if is connector is linked already);
+                if (topocell.connections.get(facing)) return;
+                    // Not `continue` as we are inside ....forEach(...)
+                ///// RETURNING IF CONNECTION ALREADY EXISTS ON THE HOME SIDE! (if connector is linked already);
 
                 if (!topology.has2Dv(neighborPositionHead))
-                    topology.set2Dv(neighborPositionHead, new TopologyVertex(neighbor.ID, new Map(), neighbor.attributes));
+                     topology.set2Dv(neighborPositionHead, new TopologyVertex(neighborHead, new Map()));
                 const neighborTopocell = topology.get2Dv(neighborPositionHead);
 
-                // Define the new connectors
-                const homeConnector     = new TopologyConnector(    cell.ID, facing,        
-                    linkIDcounter);
-                const neighborConnector = new TopologyConnector(neighbor.ID, neighborFacing,
-                    linkIDcounter);
-                
-                // Define link
-                const link = new TopologyLink([ homeConnector, neighborConnector ]); // Neighbor shall always be second in the array!
-                if (topocellIsLinker) linkRegister.set(linkIDcounter, link); // and //linkIDcounter++;
-                else                  localLinks.push(link);
-
                 // Setting all only to head cells!
-                topology.get2Dv(homePositionHead    ).connectors.set(
-                    homeLinkKey,     homeConnector    );
-                topology.get2Dv(neighborPositionHead).connectors.set(
-                    neighborLinkKey, neighborConnector);
+                topology.get2Dv(homePositionHead    ).connections.set(connection.name,         new CVector2(
+                    neighborPosition.x, neighborPosition.y, neighborConnection.name));
+                topology.get2Dv(neighborPositionHead).connections.set(neighborConnection.name, new CVector2(
+                    homePositionHead.x, homePositionHead.y, connection.name        ));
             });
 
             // If is linker, simplify all links into one
@@ -109,9 +91,8 @@ function topologyAssemble(cells) {
         });
     });
 
-    console.log("Link register flush:", linkRegister);
-
     console.log("Topology map:", topology);
+    topology.consoleflush();
     
     return null;
 }
@@ -124,37 +105,23 @@ function topologyError(posX, posY, facing) {
     window.editorAppendError(x, y);
 }
 class TopologyVertex {
-    name = "vertex";
-    connectors = new Map();
+    tile = null;
+    connections = new Map(); // <connection face, int><array of connected ports>
     attributes = [];
 
-    constructor (name, connectors, attributes) {
-        this.name       = name;
-        this.connectors = connectors;
-        this.attributes = attributes;
+    constructor (tile, connections) {
+        this.name        = tile;
+        this.connections = connections;
     }
 }
-class TopologyConnector {
-    name = "connection";
-    facing = Sides.bottom;
-    linkID = null;
-    // linked = false; // If exists, is already ALWAYS linked
 
-    constructor (name, facing, linkID
-    ) {
-        this.name   = name;
-        this.facing = facing;
-        this.linkID = linkID;
-    }
-}
-class TopologyLink {
-    //id = null; // May not be needed?
-    name = null;
-    connectors = [];
+class CVector2 {
+    x; y; cnameh;
 
-    constructor (id, connectors=[], name="link") {
-        this.id         = id;
-        this.name       = name;
-        this.connectors = connectors;
-    }
+    constructor (x, y, cnameh) {
+        //this.facing = facing; // meta connection name string
+        this.x      = x;
+        this.y      = y;
+        this.cnameh = cnameh;
+    } 
 }
