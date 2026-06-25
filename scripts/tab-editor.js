@@ -347,10 +347,10 @@ function canvasClick(event, _mode=mode) {
         let cellsBuffer = structuredClone(cells);
 
         if (cellsBuffer.has2Dv(cursorTilePosition)) {
-            let tile = cellsBuffer.get2Dv(cursorTilePosition);
+            var tile = cellsBuffer.get2Dv(cursorTilePosition);
             let rootPosition = cursorTilePosition;
 
-            if (tile instanceof Reserve) {
+            if (tile.type === "Reserve") {
                 rootPosition = tile.pointer; // BEFORE TILE ASSIGNMENT!
                 tile = cellsBuffer.get2Dv(tile.pointer);
             } // tile is now guaranteed to be the header tile

@@ -19,7 +19,8 @@
 }
 #editor-selector-container {
     display: grid;
-    grid-template-columns: repeat(2, var(--tile-size));
+    /*grid-template-columns: repeat(2, var(--tile-size));*/
+    grid-template-columns: repeat(2, 64px);
     grid-auto-flow: row;
     gap: 5px;
 }

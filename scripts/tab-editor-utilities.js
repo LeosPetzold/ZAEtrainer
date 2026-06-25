@@ -97,7 +97,7 @@ Map.prototype.consoleflush = function MoMconsoleFlush() {
 
 
 /// TILE CLASSES
-class Tile {
+class Tile { type = "Tile";
     ID;
     rotation;
     reserves = [];
@@ -112,7 +112,7 @@ class Tile {
         this.attributes  = attributes;
     }
 }
-class Reserve {
+class Reserve { type="Reserve";
     pointer;
     connections;
     attributes = [];

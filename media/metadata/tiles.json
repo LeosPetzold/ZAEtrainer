@@ -62,8 +62,7 @@
                     { "name": "Bottom", "facing": "bottom" },
                     { "name": "Left",   "facing": "left"   }
                 ]
-            },
-            "attributes": [ "linker" ]
+            }
             
         },
         "wire-X": {

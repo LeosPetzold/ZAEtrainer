@@ -26,7 +26,6 @@ function topologyAssemble(cells) {
             if (!topology.has2Dv(homePositionHead))
                 topology.set2Dv(homePositionHead, new TopologyVertex(homeHead, new Map()));
             const topocell = topology.get2Dv(homePositionHead);
-            //const topocellIsLinker = topocell.tile.attributes.includes("linker");
 
             let localLinks = [];
             // This runs for all (both normal and reserve) tile classes.
@@ -43,7 +42,7 @@ function topologyAssemble(cells) {
                         Open connection detected at ${columni+sideVector.x},${celli+sideVector.y}.`);*/
 
                 let neighborPositionHead;
-                if (neighbor instanceof Reserve) {
+                if (neighbor.type === "Reserve") {
                     neighborPositionHead = neighbor.pointer;
                     neighborHead = cells.get2Dv(neighborPositionHead);
                     if (!neighbor)
@@ -110,6 +109,7 @@ function topologyAssemble(cells) {
                         if (neighbor.tile.attributes.includes("linker")) {
                             linkerRecursiveSearch(neighbor, neighborPos);
                         } else {
+                            neighbor.connections.set(linkerConnectionNeighbor.cnamen, []);
                             pureNeighbors.set(neighborPos, linkerConnectionNeighbor.cnamen);
                             globalsetpoint.push(linkerConnectionNeighbor);
                         }
@@ -121,13 +121,17 @@ function topologyAssemble(cells) {
 
                 pureNeighbors.forEach((connectorKEY, position) => {
                     let setpoint = structuredClone(globalsetpoint);
-                    setpoint.splice(setpoint.indexOf(new CVector2(
+                    const reference = new CVector2(
                         position.x, position.y, connectorKEY
-                    )), 1);
-                    console.log(structuredClone(setpoint)); 
+                    );
 
-                    var topoconnections = topology.get2Dv(position).connections.get(connectorKEY);
-                    topoconnections = topoconnections.concat(setpoint); // ???
+                    const index = setpoint.findIndex(item => 
+                        Object.keys(reference).every(key => item[key] === reference[key])
+                    );
+                    setpoint.splice(index, 1);
+
+                    const connections = topology.get2Dv(position).connections;
+                    connections.set(connectorKEY, connections.get(connectorKEY).concat(setpoint));
                 });
             }
         });
