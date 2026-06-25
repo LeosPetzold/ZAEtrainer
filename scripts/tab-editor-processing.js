@@ -92,54 +92,7 @@ function topologyAssemble(cells) {
     topobuff.forEach((column, columni) => {
         column.forEach((topocell, topocelli) => {
             if (topocell.tile.attributes.includes("linker")) {
-                let neighbors = new Map(); // <key: trueNeighbor><value: [ buffNeighbor, linkerConnection, linkerKey ]>
-                topocell.connections.forEach((linkerConnections, linkerKEY) => {
-                    const linkerConnection = linkerConnections[0];
-                    var trueNeighbor = topology.get2D(linkerConnection.x, linkerConnection.y);
-                    var buffNeighbor = topobuff.get2D(linkerConnection.x, linkerConnection.y);
-
-                    const neighborConnectionsLinkerT = trueNeighbor.connections.get(linkerConnections[0].cnamen);
-                    neighborConnectionsLinkerT.splice(neighborConnectionsLinkerT.indexOf(
-                        new CVector2(columni, topocelli, linkerKEY)
-                    )); // Delete true neighbor's connection[s] to linker
-
-                    const neighborConnectionsLinkerB = buffNeighbor.connections.get(linkerConnections[0].cnamen);
-                    neighborConnectionsLinkerB.splice(neighborConnectionsLinkerB.indexOf(
-                        new CVector2(columni, topocelli, linkerKEY)
-                    )); // Delete buff neighbor's connection[s] to linker
-
-                    neighbors.set(trueNeighbor, [ buffNeighbor, linkerConnections, linkerKEY ]);
-                });
-
-                let index = 0;
-                neighbors.forEach((neighborOther, trueNeighbor) => {
-                    var buffNeighbor = neighborOther[0]; const linkerConnectionsNeighbor = neighborOther[1];
-                    const linkerKeyNeighbor = neighborOther[2];
-
-                    let _index = 0;
-                    neighbors.forEach((fellowOther, trueFellow) => {
-                        console.log(_index);
-                        
-                        if (index !== _index) { ++_index; return; }
-                        var buffFellow = fellowOther[0]; const linkerConnections = fellowOther[1]; const linkerKey = fellowOther[2];
-
-                        // Convert connections from linker>neighbor to fellow>neighbor , change KEY
-                        let connection = linkerConnections[0];
-
-                        console.log(trueFellow, connection);
-                        trueFellow.connections.get(   linkerConnectionsNeighbor[0].cnamen).push(connection);
-
-                        _index++;
-                    });
-                    index++;
-                });
-
-                // Self-destruct (linker)
-                topobuff.del2D(columni, topocelli);
-
-                topology = topobuff; // FLUSH TOPOLOGY BUFFER
-
-                topology.consoleflush();
+                
             }
         });
     });
