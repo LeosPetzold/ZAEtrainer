@@ -67,6 +67,8 @@ window.editorCells = cells;
 
 /* Setup */
 
+document.documentElement.style.setProperty("--tile-size", `${tileSize}px`);
+
 const tileContainer = $("#editor-selector-container")[0];
 Promise.all(selection.map(item =>
     fetch(`media/tiles/${item}.svg`)

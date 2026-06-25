@@ -232,9 +232,9 @@
 
     background-color: var(--surface-color);
 
-    --tile-size: 64px;
     --border-width: 1px;
-    /*--bwh: calc(var(--border-width) / 2);*/
+    --tsmb: calc(var(--tile-size) - var(--border-width));
+    --bwh: calc(var(--border-width) / 2);
     --mod: mod(calc(100% - var(--tile-size)), calc(var(--tile-size) * 2));
     --modh: calc(var(--mod) / 4);
     /*--grid-color: var(--background-color);*/
@@ -252,13 +252,13 @@
     overflow: hidden;
 
     background:
-        repeating-linear-gradient(90deg, var(--grid-color) 0px, var(--grid-color) 1px,
-            transparent 1px, transparent 63px,
-            var(--grid-color) 63px, var(--grid-color) 64px),
-        repeating-linear-gradient(var(--grid-color) 0px, var(--grid-color) 1px,
-            transparent 1px, transparent 63px,
-            var(--grid-color) 63px, var(--grid-color) 64px);
-    border: solid 1px var(--grid-color);
+        repeating-linear-gradient(90deg, var(--grid-color) 0px, var(--grid-color) var(--border-width),
+            transparent var(--border-width), transparent var(--tsmb),
+            var(--grid-color) var(--tsmb), var(--grid-color) var(--tile-size)),
+        repeating-linear-gradient(       var(--grid-color) 0px, var(--grid-color) var(--border-width),
+            transparent var(--border-width), transparent var(--tsmb),
+            var(--grid-color) var(--tsmb), var(--grid-color) var(--tile-size));
+    border: solid var(--border-width) var(--grid-color);
 }
 #editor-viewport-center {
     position: absolute;

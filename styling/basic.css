@@ -14,7 +14,7 @@
     --background-color-subtle: color-mix(in srgb, var(--background-color) 50%, var(--mixing-color));
 
     /* Editor tab */
-    --tile-size: 64px;
+    --tile-size: unset; /* Set by scripts/tab-editor.js. */
 
     /* Proprietary themes */
     /*color-scheme: light;
