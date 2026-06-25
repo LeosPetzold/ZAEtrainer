@@ -88,17 +88,53 @@ function topologyAssemble(cells) {
 
     console.log("Simplifying linkers...");
     // Simplify all linkers, all analysis happening inside buffer.
+
     var topobuff = structuredClone(topology);
-    topobuff.forEach((column, columni) => {
+    
+    topology.forEach((column, columni) => {
         column.forEach((topocell, topocelli) => {
             if (topocell.tile.attributes.includes("linker")) {
-                
+                // We are currently living in a flawless world where every 'connections' array of a TopologyVertex
+                // contains EXACTLY 1 (one) CVector2 connection.
+                let pureNeighbors = new Map(); // < neighbor position >< neighbor connector key >
+                let globalsetpoint = [];
+
+                function linkerRecursiveSearch(cell, coords) {
+                    const cellConnections = cell.connections;
+                    topology.del2Dv(coords);
+                    cellConnections.forEach((linkerConnectionsNeighbor, linkerConnectionNeighborKEY) => {
+                        const linkerConnectionNeighbor = linkerConnectionsNeighbor[0];
+                        const neighborPos = new Vector2(linkerConnectionNeighbor.x, linkerConnectionNeighbor.y);
+                        var neighbor = topology.get2Dv(neighborPos);
+                        if (!neighbor) return; // Expected, processed linkers are self-destructing.
+                        if (neighbor.tile.attributes.includes("linker")) {
+                            linkerRecursiveSearch(neighbor, neighborPos);
+                        } else {
+                            pureNeighbors.set(neighborPos, linkerConnectionNeighbor.cnamen);
+                            globalsetpoint.push(linkerConnectionNeighbor);
+                        }
+                    });
+                }
+                linkerRecursiveSearch(topocell, new Vector2(columni, topocelli));
+
+                //console.log("GLOBAL SETPOINT IS --", globalsetpoint);
+
+                pureNeighbors.forEach((connectorKEY, position) => {
+                    let setpoint = structuredClone(globalsetpoint);
+                    setpoint.splice(setpoint.indexOf(new CVector2(
+                        position.x, position.y, connectorKEY
+                    )), 1);
+                    console.log(structuredClone(setpoint)); 
+
+                    var topoconnections = topology.get2Dv(position).connections.get(connectorKEY);
+                    topoconnections = topoconnections.concat(setpoint); // ???
+                });
             }
         });
     });
 
     console.log("Topology map:", topology);
-    //topology.consoleflush();
+    topology.consoleflush();
     
     return null;
 }
