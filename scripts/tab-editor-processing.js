@@ -26,7 +26,7 @@ function topologyAssemble(cells) {
             if (!topology.has2Dv(homePositionHead))
                 topology.set2Dv(homePositionHead, new TopologyVertex(homeHead, new Map()));
             const topocell = topology.get2Dv(homePositionHead);
-            const topocellIsLinker = topocell.attributes.includes("linker");
+            //const topocellIsLinker = topocell.tile.attributes.includes("linker");
 
             let localLinks = [];
             // This runs for all (both normal and reserve) tile classes.
@@ -56,8 +56,6 @@ function topologyAssemble(cells) {
                     neighborPosition.x - neighborPositionHead.x,
                     neighborPosition.y - neighborPositionHead.y);
 
-                // There is no support for multiple connections on one side at the moment.
-                // ....find() returns the first found object.
                 const neighborConnection = neighbor.connections.find(conn => conn.facing == Sides[neighborFacing]);
                 if (!neighborConnection) { topologyError(columni, celli, facing); return; }
                     /*throw new Error(`Could not assemble the topology layer at cell ${columni},${celli}:
@@ -67,8 +65,9 @@ function topologyAssemble(cells) {
                 
                 // We now have our connection and the neighbor's connection.
                 
-                if (topocell.connections.get(facing)) return;
-                    // Not `continue` as we are inside ....forEach(...)
+                //if (topocell.connections.get(facing)) return;
+                if (topocell.connections.has(connection.name)) return;
+                    // Not `continue` as we are inside ....forEach(...).
                 ///// RETURNING IF CONNECTION ALREADY EXISTS ON THE HOME SIDE! (if connector is linked already);
 
                 if (!topology.has2Dv(neighborPositionHead))
@@ -76,23 +75,77 @@ function topologyAssemble(cells) {
                 const neighborTopocell = topology.get2Dv(neighborPositionHead);
 
                 // Setting all only to head cells!
-                topology.get2Dv(homePositionHead    ).connections.set(connection.name,         new CVector2(
-                    neighborPosition.x, neighborPosition.y, neighborConnection.name));
-                topology.get2Dv(neighborPositionHead).connections.set(neighborConnection.name, new CVector2(
-                    homePositionHead.x, homePositionHead.y, connection.name        ));
+                        topocell.connections.set(connection.name,         [ new CVector2(
+                    neighborPosition.x, neighborPosition.y, neighborConnection.name) ] );
+                neighborTopocell.connections.set(neighborConnection.name, [ new CVector2(
+                    homePositionHead.x, homePositionHead.y, connection.name        ) ] );
             });
+        });
+    });
 
-            // If is linker, simplify all links into one
-            if (topocellIsLinker) {
+    console.log("Topology map before simplification:", topology);
+    topology.consoleflush();
 
-                // Self-destruct linker
-                //topology.del2Dv(homePositionHead);
+    console.log("Simplifying linkers...");
+    // Simplify all linkers, all analysis happening inside buffer.
+    var topobuff = structuredClone(topology);
+    topobuff.forEach((column, columni) => {
+        column.forEach((topocell, topocelli) => {
+            if (topocell.tile.attributes.includes("linker")) {
+                let neighbors = new Map(); // <key: trueNeighbor><value: [ buffNeighbor, linkerConnection, linkerKey ]>
+                topocell.connections.forEach((linkerConnections, linkerKEY) => {
+                    const linkerConnection = linkerConnections[0];
+                    var trueNeighbor = topology.get2D(linkerConnection.x, linkerConnection.y);
+                    var buffNeighbor = topobuff.get2D(linkerConnection.x, linkerConnection.y);
+
+                    const neighborConnectionsLinkerT = trueNeighbor.connections.get(linkerConnections[0].cnamen);
+                    neighborConnectionsLinkerT.splice(neighborConnectionsLinkerT.indexOf(
+                        new CVector2(columni, topocelli, linkerKEY)
+                    )); // Delete true neighbor's connection[s] to linker
+
+                    const neighborConnectionsLinkerB = buffNeighbor.connections.get(linkerConnections[0].cnamen);
+                    neighborConnectionsLinkerB.splice(neighborConnectionsLinkerB.indexOf(
+                        new CVector2(columni, topocelli, linkerKEY)
+                    )); // Delete buff neighbor's connection[s] to linker
+
+                    neighbors.set(trueNeighbor, [ buffNeighbor, linkerConnections, linkerKEY ]);
+                });
+
+                let index = 0;
+                neighbors.forEach((neighborOther, trueNeighbor) => {
+                    var buffNeighbor = neighborOther[0]; const linkerConnectionsNeighbor = neighborOther[1];
+                    const linkerKeyNeighbor = neighborOther[2];
+
+                    let _index = 0;
+                    neighbors.forEach((fellowOther, trueFellow) => {
+                        console.log(_index);
+                        
+                        if (index !== _index) { ++_index; return; }
+                        var buffFellow = fellowOther[0]; const linkerConnections = fellowOther[1]; const linkerKey = fellowOther[2];
+
+                        // Convert connections from linker>neighbor to fellow>neighbor , change KEY
+                        let connection = linkerConnections[0];
+
+                        console.log(trueFellow, connection);
+                        trueFellow.connections.get(   linkerConnectionsNeighbor[0].cnamen).push(connection);
+
+                        _index++;
+                    });
+                    index++;
+                });
+
+                // Self-destruct (linker)
+                topobuff.del2D(columni, topocelli);
+
+                topology = topobuff; // FLUSH TOPOLOGY BUFFER
+
+                topology.consoleflush();
             }
         });
     });
 
     console.log("Topology map:", topology);
-    topology.consoleflush();
+    //topology.consoleflush();
     
     return null;
 }
@@ -106,22 +159,22 @@ function topologyError(posX, posY, facing) {
 }
 class TopologyVertex {
     tile = null;
-    connections = new Map(); // <connection face, int><array of connected ports>
-    attributes = [];
+    connections = new Map(); // <connector = KEY><array of connected ports>
+    //attributes = []; // Can directly fetch fron the tile.
 
     constructor (tile, connections) {
-        this.name        = tile;
+        this.tile        = tile;
         this.connections = connections;
     }
 }
 
 class CVector2 {
-    x; y; cnameh;
+    x; y; cnamen;
 
-    constructor (x, y, cnameh) {
+    constructor (x, y, cnamen) {
         //this.facing = facing; // meta connection name string
         this.x      = x;
         this.y      = y;
-        this.cnameh = cnameh;
+        this.cnamen = cnamen; // Connection name on/for neighbor
     } 
 }
