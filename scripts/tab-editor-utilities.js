@@ -78,6 +78,24 @@ Map.prototype.get2Dv = function getCellV(vector       ) { return this.get2D(vect
 Map.prototype.has2Dv = function hasCellV(vector       ) { return this.has2D(vector.x, vector.y       ); }
 Map.prototype.del2Dv = function delCellV(vector       ) { return this.del2D(vector.x, vector.y       ); }
 
+// Source: Google's AI mode
+Map.prototype.consoleflush = function MoMconsoleFlush() {
+    const MAP = structuredClone(this);
+
+    const s = (v) => v < 0 ? ` ${v}` : `  ${v}`;
+    const kX = Array.from(MAP.keys()).sort((a, b) => a - b);
+    const kY = Array.from(new Set(Array.from(MAP.values()).flatMap(m => Array.from(m.keys())))).sort((a, b) => a - b);
+    if (!kY.length) return console.table({});
+
+    const grid = {};
+    kY.forEach(y => {
+        grid[s(y)] = {};
+        kX.forEach(x => grid[s(y)][s(x)] = (MAP.get(x)?.has(y)) ? MAP.get(x).get(y) : "-");
+    });
+    console.table(grid, kX.map(s));
+}
+
+
 /// TILE CLASSES
 class Tile {
     ID;

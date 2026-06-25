@@ -61,7 +61,11 @@ let tiletrue  = null;
 let cells = new Map(); // Map-of-Maps
 
 // Needed globalization
-window.editorCells = cells;
+// Definujte pouze jednou na začátku:
+Object.defineProperty(window, 'editorCells', {
+  get: () => cells
+});
+
 
 /* Runtime variables END */
 
@@ -116,7 +120,7 @@ addEventListener("keypress", (event) => {
                 break;
             case 't':
             case 'T':
-                if (mode != Modes.Place)
+                if (mode != Modes.Place) break;
                 rotate(event.shiftKey ? +1 : -1);
                 break;
         }
@@ -132,8 +136,8 @@ function mouseMove(event) {
     const ctp = getCursorPosition(event, editorCanvas); // Current tile position input = ctp
     cursorCanvasPosition.x = ctp.x - canvasBorderWidth;
     cursorCanvasPosition.y = ctp.y - canvasBorderWidth;
-    cursorTilePositionAbsolute.x = Math.floor(cursorCanvasPosition.x / 64);
-    cursorTilePositionAbsolute.y = Math.floor(cursorCanvasPosition.y / 64);
+    cursorTilePositionAbsolute.x = Math.floor(cursorCanvasPosition.x / tileSize);
+    cursorTilePositionAbsolute.y = Math.floor(cursorCanvasPosition.y / tileSize);
     cursorTilePosition.x = cursorTilePositionAbsolute.x - Math.floor(canvasSizeTiles.x/2);
     cursorTilePosition.y = cursorTilePositionAbsolute.y - Math.floor(canvasSizeTiles.y/2);
 
@@ -338,10 +342,10 @@ function canvasClick(event, _mode=mode) {
     if (!loaded) return;
     // Bounding checks done in the tile loop below.
 
-    let cellsBuffer = cells;
-
     /* :OR Deletion */
     if (_mode == Modes.Delete) {
+        let cellsBuffer = structuredClone(cells);
+
         if (cellsBuffer.has2Dv(cursorTilePosition)) {
             let tile = cellsBuffer.get2Dv(cursorTilePosition);
             let rootPosition = cursorTilePosition;
@@ -367,6 +371,8 @@ function canvasClick(event, _mode=mode) {
 
     /* :OR Data architecture and definitions */
     else if (_mode == Modes.Place) {
+        let cellsBuffer = structuredClone(cells);
+        
         const rootPoint = cursorTilePosition;
         let reserveCoords = [];
         for (let sx = 0; sx < sizeX; sx++) {
@@ -398,10 +404,10 @@ function canvasClick(event, _mode=mode) {
             }
         }
 
+        canvasPlaceSVG(trueID, cursorTilePositionAbsolute, rotation);
+
         // Flush buffer
         cells = cellsBuffer;
-
-        canvasPlaceSVG(trueID, cursorTilePositionAbsolute, rotation);
     }
     
     //console.log(cells);
@@ -429,8 +435,8 @@ function canvasPlaceSVG(trueID, absoluteRootPoint, rotation) {
     SVG.setAttribute("width",  `${sizeX*tileSize}px`);
     SVG.setAttribute("height", `${sizeY*tileSize}px`);
 
-    tile.style.left      = `${absoluteRootPoint.x * 64}px`;
-    tile.style.top       = `${absoluteRootPoint.y * 64}px`;
+    tile.style.left      = `${absoluteRootPoint.x * tileSize}px`;
+    tile.style.top       = `${absoluteRootPoint.y * tileSize}px`;
     tile.style.transform = `rotate(${rotation*90}deg)`;
 
     editorCanvasCellWrapper.appendChild(tile);

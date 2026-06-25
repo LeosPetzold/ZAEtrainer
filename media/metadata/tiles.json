@@ -6,7 +6,7 @@
             "size": [1,2],
             "connections": {
                 "0,0": [
-                    { "name": "1", "facing": "top" }
+                    { "name": "1", "facing": "top"    }
                 ],
                 "0,1": [
                     { "name": "2", "facing": "bottom" }
@@ -19,7 +19,7 @@
             "size": [1,2],
             "connections": {
                 "0,0": [
-                    { "name": "1", "facing": "top" }
+                    { "name": "1", "facing": "top"    }
                 ],
                 "0,1": [
                     { "name": "2", "facing": "bottom" }
@@ -31,7 +31,7 @@
             "size": [1,2],
             "connections": {
                 "0,0": [
-                    { "name": "+", "facing": "top" }
+                    { "name": "+", "facing": "top"    }
                 ],
                 "0,1": [
                     { "name": "-", "facing": "bottom" }
@@ -44,7 +44,7 @@
             "size": [1,2],
             "connections": {
                 "0,0": [
-                    { "name": "+", "facing": "top" }
+                    { "name": "+", "facing": "top"    }
                 ],
                 "0,1": [
                     { "name": "-", "facing": "bottom" }
@@ -86,7 +86,7 @@
             "size": [1,1],
             "connections": {
                 "0,0": [
-                    { "name": "1", "facing": "top" },
+                    { "name": "1", "facing": "top"    },
                     { "name": "2", "facing": "bottom" }
                 ]
             }
@@ -97,7 +97,7 @@
             "size": [1,1],
             "connections": {
                 "0,0": [
-                    { "name": "1", "facing": "top" },
+                    { "name": "1", "facing": "top"    },
                     { "name": "2", "facing": "bottom" }
                 ]
             }
@@ -107,7 +107,7 @@
             "size": [1,1],
             "connections": {
                 "0,0": [
-                    { "name": "+", "facing": "top" },
+                    { "name": "+", "facing": "top"    },
                     { "name": "-", "facing": "bottom" }
                 ]
             }
@@ -116,7 +116,7 @@
         "terminal-wire-H": {
             "connections": {
                 "0,0": [
-                    { "name": "Bottom", "facing": "bottom" }
+                    { "name": "CTb", "facing": "bottom" }
                 ]
             },
             "attributes": []
@@ -124,25 +124,25 @@
         "terminal-wire-I": {
             "connections": {
                 "0,0": [
-                    { "name": "Right",  "facing": "right"  },
-                    { "name": "Left",   "facing": "left"   }
+                    { "name": "CTr", "facing": "right"  },
+                    { "name": "CTl", "facing": "left"   }
                 ]
             }
         },
         "terminal-wire-L": {
             "connections": {
                 "0,0": [
-                    { "name": "Right", "facing": "right"   },
-                    { "name": "Bottom", "facing": "bottom" }
+                    { "name": "CTr", "facing": "right"  },
+                    { "name": "CTb", "facing": "bottom" }
                 ]
             }
         },
         "terminal-wire-T": {
             "connections": {
                 "0,0": [
-                    { "name": "Right",  "facing": "right"  },
-                    { "name": "Bottom", "facing": "bottom" },
-                    { "name": "Left",   "facing": "left"   }
+                    { "name": "CBr", "facing": "right"  },
+                    { "name": "CTb", "facing": "bottom" },
+                    { "name": "CTl", "facing": "left"   }
                 ]
             }
         },
@@ -150,25 +150,25 @@
         "wire-I": {
             "connections": {
                 "0,0": [
-                    { "name": "Right",  "facing": "right"  },
-                    { "name": "Left",   "facing": "left"   }
+                    { "name": "CWr", "facing": "right"  },
+                    { "name": "CWl", "facing": "left"   }
                 ]
             }
         },
         "wire-L": {
             "connections": {
                 "0,0": [
-                    { "name": "Right",  "facing": "right"  },
-                    { "name": "Bottom", "facing": "bottom" }
+                    { "name": "CWr", "facing": "right"  },
+                    { "name": "CWb", "facing": "bottom" }
                 ]
             }
         },
         "wire-T": {
             "connections": {
                 "0,0": [
-                    { "name": "Right",  "facing": "right"  },
-                    { "name": "Bottom", "facing": "bottom" },
-                    { "name": "Left",   "facing": "left"   }
+                    { "name": "CWr", "facing": "right"  },
+                    { "name": "CWb", "facing": "bottom" },
+                    { "name": "CWl", "facing": "left"   }
                 ]
             }
         }
