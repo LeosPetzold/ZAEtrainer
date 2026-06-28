@@ -26,10 +26,15 @@ const Sides = {
 };
 // Y values are swapped due to the nature of the web Cartesian system.
 const SideVectors = {
-    0: new Vector2(0, -1), // top
-    1: new Vector2(+1, 0), // right
-    2: new Vector2(0, +1), // bottom
-    3: new Vector2(-1, 0)  // left
+    0:        new Vector2(0, -1), // top
+    1:        new Vector2(+1, 0), // right
+    2:        new Vector2(0, +1), // bottom
+    3:        new Vector2(-1, 0), // left
+
+    "top":    new Vector2(0, -1), // 0
+    "right":  new Vector2(+1, 0), // 1
+    "bottom": new Vector2(0, +1), // 2
+    "left":   new Vector2(-1, 0)  // 3
 };
 
 /// ROTATION (Mathematical)
@@ -121,4 +126,15 @@ class Reserve {
         this.connections = connections;
         this.attributes  = attributes;
     }
+}
+
+
+/// OTHER
+// DJB2, simple quick hashing algorithm
+function djb2Hash(str) {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 33) ^ str.charCodeAt(i);
+  }
+  return hash >>> 0; // Zajistí nezáporné celé číslo
 }

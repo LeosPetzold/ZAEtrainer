@@ -96,7 +96,7 @@ function topologyAssemble(cells) {
             if (topocell.tile.attributes.includes("linker")) {
                 // We are currently living in a flawless world where every 'connections' array of a TopologyVertex
                 // contains EXACTLY 1 (one) CVector2 connection.
-                let pureNeighbors = new Map(); // < neighbor position >< neighbor connector key >
+                let pureNeighbors = new Map(); // < neighbor position >< [ neighbor, neighbor connector key ] >
                 let globalsetpoint = [];
 
                 function linkerRecursiveSearch(cell, coords) {
@@ -110,7 +110,7 @@ function topologyAssemble(cells) {
                         if (neighbor.tile.attributes.includes("linker")) {
                             linkerRecursiveSearch(neighbor, neighborPos);
                         } else {
-                            pureNeighbors.set(neighborPos, linkerConnectionNeighbor.cnamen);
+                            pureNeighbors.set(neighborPos, [ neighbor, linkerConnectionNeighbor.cnamen ]);
                             globalsetpoint.push(linkerConnectionNeighbor);
                         }
                     });
@@ -119,7 +119,8 @@ function topologyAssemble(cells) {
 
                 //console.log("GLOBAL SETPOINT IS --", globalsetpoint);
 
-                pureNeighbors.forEach((connectorKEY, position) => {
+                pureNeighbors.forEach(([ neighbor, connectorKEY ], position) => {
+
                     let setpoint = structuredClone(globalsetpoint);
                     setpoint.splice(setpoint.indexOf(new CVector2(
                         position.x, position.y, connectorKEY
@@ -128,6 +129,16 @@ function topologyAssemble(cells) {
 
                     var topoconnections = topology.get2Dv(position).connections.get(connectorKEY);
                     topoconnections = topoconnections.concat(setpoint); // ???
+
+                    // Diagnostics: Coloring
+                    if (false) {
+                        const hashnum  = djb2Hash(JSON.stringify(topoconnections));
+                        const colornum = hashnum & 0xFFFFFF; // Cut number to 24 bits (0xXXXXXX)
+                        // Convert to hex and fill empty spaces with zeroes
+                        const hex      = colornum.toString(16).padStart(6, '0').toUpperCase();
+                        
+                        console.log(`#${hex}`);
+                    }
                 });
             }
         });
