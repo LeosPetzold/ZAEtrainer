@@ -105,13 +105,17 @@ Map.prototype.consoleflush = function MoMconsoleFlush() {
 class Tile {
     ID;
     rotation;
+    family = null;
     reserves = [];
     connections;
     attributes = [];
 
-    constructor(ID, rotation, reserves, connections, attributes) {
+    familyIndex = null;
+
+    constructor(ID, rotation, family, reserves, connections, attributes) {
         this.ID          = ID;
         this.rotation    = rotation;
+        this.family      = family;
         this.reserves    = reserves;
         this.connections = connections;
         this.attributes  = attributes;

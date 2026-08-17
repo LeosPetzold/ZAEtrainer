@@ -303,6 +303,8 @@
     width: auto;
     height: auto;
 
+    line-height: 0;
+
     transform-origin: calc(var(--tile-size) / 2) calc(var(--tile-size) / 2);
 }
 
@@ -347,3 +349,18 @@
 
     color: var(--theme-color);
 }*/
+
+.editor-tile-namer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /*transform: translate(-50%, -50%);*/
+
+    box-sizing: border-box;
+
+    background-color: color-mix(in srgb, var(--background-color-subtle) 80%, transparent);
+    border: solid 1px var(--border-color);
+    border-radius: 6px;
+
+    padding: 0px 4px;
+}

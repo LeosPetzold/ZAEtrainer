@@ -41,6 +41,7 @@ let canvasSizeTiles = { x: 0, y: 0 };
 let ID = ""; // Internal non-varianting ID, do not set fallback ID
 let trueID = ID; // Actual ID, takes care of variant
 let rotation = 0; // 0, 1, 2, 3
+let family = null;
 let imageRotation = 0; // step=1, range +-360deg., that is mod 4
 let totalVariants = 1;
 let variant  = 0; // Code-wise zero-based, UI-wise one-based
@@ -278,8 +279,9 @@ function variate(concrete) {
     variant = mod((concrete), totalVariants);
     $("#editor-tiledetails-variantN")[0].innerText = variant + 1;
 
-    trueID = variants(ID)[variant];
+    trueID   = variants(ID)[variant];
     tiletrue = metadata.main[trueID] ?? metadata.aux[trueID];
+    family   = tiletrue.family ?? tilehead.family ?? null;
 
     const size = tiletrue.size ?? tilehead.size;
     sizeX = size[0];
@@ -335,6 +337,8 @@ async function variate2(steps) {
 }
 
 // Editor placing functionality
+let familiesRegistry = new Map();
+window.familiesRegistry = familiesRegistry;
 function canvasClick(event, _mode=mode) {
     /* Checks */
     if (!loaded) return;
@@ -342,13 +346,14 @@ function canvasClick(event, _mode=mode) {
 
     /* :OR Deletion */
     if (_mode == Modes.Delete) {
-        let cellsBuffer = structuredClone(cells);
+        let cellsBuffer = new cells.constructor(cells); 
 
         if (cellsBuffer.has2Dv(cursorTilePosition)) {
             let tile = cellsBuffer.get2Dv(cursorTilePosition);
             let rootPosition = cursorTilePosition;
 
-            if (tile instanceof Reserve) {
+            //if (tile instanceof Reserve) {
+            if (tile.pointer != null) {
                 rootPosition = tile.pointer; // BEFORE TILE ASSIGNMENT!
                 tile = cellsBuffer.get2Dv(tile.pointer);
             } // tile is now guaranteed to be the header tile
@@ -360,6 +365,23 @@ function canvasClick(event, _mode=mode) {
 
             SVGregister.get2Dv(rootPosition).remove();
 
+            if (tile.family != null) {
+                const familyArray = familiesRegistry.get(tile.family);
+
+                // Structural equality
+                const actualIndex = familyArray.findIndex(entry => {
+                    const originalTile = entry[0];
+                    return originalTile.familyIndex === tile.familyIndex;
+                });
+
+                if (actualIndex !== -1) { // Found
+                    familyArray.splice(actualIndex, 1);
+                } else console.error(`Tile {tile} not found in familyRegistry.`);
+
+                updateTileNamers();
+            }
+
+
             // Flush buffer
             cells = cellsBuffer;
         }
@@ -369,7 +391,7 @@ function canvasClick(event, _mode=mode) {
 
     /* :OR Data architecture and definitions */
     else if (_mode == Modes.Place) {
-        let cellsBuffer = structuredClone(cells);
+        let cellsBuffer = new cells.constructor(cells);
         
         const rootPoint = cursorTilePosition;
         let reserveCoords = [];
@@ -396,13 +418,23 @@ function canvasClick(event, _mode=mode) {
                 } else {
                     // Write Tile to rootPoint
                     // `connections` DOES incorporate cell rotation
-                    cellsBuffer.set2Dv(rootPoint, new Tile(trueID, rotation, reserveCoords,
+                    cellsBuffer.set2Dv(rootPoint, new Tile(trueID, rotation, family, reserveCoords,
                         connections, attributes)); //
                 }
             }
         }
 
-        canvasPlaceSVG(trueID, cursorTilePositionAbsolute, rotation);
+        // Register to family
+        const rootCellPointer = cellsBuffer.get2Dv(rootPoint);
+
+        var namer = canvasPlaceSVG(trueID, cursorTilePositionAbsolute, rotation, family, rootCellPointer);
+
+        if (family != null) {
+            if (familiesRegistry.has(family)) familiesRegistry.get(family).push([ rootCellPointer, namer ]);
+            else                              familiesRegistry.set(family,    [ [ rootCellPointer, namer ] ]);
+            
+            updateTileNamers();
+        }
 
         // Flush buffer
         cells = cellsBuffer;
@@ -411,7 +443,7 @@ function canvasClick(event, _mode=mode) {
     //console.log(cells);
 }
 const editorCanvasCellWrapper = $("#editor-canvas-cellsWrapper")[0]
-function canvasPlaceSVG(trueID, absoluteRootPoint, rotation) {
+function canvasPlaceSVG(trueID, absoluteRootPoint, rotation, family, rootCellPointer) {
     /* SVG placement */
     const tile = document.createElement("span");
 
@@ -441,6 +473,35 @@ function canvasPlaceSVG(trueID, absoluteRootPoint, rotation) {
 
     // Register the tile
     SVGregister.set2Dv(toRelativeTileCoordinates(absoluteRootPoint), tile);
+
+    // Tile namer
+    if (family != null) {
+        const namer = document.createElement("span");
+        
+        namer.classList.add("editor-tile-namer");
+        namer.value = rootCellPointer;
+        namer.style.transform = `translate(-50%, -50%) rotate(${-rotation*90}deg)`;
+        
+        tile.appendChild(namer);
+
+    // Return needed choses
+        return namer;
+    } else return null;
+}
+function updateTileNamers() {
+    familiesRegistry.forEach((familyGroup) => {
+        for (let i = 0; i < familyGroup.length; ++i) {
+            var entry = familyGroup[i];
+            
+            var tile  = entry[0];
+            var namer = entry[1];
+
+            tile.familyIndex = i;
+
+            const namerText = `${tile.family}_{${i}}`
+            namer.innerHTML = katex.renderToString(namerText, { throwOnError: false });
+        }
+    });
 }
 
 // class Tile & class Reserve can be found in the editor utilities script.

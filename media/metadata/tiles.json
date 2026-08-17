@@ -3,6 +3,7 @@
         "capacitor": {
             "display": "Kondenzátor",
             "variants": [ "capacitor", "capacitor-short" ],
+            "family": "C",
             "size": [1,2],
             "connections": {
                 "0,0": [
@@ -16,6 +17,7 @@
         "resistor-base": {
             "display": "Rezistor",
             "variants": [ "resistor-base", "resistor-arrow", "resistor-base-small" ],
+            "family": "R",
             "size": [1,2],
             "connections": {
                 "0,0": [
@@ -28,6 +30,7 @@
         },
         "source-current": {
             "display": "Proudový zdroj",
+            "family": "zI",
             "size": [1,2],
             "connections": {
                 "0,0": [
@@ -41,6 +44,7 @@
         "source-voltage": {
             "display": "Napěťový zdroj",
             "variants": [ "source-voltage", "source-voltage-short" ],
+            "family": "zU",
             "size": [1,2],
             "connections": {
                 "0,0": [
