@@ -23,7 +23,7 @@
     grid-auto-flow: row;
     gap: 5px;
 }
-#editor-selector-remove {
+#editor-selector-remove, #editor-selector-modify {
     box-sizing: border-box;
 
     width: auto;
@@ -50,7 +50,7 @@
 
     cursor: pointer;
 }
-#editor-selector-remove > svg {
+#editor-selector-remove > svg, #editor-selector-modify > svg {
     aspect-ratio: 1/1;
     height: 45px;
     transform: translateY(-2px);
@@ -363,4 +363,16 @@
     border-radius: 6px;
 
     padding: 0px 4px;
+}
+
+#editor-modify {
+    position: absolute;
+    top: unset;
+    bottom: unset;
+    left: unset;
+    right: unset;
+    
+    box-sizing: border-box;
+    background-color: var(--background-color);
+    border: double 1px var(--border-color);
 }

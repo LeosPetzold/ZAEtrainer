@@ -12,6 +12,9 @@
                 "0,1": [
                     { "name": "2", "facing": "bottom" }
                 ]
+            },
+            "ele": {
+                "capacity": { "display": "kapacita", "short": "C", "type": "number", "unit": "F", "default": 0.000000000001 }
             }
         },
         "resistor-base": {
@@ -26,6 +29,9 @@
                 "0,1": [
                     { "name": "2", "facing": "bottom" }
                 ]
+            },
+            "ele": {
+                "resistance": { "display": "odpor", "short": "R", "type": "number", "unit": "R", "default": 1 }
             }
         },
         "source-current": {
@@ -39,6 +45,9 @@
                 "0,1": [
                     { "name": "-", "facing": "bottom" }
                 ]
+            },
+            "ele": {
+                "current": { "display": "proud", "short": "I", "type": "number", "unit": "A", "default": 1 }
             }
         },
         "source-voltage": {
@@ -53,6 +62,9 @@
                 "0,1": [
                     { "name": "-", "facing": "bottom" }
                 ]
+            },
+            "ele": {
+                "voltage": { "display": "napětí", "short": "U", "type": "number", "unit": "V", "default": 1 }
             }
         },
         "terminal-wire-X": {

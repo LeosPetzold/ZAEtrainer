@@ -30,7 +30,7 @@ const cursorBorderWidth = 2; // One edge, in px
 const Modes = {
     "None": -1,
     "Place": 0,
-    "Select": 1,
+    "Modify": 1,
     "Delete": 2
 };
 /* Config END */
@@ -97,6 +97,10 @@ Promise.all(selection.map(item =>
 addEventListener("keypress", (event) => {
     if (loaded) {
         switch(event.key) {
+            case 'q':
+            case 'Q':
+                canvasClick(event, Modes.Modify);
+                break;
             case 'd':
             case 'D':
                 canvasClick(event, Modes.Delete);
@@ -173,6 +177,12 @@ async function updateEditorRemoveButton() {
     colorSVG(editorRemoveButton, "setstrokeH", "setfillH");
 }
 updateEditorRemoveButton();
+const editorModifyButton = $("#editor-selector-modify")[0];
+async function updateEditorModifyButton() {
+    editorModifyButton.innerHTML = await SVG("media/icons/MODIFY.svg");
+    colorSVG(editorModifyButton, "setstrokeH", "setfillH");
+}
+updateEditorModifyButton();
 /* Setup END */
 
 const variantMenu      = $("#editor-tileVariants")[0];
@@ -344,6 +354,9 @@ function canvasClick(event, _mode=mode) {
     if (!loaded) return;
     // Bounding checks done in the tile loop below.
 
+    // Modification: clean up existing menu
+    $("#editor-modify")[0].display = "none";
+
     /* :OR Deletion */
     if (_mode == Modes.Delete) {
         let cellsBuffer = new cells.constructor(cells); 
@@ -439,6 +452,19 @@ function canvasClick(event, _mode=mode) {
         // Flush buffer
         cells = cellsBuffer;
     }
+
+    /* :OR Modification */
+    else if (_mode == Modes.Modify) {
+        $("#editor-modify")[0].style.display = "unset";
+        const menuComputedStyle = getComputedStyle($("#editor-modify")[0]);
+        
+        const fitsWidth  = (menuComputedStyle.width  + cursorCanvasPosition.x) < canvasBox.width  ;
+        const fitsHeight = (menuComputedStyle.height + cursorCanvasPosition.y) < canvasBox.height ;
+        $("#editor-modify")[0].style.right  = fitsWidth  ? `${cursorCanvasPosition.x}px` : "unset";
+        $("#editor-modify")[0].style.bottom = fitsHeight ? `${cursorCanvasPosition.y}px` : "unset";
+        $("#editor-modify")[0].style.left   = fitsWidth  ? "unset" : `${cursorCanvasPosition.x}px`;
+        $("#editor-modify")[0].style.top    = fitsHeight ? "unset" : `${cursorCanvasPosition.y}px`;
+    }
     
     //console.log(cells);
 }
@@ -508,11 +534,12 @@ function updateTileNamers() {
 
 function modeSelect(_mode) {
     mode = _mode;
-    //                                        None           Place          Select         Delete         Processing
-    const tiledetailsDisplay              = [ "inline-flex", "inline-flex", "inline-flex", "none",        "none"  ];
-    const tiledetailsOpacity              = [ 0.5,           "unset",       "unset",       "unset",       "unset" ];
+    //                                        None           Place          Modify         Delete         Processing
+    const tiledetailsDisplay              = [ "inline-flex", "inline-flex", "inline-flex", "inline-flex", "none"  ];
+    const tiledetailsOpacity              = [ 0.5,           "unset",       0.5,           0.5,          "unset" ];
     const tiledetailsTextinfoDisplay      = [ "unset",       "unset",       "unset",       "unset",       "unset" ];
-    const tilevardetWrapperDisplay        = [ "inline-flex", "inline-flex", "none",        "none",        "none"  ];
+    const tilevariantsDisplay             = [ "unset",       "unset",       "none",        "none",        "none"  ];
+    const tilevardetWrapperDisplay        = [ "inline-flex", "inline-flex", "inline-flex", "inline-flex", "none"  ];
     const tiledetailsButtonsPointerEvents = [ "none",        "all",         "none",        "none",        "unset" ];
     const tiledetailsCursorDisplay        = [ "none",        "unset",       "none",        "none",        "none"  ];
     const tiledetailsSelectorDisplay      = [ "unset",       "unset",       "unset",       "unset",       "none"  ];
@@ -522,6 +549,7 @@ function modeSelect(_mode) {
     $("#editor-tiledetails"          )[0].style.display        = tiledetailsDisplay[n];
     $("#editor-tiledetails"          )[0].style.opacity        = tiledetailsOpacity[n];
     $("#editor-tiledetails-textinfo" )[0].style.display        = tiledetailsTextinfoDisplay[n];
+    $("#editor-tileVariants"         )[0].style.display        = tilevariantsDisplay[n];
     $("#editor-tilevardetWrapper"    )[0].style.display        = tilevardetWrapperDisplay[n];
     $("#editor-tiledetails-buttons"  )[0].style.pointerEvents  = tiledetailsButtonsPointerEvents[n];
     $("#editor-tiledetails-cursor"   )[0].style.display        = tiledetailsCursorDisplay[n];
@@ -537,6 +565,11 @@ function appendError(coordsX, coordsY) {
     element.style.left = `${coordsX}px`;
     element.style.top  = `${coordsY}px`;
     errorSVGs.appendChild(element);
+}
+
+// Electrical attributes
+function modifyMenu() {
+    console.log("Menu!");
 }
 
 /* Function+ globalization */
